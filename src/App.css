@@ -1,0 +1,653 @@
+/* ============================================================
+   Component classes. Tokens live in index.css (:root).
+   Dynamic styles (dnd transforms, bracket slot heights) stay
+   inline in the components; everything visual lives here.
+   ============================================================ */
+
+/* ---------- App shell & header ---------- */
+.app-shell {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+.app-header {
+  margin-bottom: 24px;
+}
+
+.app-title {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.05;
+  background: linear-gradient(120deg, var(--blue), var(--green));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.app-subtitle {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.live-status {
+  margin-top: 4px;
+  font-size: 12px;
+}
+.live-status--loading { color: var(--muted); }
+.live-status--live    { color: var(--green); }
+.live-status--offline { color: var(--muted); }
+
+.screen-intro {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 20px;
+  max-width: 60ch;
+}
+
+/* ---------- Stage navigation (segmented control) ---------- */
+.stage-nav {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 28px;
+  background: var(--surface);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
+}
+
+.stage-tab {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 999px;
+  transition: background 0.18s var(--ease), color 0.18s var(--ease),
+    box-shadow 0.18s var(--ease);
+}
+
+.stage-tab:hover {
+  color: var(--text);
+  background: var(--blue-tint);
+}
+
+.stage-tab[aria-current='true'] {
+  color: #fff;
+  background: linear-gradient(120deg, var(--blue), var(--blue-soft));
+  box-shadow: 0 4px 14px var(--blue-glow);
+}
+
+/* ---------- Generic glass card ---------- */
+.card {
+  background: var(--surface);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: box-shadow 0.2s var(--ease), transform 0.2s var(--ease),
+    border-color 0.2s var(--ease);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-strong);
+}
+
+/* ---------- Group cards ---------- */
+.group-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(120deg, var(--blue-tint), transparent);
+}
+
+.card-head__title {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-head__title::before {
+  content: '';
+  width: 4px;
+  height: 16px;
+  border-radius: 2px;
+  background: linear-gradient(var(--blue), var(--green));
+}
+
+.badge-final {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--blue);
+  background: var(--blue-tint);
+  border: 1px solid var(--border);
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.col-labels {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 6px 36px;
+  border-bottom: 1px solid var(--border);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--faint);
+  font-weight: 600;
+}
+
+.col-labels__stats {
+  display: flex;
+  gap: 8px;
+}
+
+.col-labels__stats span {
+  text-align: right;
+}
+
+/* ---------- Team rows (group stage) ---------- */
+.team-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: transparent;
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+  cursor: grab;
+  /* Opt out of native touch-scroll so dnd-kit's pointer sensor can drive the
+     drag on touchscreens; re-enabled below for non-draggable rows. */
+  touch-action: none;
+  /* NB: do not transition `transform` — dnd-kit owns it. */
+  transition: background 0.15s var(--ease);
+}
+
+/* Locked/static rows aren't draggable — let a finger scroll the page on them. */
+.team-row.is-locked,
+.team-row.is-static {
+  touch-action: auto;
+}
+
+.team-row:last-child {
+  border-bottom: 0;
+}
+
+.team-row:hover:not(.is-locked) {
+  background: var(--blue-tint);
+}
+
+.team-row.is-locked {
+  cursor: default;
+}
+
+.team-row.is-static {
+  cursor: not-allowed;
+}
+
+.team-row.is-dragging {
+  background: var(--surface-solid);
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-xs);
+}
+
+.row-pos {
+  width: 18px;
+  text-align: center;
+  color: var(--faint);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.row-flag {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.row-name {
+  flex: 1;
+  font-weight: 500;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row-stats {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.row-stats .pts {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.row-stats__empty {
+  font-size: 12px;
+  color: var(--faint);
+}
+
+/* ---------- Error / illegal-move note ---------- */
+.note-error {
+  padding: 8px 12px;
+  background: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+  font-size: 12px;
+  border-top: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* ---------- Third-place ranking ---------- */
+.tp-list {
+  max-width: 560px;
+}
+
+.tp-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px 6px 34px;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--faint);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+
+.tp-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  border-left: 4px solid transparent;
+  user-select: none;
+  cursor: grab;
+  /* See .team-row: opt out of native touch-scroll for the drag sensor. */
+  touch-action: none;
+  transition: background 0.15s var(--ease);
+}
+
+/* When the ranking is locked the rows aren't draggable — allow scrolling. */
+.tp-row.is-locked {
+  touch-action: auto;
+  cursor: default;
+}
+
+.tp-row:hover {
+  background: var(--blue-tint);
+}
+
+.tp-row.is-advancing {
+  border-left-color: var(--green);
+}
+
+.tp-row.is-out {
+  border-left-color: var(--border-strong);
+  opacity: 0.62;
+}
+
+.tp-row.is-dragging {
+  background: var(--surface-solid);
+  box-shadow: var(--shadow-md);
+}
+
+.tp-rank {
+  width: 20px;
+  text-align: center;
+  color: var(--faint);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.group-badge {
+  font-family: var(--font-head);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  background: var(--blue-tint);
+  color: var(--blue);
+  border-radius: 6px;
+  padding: 2px 6px;
+  min-width: 22px;
+  text-align: center;
+}
+
+.tp-name {
+  flex: 1;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.tp-stats {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.tp-stats .pts {
+  font-weight: 700;
+  color: var(--text);
+  min-width: 20px;
+  text-align: right;
+}
+
+.badge-advance {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--green);
+  background: var(--green-tint);
+  padding: 3px 8px;
+  border-radius: 999px;
+  min-width: 56px;
+  text-align: center;
+}
+
+.cut-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 7px 12px;
+  margin: 2px 0;
+  background: var(--gold-tint);
+  border-top: 1.5px dashed var(--gold);
+  border-bottom: 1.5px dashed var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #92710a;
+  border-radius: var(--radius-xs);
+}
+
+.legend {
+  display: flex;
+  gap: 18px;
+  padding: 12px 4px 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+/* ---------- Bracket ---------- */
+.bracket-scroll {
+  overflow: auto;
+  max-height: 82vh;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bracket-grid {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  min-width: max-content;
+}
+
+.round-col {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.round-head {
+  width: 216px;
+  padding: 8px 0;
+  margin-bottom: 2px;
+  text-align: center;
+  font-family: var(--font-head);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  background: linear-gradient(120deg, var(--blue), var(--blue-soft));
+  border-radius: 10px;
+  box-shadow: 0 4px 14px var(--blue-glow);
+}
+
+.round-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.match-card {
+  width: 216px;
+  background: var(--surface);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: box-shadow 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.match-card:hover {
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-2px);
+}
+
+.match-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 10px;
+  background: linear-gradient(120deg, var(--blue-tint), transparent);
+  border-bottom: 1px solid var(--border);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.match-head__stage {
+  color: var(--blue);
+  font-family: var(--font-head);
+}
+
+.match-head__id {
+  color: var(--faint);
+}
+
+.match-team {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 9px;
+  min-height: 34px;
+  font-size: 12px;
+  border-left: 3px solid transparent;
+  user-select: none;
+  cursor: pointer;
+  transition: background 0.14s var(--ease), border-color 0.14s var(--ease);
+}
+
+.match-team + .match-team {
+  border-top: 1px solid var(--border);
+}
+
+.match-team:hover:not(.is-tbd):not(.is-locked) {
+  background: var(--blue-tint);
+}
+
+.match-team.is-winner {
+  background: var(--green-tint);
+  border-left-color: var(--green);
+  font-weight: 600;
+}
+
+.match-team.is-loser {
+  opacity: 0.4;
+}
+
+.match-team.is-tbd {
+  color: var(--faint);
+  cursor: default;
+}
+
+.match-team.is-locked {
+  cursor: default;
+}
+
+.match-team__flag {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.match-team__name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.match-team__check {
+  flex-shrink: 0;
+  color: var(--green);
+  font-weight: 700;
+  font-size: 11px;
+  animation: pop 0.28s var(--ease);
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ---------- Champion banner ---------- */
+.champion-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  margin-bottom: 20px;
+  background: linear-gradient(120deg, var(--gold-tint), rgba(245, 179, 1, 0.28));
+  border: 1.5px solid var(--gold);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(245, 179, 1, 0.25);
+  animation: pop 0.4s var(--ease);
+}
+
+.champion-banner__trophy {
+  font-size: 22px;
+}
+
+.champion-banner__flag {
+  font-size: 20px;
+}
+
+.champion-banner__name {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.champion-banner__label {
+  font-size: 12px;
+  color: #92710a;
+  font-weight: 600;
+}
+
+.champion-banner--silver {
+  background: linear-gradient(120deg, rgba(160, 168, 178, 0.18), rgba(160, 168, 178, 0.32));
+  border-color: #a7b0bb;
+  box-shadow: 0 8px 24px rgba(160, 168, 178, 0.22);
+  margin-left: 12px;
+}
+
+.champion-banner--silver .champion-banner__label {
+  color: #545b66;
+}
+
+.champion-banner--bronze {
+  background: linear-gradient(120deg, rgba(176, 141, 87, 0.18), rgba(176, 141, 87, 0.3));
+  border-color: #b08d57;
+  box-shadow: 0 8px 24px rgba(176, 141, 87, 0.22);
+  margin-left: 12px;
+}
+
+.champion-banner--bronze .champion-banner__label {
+  color: #6b5326;
+}
+
+/* ---------- Third-place playoff ---------- */
+.third-place-playoff {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.third-place-playoff .round-head {
+  background: linear-gradient(120deg, #b08d57, #c8a877);
+  box-shadow: 0 4px 14px rgba(176, 141, 87, 0.3);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 640px) {
+  .app-shell {
+    padding: 20px 14px 48px;
+  }
+  .app-title {
+    font-size: 30px;
+  }
+  .group-grid {
+    grid-template-columns: 1fr;
+  }
+  .stage-nav {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+  }
+}
