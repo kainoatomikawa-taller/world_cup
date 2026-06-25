@@ -17,7 +17,7 @@ import {
   restrictToParentElement,
 } from '@dnd-kit/modifiers';
 import { TeamRow } from './TeamRow';
-import { firstIllegalPlacement } from '../../domain/groupOrder';
+import { firstJointlyIllegalGroupPlacement } from '../../domain/elimination';
 import type { GroupData } from './useGroupData';
 import type { GroupId, Team } from '../../domain/types';
 import { useTournamentStore } from '../../store/tournamentStore';
@@ -31,6 +31,7 @@ interface Props {
 export function GroupCard({ groupId, teams, groupData }: Props) {
   const groupOrder = useTournamentStore((s) => s.groupOrder[groupId]);
   const setGroupOrder = useTournamentStore((s) => s.setGroupOrder);
+  const matches = useTournamentStore((s) => s.matches);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const { standings, possibilities, complete } = groupData;
@@ -57,10 +58,11 @@ export function GroupCard({ groupId, teams, groupData }: Props) {
     const newIndex = groupOrder.indexOf(over.id as string);
     const newOrder = arrayMove(groupOrder, oldIndex, newIndex);
 
-    const illegal = firstIllegalPlacement(newOrder, possibilities);
+    const illegal = firstJointlyIllegalGroupPlacement(newOrder, groupId, teams, matches, standings);
     if (illegal) {
-      const teamName = teams.find((t) => t.id === illegal.teamId)?.name ?? illegal.teamId;
-      setErrorMsg(`${teamName} cannot finish ${ordinal(illegal.attemptedPosition)}.`);
+      const higherName = teams.find((t) => t.id === illegal.teamId)?.name ?? illegal.teamId;
+      const lowerName = teams.find((t) => t.id === illegal.blockedById)?.name ?? illegal.blockedById;
+      setErrorMsg(`${higherName} cannot finish above ${lowerName} — no remaining result produces this order.`);
       return;
     }
 
@@ -124,8 +126,3 @@ export function GroupCard({ groupId, teams, groupData }: Props) {
   );
 }
 
-function ordinal(n: number): string {
-  const suffixes = ['th', 'st', 'nd', 'rd'];
-  const v = n % 100;
-  return n + (suffixes[(v - 20) % 10] ?? suffixes[v] ?? suffixes[0]);
-}

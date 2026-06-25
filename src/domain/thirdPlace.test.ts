@@ -346,7 +346,7 @@ describe('isLegalThirdPlaceRanking — 8-of-12 cutoff', () => {
 
   it('accepts ranking where position 8 equals position 9 in all stats', () => {
     // Points equal; GF tiebreak: rank 7 teamId 'h-team' < rank 8 'i-team' alphabetically → rank 7 higher
-    const ranked: ThirdPlaceEntry[] = GROUP_IDS.map((g, i) => {
+    const ranked: ThirdPlaceEntry[] = GROUP_IDS.map((g) => {
       // All same stats; rely on alphabetical teamId tiebreak
       return makeEntry(`${g.toLowerCase()}-team`, g, 4, 1, 3);
     });

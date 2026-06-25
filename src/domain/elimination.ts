@@ -108,3 +108,117 @@ export function isGroupComplete(groupId: GroupId, matches: Match[]): boolean {
   const groupMatches = matches.filter((m) => m.groupId === groupId);
   return groupMatches.length > 0 && groupMatches.every((m) => m.played);
 }
+
+// ---------------------------------------------------------------------------
+// Joint-ordering feasibility
+// ---------------------------------------------------------------------------
+//
+// The per-team canFinish* flags in PlacementPossibility are computed from the
+// union of all scenarios and therefore checked independently. Two teams could
+// each individually reach a position yet have those positions be mutually
+// exclusive in every single scenario.
+//
+// firstJointlyIllegalGroupPlacement does the stronger check: it asks whether
+// any one scenario produces a points ordering consistent with the full proposed
+// standing (non-increasing from rank 1 to rank 4, with equal-points ties
+// resolvable by freely-chosen GD/GF scorelines). It returns the first adjacent
+// pair that blocks the ordering, enabling an informative error message.
+
+export interface JointIllegalGroupPlacement {
+  /** Index in orderedIds of the team that cannot sit above its neighbour. */
+  index: number;
+  /** Team id at `index` — the one ranked too high. */
+  teamId: string;
+  /** Team id at `index + 1` — the one that cannot be ranked below. */
+  blockedById: string;
+}
+
+/**
+ * Check whether the proposed group ordering is jointly achievable — i.e. there
+ * exists at least one combination of remaining match outcomes that produces a
+ * points ranking consistent with `orderedIds` (with ties broken freely by GD).
+ *
+ * Returns the first pair whose ordering is impossible, or null if the full
+ * ordering is feasible.
+ */
+export function firstJointlyIllegalGroupPlacement(
+  orderedIds: string[],
+  groupId: GroupId,
+  teams: Team[],
+  matches: Match[],
+  standings: Standing[],
+): JointIllegalGroupPlacement | null {
+  if (orderedIds.length < 2) return null;
+
+  const groupTeamIds = teams
+    .filter((t) => t.groupId === groupId)
+    .map((t) => t.id);
+  const inGroup = new Set(groupTeamIds);
+
+  const basePoints: Record<string, number> = {};
+  for (const id of groupTeamIds) basePoints[id] = 0;
+  for (const s of standings) {
+    if (s.teamId in basePoints) basePoints[s.teamId] = s.points;
+  }
+
+  const groupMatches = matches.filter(
+    (m) => m.groupId === groupId && inGroup.has(m.homeId) && inGroup.has(m.awayId),
+  );
+  const remaining = groupMatches.filter((m) => !m.played);
+  const complete = groupMatches.length > 0 && remaining.length === 0;
+
+  // For a completed group the standings positions are fully determined.
+  if (complete) {
+    const posById = Object.fromEntries(standings.map((s) => [s.teamId, s.position]));
+    for (let i = 0; i < orderedIds.length - 1; i++) {
+      const hi = posById[orderedIds[i]];
+      const lo = posById[orderedIds[i + 1]];
+      if (hi !== undefined && lo !== undefined && hi > lo) {
+        return { index: i, teamId: orderedIds[i], blockedById: orderedIds[i + 1] };
+      }
+    }
+    return null;
+  }
+
+  // Helper: apply one scenario code to basePoints and return a fresh points map.
+  function applyScenario(code: number): Record<string, number> {
+    const pts = { ...basePoints };
+    let c = code;
+    for (let k = 0; k < remaining.length; k++) {
+      const outcome = c % 3;
+      c = Math.floor(c / 3);
+      const m = remaining[k];
+      if (outcome === 0) pts[m.homeId] += 3;
+      else if (outcome === 1) { pts[m.homeId] += 1; pts[m.awayId] += 1; }
+      else pts[m.awayId] += 3;
+    }
+    return pts;
+  }
+
+  const combos = 3 ** remaining.length;
+
+  // Fast path: find any scenario that is consistent with the full ordering.
+  for (let s = 0; s < combos; s++) {
+    const pts = applyScenario(s);
+    let ok = true;
+    for (let i = 0; i < orderedIds.length - 1; i++) {
+      if ((pts[orderedIds[i]] ?? 0) < (pts[orderedIds[i + 1]] ?? 0)) { ok = false; break; }
+    }
+    if (ok) return null;
+  }
+
+  // No scenario works. Find the first adjacent pair that is individually
+  // infeasible (no scenario exists where orderedIds[i] points ≥ orderedIds[i+1]).
+  for (let i = 0; i < orderedIds.length - 1; i++) {
+    let pairOk = false;
+    for (let s = 0; s < combos; s++) {
+      const pts = applyScenario(s);
+      if ((pts[orderedIds[i]] ?? 0) >= (pts[orderedIds[i + 1]] ?? 0)) { pairOk = true; break; }
+    }
+    if (!pairOk) return { index: i, teamId: orderedIds[i], blockedById: orderedIds[i + 1] };
+  }
+
+  // Every adjacent pair is individually achievable but the joint combination is
+  // not (correlated across matches). Report the first pair as a best-effort hint.
+  return { index: 0, teamId: orderedIds[0], blockedById: orderedIds[1] };
+}
