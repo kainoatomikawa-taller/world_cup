@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -15,14 +16,18 @@ import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useThirdPlaceData } from './useThirdPlaceData';
 import { ThirdPlaceRow } from './ThirdPlaceRow';
 import { useTournamentStore } from '../../store/tournamentStore';
+import { firstIllegalThirdPlaceRank } from '../../domain/thirdPlace';
+import type { ThirdPlaceEntry } from '../../domain/thirdPlace';
 
 const QUALIFYING_COUNT = 8;
 
 export function ThirdPlace() {
   const teams = useTournamentStore((s) => s.teams);
+  const matches = useTournamentStore((s) => s.matches);
   const rankThirdPlace = useTournamentStore((s) => s.rankThirdPlace);
   const thirdPlaceRanking = useTournamentStore((s) => s.thirdPlaceRanking);
-  const { rankedEntries, allGroupsComplete } = useThirdPlaceData();
+  const { rankedEntries, allGroupsComplete, entryById } = useThirdPlaceData();
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // See GroupCard: press-and-hold so a quick swipe scrolls instead of dragging.
   const sensors = useSensors(
@@ -34,10 +39,34 @@ export function ThirdPlace() {
   function onDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
+
     const oldIndex = thirdPlaceRanking.indexOf(active.id as string);
     const newIndex = thirdPlaceRanking.indexOf(over.id as string);
-    rankThirdPlace(arrayMove(thirdPlaceRanking, oldIndex, newIndex));
+    const newOrder = arrayMove(thirdPlaceRanking, oldIndex, newIndex);
+
+    const newRankedEntries = newOrder
+      .map((id) => entryById[id])
+      .filter(Boolean) as ThirdPlaceEntry[];
+
+    const illegalIdx = firstIllegalThirdPlaceRank(newRankedEntries, matches);
+    if (illegalIdx !== null) {
+      const higherEntry = newRankedEntries[illegalIdx];
+      const lowerEntry = newRankedEntries[illegalIdx + 1];
+      const higherName = teams[higherEntry.teamId]?.name ?? higherEntry.teamId;
+      const lowerName = teams[lowerEntry.teamId]?.name ?? lowerEntry.teamId;
+      setErrorMsg(
+        `${higherName} cannot finish above ${lowerName} — no remaining result produces this order.`,
+      );
+      return;
+    }
+
+    setErrorMsg(null);
+    rankThirdPlace(newOrder);
   }
+
+  // Track which row is currently at an infeasible position so it can be
+  // highlighted even before the user attempts a drag.
+  const currentIllegalIndex = firstIllegalThirdPlaceRank(rankedEntries, matches);
 
   if (rankedEntries.length === 0) {
     return (
@@ -94,11 +123,15 @@ export function ThirdPlace() {
                   team={teams[entry.teamId]}
                   advancing={i < QUALIFYING_COUNT}
                   locked={allGroupsComplete}
+                  infeasible={currentIllegalIndex !== null && i === currentIllegalIndex}
                 />
               </div>
             ))}
           </SortableContext>
         </DndContext>
+
+        {/* Error message shown when a drag is rejected */}
+        {errorMsg && <div className="note-error">{errorMsg}</div>}
 
         {/* Legend */}
         <div className="legend">

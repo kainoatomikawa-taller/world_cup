@@ -314,6 +314,11 @@
   opacity: 0.62;
 }
 
+.tp-row.is-infeasible {
+  border-left-color: #dc2626;
+  background: rgba(239, 68, 68, 0.06);
+}
+
 .tp-row.is-dragging {
   background: var(--surface-solid);
   box-shadow: var(--shadow-md);

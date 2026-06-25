@@ -429,3 +429,131 @@ describe('isLegalThirdPlaceRanking — full 12-team mixed scenario', () => {
     expect(isLegalThirdPlaceRanking(entries, [])).toBe(true);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Interaction scenarios — simulating the drag-and-drop constraint enforcement
+// These mirror the logic in ThirdPlace.tsx's onDragEnd handler.
+// ---------------------------------------------------------------------------
+
+/**
+ * Simulates the drag handler: applies arrayMove to an id list, maps to entries,
+ * and returns the first-illegal index (null = valid reorder).
+ */
+function simulateDrag(
+  idOrder: string[],
+  entryById: Record<string, ThirdPlaceEntry>,
+  from: number,
+  to: number,
+  matches: Match[],
+): number | null {
+  const next = [...idOrder];
+  const [item] = next.splice(from, 1);
+  next.splice(to, 0, item);
+  const entries = next.map((id) => entryById[id]).filter(Boolean) as ThirdPlaceEntry[];
+  return firstIllegalThirdPlaceRank(entries, matches);
+}
+
+describe('UI interaction — drag constraint enforcement', () => {
+  // 12 teams, all complete (3 games played), points strictly decreasing.
+  const staticEntries: ThirdPlaceEntry[] = GROUP_IDS.map((g, i) =>
+    makeEntry(`team-${g}`, g, 12 - i),
+  );
+  const staticById = Object.fromEntries(staticEntries.map((e) => [e.teamId, e]));
+  const staticIds = staticEntries.map((e) => e.teamId);
+  const noMatches: Match[] = [];
+
+  it('accepts a valid reorder when remaining matches make either ordering achievable', () => {
+    // Both teams have 1 remaining match (GD/GF tunable) so either can rank above the other.
+    const entries: ThirdPlaceEntry[] = GROUP_IDS.map((g, i) =>
+      makeEntry(`team-${g}`, g, 5),
+    );
+    const byId = Object.fromEntries(entries.map((e) => [e.teamId, e]));
+    const ids = entries.map((e) => e.teamId);
+    // Each group has 1 remaining match for its third-place team.
+    const matches: Match[] = GROUP_IDS.map((g) =>
+      makeMatch(`m${g}`, g, `team-${g}`, `opp-${g}`, false),
+    );
+    // All teams at 5 pts with remaining matches → any adjacent swap is valid.
+    expect(simulateDrag(ids, byId, 0, 5, matches)).toBeNull();
+    expect(simulateDrag(ids, byId, 11, 0, matches)).toBeNull();
+  });
+
+  it('rejects moving a low-pts team above a high-pts team', () => {
+    // Drag last team (0 pts) to rank-0 position
+    const result = simulateDrag(staticIds, staticById, 11, 0, noMatches);
+    expect(result).not.toBeNull();
+    // rank-0 after drag is team-L (0 pts), rank-1 is team-A (12 pts) → illegal at index 0
+    expect(result).toBe(0);
+  });
+
+  it('rejects moving rank-1 team to rank-3 when that creates an impossible pair', () => {
+    // Moving team-A (12 pts) from index 0 to index 2 produces [B(11),C(10),A(12),D(8)…]
+    // Pair (C=10, A=12): 10 < 12 → illegal at index 1
+    const result = simulateDrag(staticIds, staticById, 0, 2, noMatches);
+    expect(result).toBe(1);
+  });
+
+  it('accepts a reorder when remaining matches allow it', () => {
+    // Both a and b have 4 pts with 1 remaining match each — GD/GF freely tunable,
+    // so either can rank above the other.
+    const a = makeEntry('team-a', 'A', 4);
+    const b = makeEntry('team-b', 'B', 4);
+    const rest: ThirdPlaceEntry[] = ['C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'].map(
+      (g, i) => makeEntry(`team-${g}`, g as GroupId, 3 - i),
+    );
+    const all = [a, b, ...rest];
+    const byId = Object.fromEntries(all.map((e) => [e.teamId, e]));
+    const ids = all.map((e) => e.teamId);
+    const matchesAB: Match[] = [
+      makeMatch('mA', 'A', 'team-a', 'opp-a', false),
+      makeMatch('mB', 'B', 'team-b', 'opp-b', false),
+    ];
+    // With remaining matches, hi.max > lo.min → canRankAbove is true in both directions.
+    expect(simulateDrag(ids, byId, 0, 1, matchesAB)).toBeNull();
+    expect(simulateDrag(ids, byId, 1, 0, matchesAB)).toBeNull();
+  });
+
+  it('enforces the 8-of-12 qualification cut-line', () => {
+    // Drag the rank-8 (9th in 0-based: 4 pts) to rank-7 (5 pts) and verify it's rejected.
+    // In staticEntries: index 7 = team-H (5 pts), index 8 = team-I (4 pts)
+    const result = simulateDrag(staticIds, staticById, 8, 7, noMatches);
+    // After move: [..., team-I(4pts), team-H(5pts), ...]
+    // Pair at index 7: team-I(4) < team-H(5) → illegal at 7
+    expect(result).toBe(7);
+  });
+
+  it('allows a 2-game team to move up when it can reach the required points', () => {
+    // team-b: 3 pts, 1 remaining match → can reach 6 pts
+    // team-a: 4 pts fixed
+    // Ranking [b, a, …]: b max (6) > a min (4) → feasible
+    const a = makeEntry('team-a', 'A', 4);
+    const b = makeEntry('team-b', 'B', 3);
+    const rest: ThirdPlaceEntry[] = ['C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'].map(
+      (g, i) => makeEntry(`team-${g}`, g as GroupId, 2 - Math.floor(i / 2)),
+    );
+    const all = [a, b, ...rest];
+    const byId = Object.fromEntries(all.map((e) => [e.teamId, e]));
+    const ids = all.map((e) => e.teamId);
+    const matches: Match[] = [makeMatch('m1', 'B', 'team-b', 'b-opp', false)];
+    // b is at index 1, a at index 0. Drag b (index 1) to index 0 (above a):
+    expect(simulateDrag(ids, byId, 1, 0, matches)).toBeNull();
+  });
+
+  it('blocks a 2-game team from moving above a position it cannot reach', () => {
+    // team-b: 1 pt, 1 remaining → max 4 pts
+    // team-a: 5 pts fixed
+    // Ranking [b, a, …]: b max (4) < a min (5) → infeasible at index 0
+    const a = makeEntry('team-a', 'A', 5);
+    const b = makeEntry('team-b', 'B', 1);
+    const rest: ThirdPlaceEntry[] = ['C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'].map(
+      (g, i) => makeEntry(`team-${g}`, g as GroupId, 0),
+    );
+    const all = [a, b, ...rest];
+    const byId = Object.fromEntries(all.map((e) => [e.teamId, e]));
+    const ids = all.map((e) => e.teamId);
+    const matches: Match[] = [makeMatch('m1', 'B', 'team-b', 'b-opp', false)];
+    // b at index 1, a at index 0. Drag b to index 0:
+    const result = simulateDrag(ids, byId, 1, 0, matches);
+    expect(result).toBe(0);
+  });
+});

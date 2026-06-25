@@ -1,13 +1,15 @@
 // FIFA group-stage tiebreaker ordering.
 //
 // Official order (2026):
-//   1) points, 2) goal difference, 3) goals scored  — all overall.
-// If teams are still equal, the same three criteria are applied to the matches
-// played BETWEEN the tied teams (head-to-head):
-//   4) head-to-head points, 5) head-to-head GD, 6) head-to-head goals scored.
+//   1) points
+//   2) head-to-head points (among the tied teams)
+//   3) head-to-head goal difference
+//   4) head-to-head goals scored
+//   5) goal difference in all group matches
+//   6) goals scored in all group matches
 // Then fair-play points, then drawing of lots.
 //
-// Fair-play points are not modeled (we have no card data), so after head-to-head
+// Fair-play points are not modeled (we have no card data), so after step 6
 // we fall back to a deterministic order by team id, standing in for the draw of
 // lots so results are stable.
 import type { Match, Standing } from './types';
@@ -47,16 +49,10 @@ function headToHeadStats(
   return stats;
 }
 
-/** Compare two rows on overall points → GD → goals (returns <0 if a ranks higher). */
-function compareOverall(a: Standing, b: Standing): number {
-  if (b.points !== a.points) return b.points - a.points;
-  if (b.goalDifference !== a.goalDifference) {
-    return b.goalDifference - a.goalDifference;
-  }
-  return b.goalsFor - a.goalsFor;
-}
-
-/** Resolve a set of teams that are equal on overall criteria via head-to-head. */
+/**
+ * Resolve a set of teams equal on points.
+ * H2H criteria (pts → GD → GF) come first; overall GD/GF are the fallback.
+ */
 function breakTie(tied: Standing[], matches: Match[]): Standing[] {
   const h2h = headToHeadStats(
     tied.map((t) => t.teamId),
@@ -65,11 +61,13 @@ function breakTie(tied: Standing[], matches: Match[]): Standing[] {
   return [...tied].sort((a, b) => {
     const sa = h2h[a.teamId];
     const sb = h2h[b.teamId];
+    // H2H criteria first (2026 rule change)
     if (sb.points !== sa.points) return sb.points - sa.points;
-    if (sb.goalDifference !== sa.goalDifference) {
-      return sb.goalDifference - sa.goalDifference;
-    }
+    if (sb.goalDifference !== sa.goalDifference) return sb.goalDifference - sa.goalDifference;
     if (sb.goalsFor !== sa.goalsFor) return sb.goalsFor - sa.goalsFor;
+    // Then overall GD / GF
+    if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
+    if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
     // Fair play not modeled; deterministic stand-in for drawing of lots.
     return a.teamId < b.teamId ? -1 : a.teamId > b.teamId ? 1 : 0;
   });
@@ -83,16 +81,14 @@ export function sortByTiebreakers(
   rows: Standing[],
   matches: Match[],
 ): Standing[] {
-  const sorted = [...rows].sort(compareOverall);
-  // Group teams that are equal on overall criteria, then break each block with
-  // head-to-head results.
+  // Sort by points only — H2H (not overall GD) is the next criterion in 2026.
+  const sorted = [...rows].sort((a, b) => b.points - a.points);
+  // Group teams equal on points, then break each block with H2H → overall GD/GF.
   const result: Standing[] = [];
   let i = 0;
   while (i < sorted.length) {
     let j = i + 1;
-    while (j < sorted.length && compareOverall(sorted[i], sorted[j]) === 0) {
-      j++;
-    }
+    while (j < sorted.length && sorted[j].points === sorted[i].points) j++;
     const tiedBlock = sorted.slice(i, j);
     if (tiedBlock.length > 1) result.push(...breakTie(tiedBlock, matches));
     else result.push(tiedBlock[0]);

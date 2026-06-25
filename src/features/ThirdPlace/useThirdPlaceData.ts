@@ -17,6 +17,9 @@ export interface ThirdPlaceData {
   rankedEntries: ThirdPlaceEntry[];
   // True when all 12 groups have been fully played — list is locked.
   allGroupsComplete: boolean;
+  // Lookup from teamId → ThirdPlaceEntry (needed by the drag handler to map
+  // a reordered id array to ThirdPlaceEntry[] for feasibility checking).
+  entryById: Record<string, ThirdPlaceEntry>;
 }
 
 export function useThirdPlaceData(): ThirdPlaceData {
@@ -86,5 +89,5 @@ export function useThirdPlaceData(): ThirdPlaceData {
     [thirdPlaceRanking, entryById],
   );
 
-  return { rankedEntries, allGroupsComplete };
+  return { rankedEntries, allGroupsComplete, entryById };
 }

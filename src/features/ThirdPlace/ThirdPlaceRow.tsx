@@ -9,9 +9,11 @@ interface Props {
   team?: Team;
   advancing: boolean;
   locked: boolean;
+  /** True when this row is at the first position that makes the ranking infeasible. */
+  infeasible?: boolean;
 }
 
-export function ThirdPlaceRow({ rank, entry, team, advancing, locked }: Props) {
+export function ThirdPlaceRow({ rank, entry, team, advancing, locked, infeasible }: Props) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: entry.teamId, disabled: locked });
 
@@ -26,6 +28,7 @@ export function ThirdPlaceRow({ rank, entry, team, advancing, locked }: Props) {
     'tp-row',
     advancing ? 'is-advancing' : 'is-out',
     locked ? 'is-locked' : '',
+    infeasible ? 'is-infeasible' : '',
     isDragging ? 'is-dragging' : '',
   ].filter(Boolean).join(' ');
 

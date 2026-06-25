@@ -5,13 +5,14 @@
 // combination of remaining results (3^n outcomes, n ≤ 6 → ≤ 729) and, for each,
 // compute the range of positions each team could finish in.
 //
-// Reachability is computed at the POINTS level. Within a scenario, teams level
-// on points are treated optimistically/pessimistically for the team in question
-// (it could finish anywhere in the tied block), since goal-difference and
-// goals-scored tiebreakers are controllable by choosing remaining scorelines.
-// This can very slightly over-approximate in rare fixed-goal cases, which errs
-// toward ALLOWING a borderline placement rather than wrongly forbidding a legal
-// one — the safer behavior for the UI.
+// Per the 2026 FIFA rules the tiebreaker order is:
+//   points → H2H pts → H2H GD → H2H GF → overall GD → overall GF → …
+//
+// H2H pts are determined by match OUTCOMES (win/draw/loss), which we enumerate.
+// H2H GD/GF and overall GD/GF depend on the exact scoreline and are freely
+// tunable — so any order within an equal-H2H-pts tied block is achievable.
+// This means we only need to check H2H pts (not GD/GF) to determine whether a
+// tie can be resolved in a given direction.
 import type { GroupId, Match, PlacementPossibility, Standing, Team } from './types';
 
 /**
@@ -73,17 +74,28 @@ export function computePlacementPossibilities(
         }
       }
 
+      // Compute H2H pts within each points-tied block for this scenario.
+      // H2H pts are outcome-determined (not scoreline-dependent) so they act as
+      // a hard constraint before the freely-tunable GD/GF tiebreakers.
+      const h2hPts = scenarioH2HPts(groupTeamIds, groupMatches, remaining, scenario);
+
       for (const id of groupTeamIds) {
         const p = points[id];
-        let above = 0;
-        let equal = 0;
+        let above = 0;  // teams that definitely rank above id
+        let equal = 0;  // teams that could go either way (equal H2H pts)
         for (const other of groupTeamIds) {
           if (other === id) continue;
-          if (points[other] > p) above++;
-          else if (points[other] === p) equal++;
+          if (points[other] > p) {
+            above++;
+          } else if (points[other] === p) {
+            // Within a tied-points block, H2H pts determine rank.
+            if (h2hPts[other] > h2hPts[id]) above++;       // other definitely above
+            else if (h2hPts[other] === h2hPts[id]) equal++; // GD/GF tunable → uncertain
+            // else id ranks above other — don't count
+          }
         }
-        // Best case: wins every tie (rank = above + 1).
-        // Worst case: loses every tie (rank = above + 1 + equal).
+        // Best case: id wins all GD/GF ties (rank = above + 1).
+        // Worst case: id loses all GD/GF ties (rank = above + 1 + equal).
         const best = above + 1;
         const worst = above + 1 + equal;
         for (let rank = best; rank <= worst; rank++) {
@@ -101,6 +113,48 @@ export function computePlacementPossibilities(
     canFinish4th: reachable[id].has(4),
     locked: complete,
   }));
+}
+
+/**
+ * Compute H2H points for each team in `teamIds` using all group matches, with
+ * the remaining matches resolved according to `scenarioCode`.
+ *
+ * H2H pts are only counted for matches where BOTH teams are in `teamIds`
+ * (i.e. within the same points-tied block).  This gives us the H2H ranking
+ * criterion (step 2 in the 2026 FIFA order) without needing exact scorelines.
+ */
+function scenarioH2HPts(
+  teamIds: string[],
+  allGroupMatches: Match[],
+  remaining: Match[],
+  scenarioCode: number,
+): Record<string, number> {
+  const inBlock = new Set(teamIds);
+  const h2h: Record<string, number> = {};
+  for (const id of teamIds) h2h[id] = 0;
+
+  for (const m of allGroupMatches) {
+    if (!inBlock.has(m.homeId) || !inBlock.has(m.awayId)) continue;
+    if (m.played) {
+      if (m.homeGoals == null || m.awayGoals == null) continue;
+      if (m.homeGoals > m.awayGoals) h2h[m.homeId] += 3;
+      else if (m.homeGoals < m.awayGoals) h2h[m.awayId] += 3;
+      else { h2h[m.homeId] += 1; h2h[m.awayId] += 1; }
+    }
+  }
+
+  let c = scenarioCode;
+  for (let k = 0; k < remaining.length; k++) {
+    const outcome = c % 3;
+    c = Math.floor(c / 3);
+    const m = remaining[k];
+    if (!inBlock.has(m.homeId) || !inBlock.has(m.awayId)) continue;
+    if (outcome === 0) h2h[m.homeId] += 3;
+    else if (outcome === 1) { h2h[m.homeId] += 1; h2h[m.awayId] += 1; }
+    else h2h[m.awayId] += 3;
+  }
+
+  return h2h;
 }
 
 /** True once every group match has been played and standings are fixed. */
@@ -197,23 +251,43 @@ export function firstJointlyIllegalGroupPlacement(
 
   const combos = 3 ** remaining.length;
 
-  // Fast path: find any scenario that is consistent with the full ordering.
+  // Returns true if orderedIds[i] can rank above orderedIds[i+1] in scenario s,
+  // accounting for H2H pts within their shared tied-points block.
+  function pairFeasibleInScenario(pts: Record<string, number>, s: number, i: number): boolean {
+    const hiPts = pts[orderedIds[i]] ?? 0;
+    const loPts = pts[orderedIds[i + 1]] ?? 0;
+    if (hiPts > loPts) return true;
+    if (hiPts < loPts) return false;
+    // Tied on points: find the full block and check H2H pts.
+    let blockStart = i;
+    while (blockStart > 0 && (pts[orderedIds[blockStart - 1]] ?? 0) === hiPts) blockStart--;
+    let blockEnd = i + 2;
+    while (blockEnd < orderedIds.length && (pts[orderedIds[blockEnd]] ?? 0) === hiPts) blockEnd++;
+    const blockIds = orderedIds.slice(blockStart, blockEnd);
+    const h2h = scenarioH2HPts(blockIds, groupMatches, remaining, s);
+    const hiH2H = h2h[orderedIds[i]] ?? 0;
+    const loH2H = h2h[orderedIds[i + 1]] ?? 0;
+    // Equal H2H pts → GD/GF freely tunable → either order achievable.
+    return hiH2H >= loH2H;
+  }
+
+  // Fast path: find any scenario consistent with the full ordering.
   for (let s = 0; s < combos; s++) {
     const pts = applyScenario(s);
     let ok = true;
     for (let i = 0; i < orderedIds.length - 1; i++) {
-      if ((pts[orderedIds[i]] ?? 0) < (pts[orderedIds[i + 1]] ?? 0)) { ok = false; break; }
+      if (!pairFeasibleInScenario(pts, s, i)) { ok = false; break; }
     }
     if (ok) return null;
   }
 
   // No scenario works. Find the first adjacent pair that is individually
-  // infeasible (no scenario exists where orderedIds[i] points ≥ orderedIds[i+1]).
+  // infeasible across all scenarios.
   for (let i = 0; i < orderedIds.length - 1; i++) {
     let pairOk = false;
     for (let s = 0; s < combos; s++) {
       const pts = applyScenario(s);
-      if ((pts[orderedIds[i]] ?? 0) >= (pts[orderedIds[i + 1]] ?? 0)) { pairOk = true; break; }
+      if (pairFeasibleInScenario(pts, s, i)) { pairOk = true; break; }
     }
     if (!pairOk) return { index: i, teamId: orderedIds[i], blockedById: orderedIds[i + 1] };
   }
