@@ -4,6 +4,7 @@ import { useTournamentStore } from '../../store/tournamentStore';
 import { GroupCard } from './GroupCard';
 import { useGroupData } from './useGroupData';
 import { computeAllStandings } from '../../domain/standings';
+import { isGroupComplete } from '../../domain/elimination';
 
 export function GroupStage() {
   const teams = useTournamentStore((s) => s.teams);
@@ -25,6 +26,15 @@ export function GroupStage() {
     const { groupOrder } = useTournamentStore.getState();
 
     for (const g of GROUP_IDS) {
+      const gs = standingsMap[g] ?? [];
+
+      // Complete groups: snap to the final standings regardless of any stale
+      // user ordering accumulated before all matches were played.
+      if (isGroupComplete(g, matches)) {
+        setGroupOrder(g, gs.map((s) => s.teamId));
+        continue;
+      }
+
       const potOrder = teamList.filter((t) => t.groupId === g).map((t) => t.id);
       const current = groupOrder[g] ?? [];
 
@@ -33,7 +43,6 @@ export function GroupStage() {
         current.length === 0 || potOrder.every((id, i) => id === current[i]);
       if (!untouched) continue;
 
-      const gs = standingsMap[g] ?? [];
       const idealOrder = gs.some((s) => s.played > 0)
         ? gs.map((s) => s.teamId)
         : potOrder;

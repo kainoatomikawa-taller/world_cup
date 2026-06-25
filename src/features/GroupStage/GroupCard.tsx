@@ -94,7 +94,7 @@ export function GroupCard({ groupId, teams, groupData }: Props) {
 
       {/* Sortable team list */}
       <DndContext
-        sensors={sensors}
+        sensors={complete ? [] : sensors}
         collisionDetection={closestCenter}
         modifiers={[restrictToVerticalAxis, restrictToParentElement]}
         onDragEnd={onDragEnd}
