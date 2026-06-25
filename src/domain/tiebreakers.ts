@@ -1,15 +1,24 @@
-// FIFA group-stage tiebreaker ordering.
+// FIFA 2026 group-stage tiebreaker sequence (FIFA World Cup 2026 Regulations, Art. 12):
 //
-// Official order (2026):
-//   1) points, 2) goal difference, 3) goals scored  — all overall.
-// If teams are still equal, the same three criteria are applied to the matches
-// played BETWEEN the tied teams (head-to-head):
-//   4) head-to-head points, 5) head-to-head GD, 6) head-to-head goals scored.
-// Then fair-play points, then drawing of lots.
+//   Overall criteria (all group matches):
+//     1. Points
+//     2. Goal difference
+//     3. Goals scored
 //
-// Fair-play points are not modeled (we have no card data), so after head-to-head
-// we fall back to a deterministic order by team id, standing in for the draw of
-// lots so results are stable.
+//   Head-to-head criteria (matches among the tied teams only, applied when two or
+//   more teams remain equal after criteria 1–3):
+//     4. Points in head-to-head matches
+//     5. Goal difference in head-to-head matches
+//     6. Goals scored in head-to-head matches
+//
+//   7. Fair-play points (yellow/red cards) — not modeled; no card data available.
+//   8. Drawing of lots — represented here by lexicographic team id for determinism.
+//
+// compareOverall  handles criteria 1–3.
+// breakTie        handles criteria 4–6 (then falls to 8).
+// sortByTiebreakers groups equal rows by criteria 1–3, then resolves each tied
+//   block via breakTie. For a circular H2H tie (all head-to-head metrics equal),
+//   the sort falls through to team-id order as a stable proxy for the draw of lots.
 import type { Match, Standing } from './types';
 
 interface MiniStat {
