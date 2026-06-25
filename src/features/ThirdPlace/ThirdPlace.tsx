@@ -16,7 +16,7 @@ import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useThirdPlaceData } from './useThirdPlaceData';
 import { ThirdPlaceRow } from './ThirdPlaceRow';
 import { useTournamentStore } from '../../store/tournamentStore';
-import { firstIllegalThirdPlaceRank } from '../../domain/thirdPlace';
+import { firstJointlyIllegalThirdPlaceRank } from '../../domain/thirdPlace';
 import type { ThirdPlaceEntry } from '../../domain/thirdPlace';
 
 const QUALIFYING_COUNT = 8;
@@ -48,7 +48,7 @@ export function ThirdPlace() {
       .map((id) => entryById[id])
       .filter(Boolean) as ThirdPlaceEntry[];
 
-    const illegalIdx = firstIllegalThirdPlaceRank(newRankedEntries, matches);
+    const illegalIdx = firstJointlyIllegalThirdPlaceRank(newRankedEntries, matches);
     if (illegalIdx !== null) {
       const higherEntry = newRankedEntries[illegalIdx];
       const lowerEntry = newRankedEntries[illegalIdx + 1];
@@ -66,7 +66,7 @@ export function ThirdPlace() {
 
   // Track which row is currently at an infeasible position so it can be
   // highlighted even before the user attempts a drag.
-  const currentIllegalIndex = firstIllegalThirdPlaceRank(rankedEntries, matches);
+  const currentIllegalIndex = firstJointlyIllegalThirdPlaceRank(rankedEntries, matches);
 
   if (rankedEntries.length === 0) {
     return (

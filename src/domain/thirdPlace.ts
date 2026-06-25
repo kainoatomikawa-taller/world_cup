@@ -71,19 +71,30 @@ export function qualifyingThirdPlaceGroups(ranked: ThirdPlaceEntry[]): GroupId[]
 // Joint-feasibility engine
 // ---------------------------------------------------------------------------
 //
-// A proposed third-place ranking is "jointly feasible" if there exists some
-// combination of remaining match outcomes (across all 12 groups) that produces
-// stats for each team consistent with that ordering.
+// A proposed third-place ranking is "jointly feasible" if there exists a
+// SINGLE combination of remaining-match outcomes (across all 12 groups) where
+// every adjacent pair (rank i, rank i+1) is simultaneously consistent.
 //
-// Because each third-place team comes from a different, independent group,
-// joint feasibility reduces to independent pairwise checks: for every adjacent
-// pair (rank i, rank i+1) we ask whether higher's achievable stats can be ≥
-// lower's achievable stats in at least one scenario. Groups being independent
-// means those scenarios can be chosen simultaneously without conflict.
+// The pairwise `firstIllegalThirdPlaceRank` below misses correlated cases such
+// as: Senegal (0 pts, 1 remaining) ranked below Scotland (2 pts, fixed) but
+// still in the top 8.  The pairwise check says this is fine because Scotland
+// can be above Senegal (draw → 1 pt < 2) AND Senegal can be above the 9th
+// team (win → 3 pts > 2), but those two scenarios are incompatible — there is
+// no single outcome where Senegal is in the top 8 AND below Scotland.
 //
-// GD/GF are treated as freely tunable via scoreline choices whenever a team
-// still has remaining matches (same optimistic/pessimistic treatment used in
-// elimination.ts), so the primary constraint is points.
+// `firstJointlyIllegalThirdPlaceRank` fixes this by enumerating all 3^n
+// outcome combinations (n = # of third-place teams with a remaining match,
+// max 12 → 531,441 iterations) and checking every adjacent pair under the
+// same scenario.
+//
+// Because each third-place team is from a different group, the remaining
+// matches are fully independent — no correlated constraints across groups.
+//
+// GD direction constraint: a win can push GD arbitrarily high (any margin),
+// a draw leaves GD fixed (net 0), a loss reduces GD by at least 1.  GF is
+// freely tunable for any remaining-match outcome (choose the scoreline).
+// So for a tied-points pair the only hard constraint beyond points is whether
+// the higher team's achievable GD can exceed the lower team's minimum GD.
 
 /**
  * The range of total points the third-place team can still reach.
@@ -165,4 +176,148 @@ export function isLegalThirdPlaceRanking(
   matches: Match[],
 ): boolean {
   return firstIllegalThirdPlaceRank(ranked, matches) === null;
+}
+
+// ---------------------------------------------------------------------------
+// Joint scenario enumeration
+// ---------------------------------------------------------------------------
+
+type MatchOutcome = 'win' | 'draw' | 'loss' | 'none';
+
+/**
+ * Can `higher` achieve a better GD (and if tied, GF) than `lower` when both
+ * have the same points in a specific scenario?
+ *
+ * Outcome-aware ranges:
+ *   win  → GD can be as high as desired (win by any margin)
+ *   draw → GD is unchanged (net 0 per draw); GF is tunable (0-0, 1-1, …)
+ *   loss → GD decreases by at least 1 (minimum 0-1 loss)
+ *   none → GD and GF are fixed at current values
+ */
+function canRankAboveByGDGF(
+  higher: ThirdPlaceEntry, outHi: MatchOutcome,
+  lower: ThirdPlaceEntry, outLo: MatchOutcome,
+): boolean {
+  const hiMaxGD =
+    outHi === 'win'  ? Infinity
+    : outHi === 'loss' ? higher.goalDifference - 1
+    : higher.goalDifference; // draw or none
+
+  const loMinGD =
+    outLo === 'win'  ? lower.goalDifference + 1
+    : outLo === 'loss' ? -Infinity
+    : lower.goalDifference; // draw or none
+
+  if (hiMaxGD > loMinGD) return true;
+  if (hiMaxGD < loMinGD) return false;
+
+  // GD tied exactly at the boundary — fall to GF tiebreaker.
+  // GF is tunable whenever a team has a remaining match (choose any scoreline).
+  if (outHi !== 'none' || outLo !== 'none') return true;
+
+  // Both have no remaining match: compare fixed GF, then group letter.
+  if (higher.goalsFor !== lower.goalsFor) return higher.goalsFor > lower.goalsFor;
+  return higher.groupId < lower.groupId;
+}
+
+/**
+ * Joint scenario enumeration: returns the index of the first entry whose
+ * position makes the ranking jointly infeasible, or null if there exists at
+ * least one combination of remaining-match outcomes where the full ordering
+ * is achievable.
+ *
+ * Replaces the pairwise `firstIllegalThirdPlaceRank` used in the UI so that
+ * correlated constraints (e.g. "Senegal in the top 8" and "Senegal below
+ * Scotland" require incompatible outcomes) are correctly rejected.
+ */
+export function firstJointlyIllegalThirdPlaceRank(
+  ranked: ThirdPlaceEntry[],
+  matches: Match[],
+): number | null {
+  // Find the single relevant remaining match (if any) for each team.
+  const remMatch: Record<string, Match | undefined> = {};
+  for (const entry of ranked) {
+    remMatch[entry.teamId] = matches.find(
+      (m) =>
+        m.groupId === entry.groupId &&
+        !m.played &&
+        (m.homeId === entry.teamId || m.awayId === entry.teamId),
+    );
+  }
+
+  const withRemaining = ranked.filter((e) => remMatch[e.teamId]);
+  const n = withRemaining.length;
+  const combos = 3 ** n;
+
+  // Decode scenario s into per-team outcome: digit 0=win, 1=draw, 2=loss.
+  function decodeOutcomes(s: number): Record<string, MatchOutcome> {
+    const out: Record<string, MatchOutcome> = {};
+    let code = s;
+    for (const entry of withRemaining) {
+      const digit = code % 3;
+      code = Math.floor(code / 3);
+      out[entry.teamId] = digit === 0 ? 'win' : digit === 1 ? 'draw' : 'loss';
+    }
+    return out;
+  }
+
+  function finalPts(entry: ThirdPlaceEntry, out: MatchOutcome): number {
+    return entry.points + (out === 'win' ? 3 : out === 'draw' ? 1 : 0);
+  }
+
+  // Fast path: is the full ordering achievable in any single scenario?
+  for (let s = 0; s < combos; s++) {
+    const outcomes = decodeOutcomes(s);
+    let ok = true;
+    for (let i = 0; i < ranked.length - 1; i++) {
+      const hi = ranked[i], lo = ranked[i + 1];
+      const hiPts = finalPts(hi, outcomes[hi.teamId] ?? 'none');
+      const loPts = finalPts(lo, outcomes[lo.teamId] ?? 'none');
+      if (hiPts > loPts) continue;
+      if (hiPts < loPts) { ok = false; break; }
+      // Tied on points: check GD/GF direction.
+      if (!canRankAboveByGDGF(hi, outcomes[hi.teamId] ?? 'none', lo, outcomes[lo.teamId] ?? 'none')) {
+        ok = false; break;
+      }
+    }
+    if (ok) return null;
+  }
+
+  // No scenario works. First find any pair that is individually infeasible
+  // (no scenario exists where just that adjacent pair is valid).
+  for (let i = 0; i < ranked.length - 1; i++) {
+    let pairOk = false;
+    for (let s = 0; s < combos && !pairOk; s++) {
+      const outcomes = decodeOutcomes(s);
+      const hi = ranked[i], lo = ranked[i + 1];
+      const hiPts = finalPts(hi, outcomes[hi.teamId] ?? 'none');
+      const loPts = finalPts(lo, outcomes[lo.teamId] ?? 'none');
+      if (hiPts > loPts) { pairOk = true; break; }
+      if (hiPts === loPts &&
+          canRankAboveByGDGF(hi, outcomes[hi.teamId] ?? 'none', lo, outcomes[lo.teamId] ?? 'none')) {
+        pairOk = true;
+      }
+    }
+    if (!pairOk) return i;
+  }
+
+  // All adjacent pairs are individually feasible but no single scenario
+  // satisfies all of them simultaneously (correlated impossibility).
+  // Return the first pair where the lower team's maximum reachable points
+  // exceed the higher team's current points — this is the tension that makes
+  // the joint constraint impossible.
+  for (let i = 0; i < ranked.length - 1; i++) {
+    const hi = ranked[i], lo = ranked[i + 1];
+    const loMax = lo.points + (remMatch[lo.teamId] ? 3 : 0);
+    if (loMax > hi.points) return i;
+  }
+  return 0;
+}
+
+/** True when the proposed ranking is jointly feasible under full scenario enumeration. */
+export function isJointlyFeasibleThirdPlaceRanking(
+  ranked: ThirdPlaceEntry[],
+  matches: Match[],
+): boolean {
+  return firstJointlyIllegalThirdPlaceRank(ranked, matches) === null;
 }
