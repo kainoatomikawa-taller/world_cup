@@ -27,6 +27,30 @@ The central design rule: **the rules engine is separate from the UI.**
 - 2026 format: 48 teams → 12 groups of 4 → top 2 (24) + best 8 of 12 third-place teams = 32 in the Round of 32.
 - The Round-of-32 slot for each third-place team is set by FIFA's fixed assignment table, keyed by *which* groups the 8 qualifiers came from (`data/assignmentTable.ts`).
 
+## FIFA 2026 Group-Stage Tiebreaker Order (Art. 32)
+
+Implemented in `src/domain/tiebreakers.ts`. The sequence below is applied strictly in order — move to the next criterion only when all preceding ones leave teams still equal.
+
+1. **Points** in all group matches (primary sort; groups rows into tied blocks).
+
+   Head-to-head criteria (applied only among the teams in the tied block):
+
+2. **H2H points** — points earned in matches played only among the tied teams.
+3. **H2H goal difference** — goal difference in those same head-to-head matches.
+4. **H2H goals scored** — goals scored in those same head-to-head matches.
+
+   If still equal after the head-to-head pass:
+
+5. **Overall goal difference** in all group matches.
+6. **Overall goals scored** in all group matches.
+7. **Fair-play points** (yellow/red cards) — not modeled; no card data available.
+8. **FIFA/Coca-Cola World Ranking** — not modeled.
+9. **Drawing of lots** — represented deterministically by lexicographic team ID.
+
+### How the algorithm handles sub-blocks
+
+`breakTie` first sorts the tied block by H2H criteria (steps 2–4). Within any sub-group that remains equal on all H2H metrics (e.g. a perfect circular tie where every team wins once 1-0), it falls back to overall GD → overall GF → team ID (steps 5–6 + lots proxy). This means steps 2–4 are not re-applied recursively inside a sub-group — once H2H criteria are exhausted the algorithm advances directly to step 5.
+
 ## Conventions
 
 - The `domain/` and `data/` modules are currently stubs that `throw 'not implemented'`. Implement them following the build order in `PROJECT_STRUCTURE.md` (standings/tiebreakers first, then elimination, then bracket).
