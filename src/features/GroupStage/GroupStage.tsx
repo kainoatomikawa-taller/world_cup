@@ -4,6 +4,7 @@ import { useTournamentStore } from '../../store/tournamentStore';
 import { GroupCard } from './GroupCard';
 import { useGroupData } from './useGroupData';
 import { computeAllStandings } from '../../domain/standings';
+import { isGroupComplete } from '../../domain/elimination';
 
 export function GroupStage() {
   const teams = useTournamentStore((s) => s.teams);
@@ -28,9 +29,15 @@ export function GroupStage() {
       const potOrder = teamList.filter((t) => t.groupId === g).map((t) => t.id);
       const current = groupOrder[g] ?? [];
 
-      // Skip groups the user has already manually reordered.
+      // Always re-seed completed groups from locked final standings so stale
+      // localStorage can't persist a wrong order after all results are in.
+      // For in-progress groups, skip re-seeding only if the user has manually
+      // reordered (detected by divergence from pot order).
+      const complete = isGroupComplete(g, matches);
       const untouched =
-        current.length === 0 || potOrder.every((id, i) => id === current[i]);
+        complete ||
+        current.length === 0 ||
+        potOrder.every((id, i) => id === current[i]);
       if (!untouched) continue;
 
       const gs = standingsMap[g] ?? [];

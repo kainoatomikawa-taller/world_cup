@@ -12,6 +12,7 @@ import { GROUP_IDS } from './types';
 export interface ThirdPlaceEntry {
   teamId: string;
   groupId: GroupId;
+  played: number;
   points: number;
   goalDifference: number;
   goalsFor: number;
@@ -35,6 +36,7 @@ export function buildThirdPlaceEntries(
     entries.push({
       teamId: thirdId,
       groupId: g,
+      played: standing?.played ?? 0,
       points: standing?.points ?? 0,
       goalDifference: standing?.goalDifference ?? 0,
       goalsFor: standing?.goalsFor ?? 0,

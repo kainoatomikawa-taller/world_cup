@@ -1,17 +1,18 @@
 // FIFA group-stage tiebreaker ordering.
 //
-// Official order (2026):
-//   1) points
-//   2) head-to-head points (among the tied teams)
+// Official FIFA 2026 order (Article 32, Competition Regulations):
+//   1) points in all group matches
+//   2) head-to-head points (matches between the tied teams)
 //   3) head-to-head goal difference
 //   4) head-to-head goals scored
 //   5) goal difference in all group matches
 //   6) goals scored in all group matches
-// Then fair-play points, then drawing of lots.
+//   7) fair-play points (not modeled — no card data)
+//   8) FIFA/Coca-Cola World Ranking (not modeled)
+//   9) drawing of lots
 //
-// Fair-play points are not modeled (we have no card data), so after step 6
-// we fall back to a deterministic order by team id, standing in for the draw of
-// lots so results are stable.
+// After step 6 we fall back to a deterministic order by team id as a stand-in
+// for the drawing of lots, keeping results stable.
 import type { Match, Standing } from './types';
 
 interface MiniStat {
@@ -50,27 +51,51 @@ function headToHeadStats(
 }
 
 /**
- * Resolve a set of teams equal on points.
- * H2H criteria (pts → GD → GF) come first; overall GD/GF are the fallback.
+ * Resolve a block of teams tied on overall points (FIFA 2026 criteria 2-6).
+ * H2H criteria (pts → GD → GF) come first; overall GD/GF and team id are the fallback.
  */
 function breakTie(tied: Standing[], matches: Match[]): Standing[] {
-  const h2h = headToHeadStats(
-    tied.map((t) => t.teamId),
-    matches,
-  );
-  return [...tied].sort((a, b) => {
+  const h2h = headToHeadStats(tied.map((t) => t.teamId), matches);
+
+  // Sort by H2H criteria first.
+  const byH2h = [...tied].sort((a, b) => {
     const sa = h2h[a.teamId];
     const sb = h2h[b.teamId];
     // H2H criteria first (2026 rule change)
     if (sb.points !== sa.points) return sb.points - sa.points;
     if (sb.goalDifference !== sa.goalDifference) return sb.goalDifference - sa.goalDifference;
     if (sb.goalsFor !== sa.goalsFor) return sb.goalsFor - sa.goalsFor;
-    // Then overall GD / GF
-    if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
-    if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
-    // Fair play not modeled; deterministic stand-in for drawing of lots.
-    return a.teamId < b.teamId ? -1 : a.teamId > b.teamId ? 1 : 0;
+    return 0;
   });
+
+  // Within sub-blocks still tied on H2H, fall back to overall GD → goals → id.
+  const result: Standing[] = [];
+  let i = 0;
+  while (i < byH2h.length) {
+    const refH2h = h2h[byH2h[i].teamId];
+    let j = i + 1;
+    while (
+      j < byH2h.length &&
+      h2h[byH2h[j].teamId].points === refH2h.points &&
+      h2h[byH2h[j].teamId].goalDifference === refH2h.goalDifference &&
+      h2h[byH2h[j].teamId].goalsFor === refH2h.goalsFor
+    ) j++;
+
+    const sub = byH2h.slice(i, j);
+    if (sub.length === 1) {
+      result.push(sub[0]);
+    } else {
+      result.push(
+        ...[...sub].sort((a, b) => {
+          if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
+          if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
+          return a.teamId < b.teamId ? -1 : a.teamId > b.teamId ? 1 : 0;
+        }),
+      );
+    }
+    i = j;
+  }
+  return result;
 }
 
 /**
@@ -81,9 +106,10 @@ export function sortByTiebreakers(
   rows: Standing[],
   matches: Match[],
 ): Standing[] {
-  // Sort by points only — H2H (not overall GD) is the next criterion in 2026.
+  // Primary sort: points only — H2H (not overall GD) is the next criterion in 2026.
   const sorted = [...rows].sort((a, b) => b.points - a.points);
-  // Group teams equal on points, then break each block with H2H → overall GD/GF.
+
+  // For each block tied on points, apply the full tiebreaker chain (H2H → overall GD/GF).
   const result: Standing[] = [];
   let i = 0;
   while (i < sorted.length) {

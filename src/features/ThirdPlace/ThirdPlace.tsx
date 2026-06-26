@@ -92,6 +92,7 @@ export function ThirdPlace() {
           <span style={{ width: 22 }} />
           <span style={{ flex: 1 }}>Team</span>
           <span style={{ display: 'flex', gap: 8 }}>
+            <span style={{ minWidth: 20, textAlign: 'right' }}>P</span>
             <span style={{ minWidth: 20, textAlign: 'right' }}>Pts</span>
             <span style={{ minWidth: 28, textAlign: 'right' }}>GD</span>
             <span style={{ minWidth: 20, textAlign: 'right' }}>GF</span>

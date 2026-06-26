@@ -45,6 +45,7 @@ export function ThirdPlaceRow({ rank, entry, team, advancing, locked, infeasible
       <span className="tp-name">{team?.name ?? entry.teamId}</span>
 
       <span className="tp-stats tnum">
+        <span title="Matches played" style={{ minWidth: 20, textAlign: 'right' }}>{entry.played}</span>
         <span className="pts" title="Points">{entry.points}</span>
         <span title="Goal difference" style={{ minWidth: 28, textAlign: 'right' }}>
           {entry.goalDifference > 0 ? `+${entry.goalDifference}` : entry.goalDifference}
