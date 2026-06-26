@@ -466,7 +466,7 @@ describe('UI interaction — drag constraint enforcement', () => {
 
   it('accepts a valid reorder when remaining matches make either ordering achievable', () => {
     // Both teams have 1 remaining match (GD/GF tunable) so either can rank above the other.
-    const entries: ThirdPlaceEntry[] = GROUP_IDS.map((g, i) =>
+    const entries: ThirdPlaceEntry[] = GROUP_IDS.map((g) =>
       makeEntry(`team-${g}`, g, 5),
     );
     const byId = Object.fromEntries(entries.map((e) => [e.teamId, e]));
@@ -548,7 +548,7 @@ describe('UI interaction — drag constraint enforcement', () => {
     const a = makeEntry('team-a', 'A', 5);
     const b = makeEntry('team-b', 'B', 1);
     const rest: ThirdPlaceEntry[] = ['C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'].map(
-      (g, i) => makeEntry(`team-${g}`, g as GroupId, 0),
+      (g) => makeEntry(`team-${g}`, g as GroupId, 0),
     );
     const all = [a, b, ...rest];
     const byId = Object.fromEntries(all.map((e) => [e.teamId, e]));
