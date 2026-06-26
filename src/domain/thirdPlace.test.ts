@@ -4,11 +4,21 @@ import {
   rankThirdPlaceEntries,
   qualifyingThirdPlace,
   qualifyingThirdPlaceGroups,
+  achievablePointRange,
+  canRankAbove,
+  firstIllegalThirdPlaceRank,
+  isLegalThirdPlaceRanking,
+  firstJointlyIllegalThirdPlaceRank,
+  isJointlyFeasibleThirdPlaceRanking,
+  type ThirdPlaceEntry,
 } from './thirdPlace';
-import type { GroupId, Standing } from './types';
+import type { GroupId, Match, Standing } from './types';
 import { GROUP_IDS } from './types';
 
-// Build a minimal groupOrder with a specific team at index 2 for each group.
+// ---------------------------------------------------------------------------
+// Shared helpers
+// ---------------------------------------------------------------------------
+
 function makeGroupOrder(thirdTeamByGroup: Partial<Record<GroupId, string>>): Record<GroupId, string[]> {
   return Object.fromEntries(
     GROUP_IDS.map((g) => {
@@ -33,18 +43,48 @@ function makeStanding(teamId: string, _groupId: GroupId, pts: number, gd: number
   };
 }
 
+function makeEntry(
+  teamId: string,
+  groupId: GroupId,
+  pts: number,
+  gd = 0,
+  gf = 0,
+  played = 3,
+): ThirdPlaceEntry {
+  return { teamId, groupId, played, points: pts, goalDifference: gd, goalsFor: gf };
+}
+
+/** Creates a group-stage match (unplayed by default). */
+function makeMatch(
+  id: string,
+  groupId: GroupId,
+  homeId: string,
+  awayId: string,
+  played = false,
+): Match {
+  return { id, stage: 'group', groupId, homeId, awayId, kickoff: '2026-06-01T00:00:00Z', played };
+}
+
+// ---------------------------------------------------------------------------
+// buildThirdPlaceEntries
+// ---------------------------------------------------------------------------
+
 describe('buildThirdPlaceEntries', () => {
   it('extracts one entry per group at index 2 of groupOrder', () => {
     const groupOrder = makeGroupOrder({ A: 'arg', B: 'bra' });
     const standings = Object.fromEntries(
       GROUP_IDS.map((g) => [g, [] as Standing[]]),
     ) as Record<GroupId, Standing[]>;
-    standings.A = [makeStanding('A-1st', 'A', 9, 5, 6), makeStanding('A-2nd', 'A', 6, 2, 4), makeStanding('arg', 'A', 3, -1, 2)];
+    standings.A = [
+      makeStanding('A-1st', 'A', 9, 5, 6),
+      makeStanding('A-2nd', 'A', 6, 2, 4),
+      makeStanding('arg', 'A', 3, -1, 2),
+    ];
 
     const entries = buildThirdPlaceEntries(groupOrder, standings);
     expect(entries).toHaveLength(12);
     const argEntry = entries.find((e) => e.teamId === 'arg');
-    expect(argEntry).toMatchObject({ teamId: 'arg', groupId: 'A', points: 3, goalDifference: -1, goalsFor: 2 });
+    expect(argEntry).toMatchObject({ teamId: 'arg', groupId: 'A', played: 3, points: 3, goalDifference: -1, goalsFor: 2 });
   });
 
   it('uses zero stats for groups with no standings yet', () => {
@@ -53,14 +93,40 @@ describe('buildThirdPlaceEntries', () => {
     const entries = buildThirdPlaceEntries(groupOrder, standings);
     expect(entries.every((e) => e.points === 0)).toBe(true);
   });
+
+  it('carries played count from the standing', () => {
+    const groupOrder = makeGroupOrder({ B: 'bra' });
+    const standings = Object.fromEntries(GROUP_IDS.map((g) => [g, [] as Standing[]])) as Record<GroupId, Standing[]>;
+    standings.B = [
+      makeStanding('B-1st', 'B', 9, 6, 7),
+      makeStanding('B-2nd', 'B', 6, 2, 4),
+      { ...makeStanding('bra', 'B', 4, 0, 3), played: 2 },
+    ];
+    const entries = buildThirdPlaceEntries(groupOrder, standings);
+    const braEntry = entries.find((e) => e.teamId === 'bra');
+    expect(braEntry?.played).toBe(2);
+  });
+
+  it('defaults played to 0 when no standing exists', () => {
+    const groupOrder = makeGroupOrder({ C: 'col' });
+    const standings = Object.fromEntries(GROUP_IDS.map((g) => [g, [] as Standing[]])) as Record<GroupId, Standing[]>;
+    // No standing for 'col' in group C
+    const entries = buildThirdPlaceEntries(groupOrder, standings);
+    const colEntry = entries.find((e) => e.teamId === 'col');
+    expect(colEntry?.played).toBe(0);
+  });
 });
+
+// ---------------------------------------------------------------------------
+// rankThirdPlaceEntries
+// ---------------------------------------------------------------------------
 
 describe('rankThirdPlaceEntries', () => {
   it('ranks by points descending', () => {
     const entries = [
-      { teamId: 'low', groupId: 'A' as GroupId, points: 2, goalDifference: 0, goalsFor: 0 },
-      { teamId: 'high', groupId: 'B' as GroupId, points: 7, goalDifference: 0, goalsFor: 0 },
-      { teamId: 'mid', groupId: 'C' as GroupId, points: 4, goalDifference: 0, goalsFor: 0 },
+      { teamId: 'low', groupId: 'A' as GroupId, played: 3, points: 2, goalDifference: 0, goalsFor: 0 },
+      { teamId: 'high', groupId: 'B' as GroupId, played: 3, points: 7, goalDifference: 0, goalsFor: 0 },
+      { teamId: 'mid', groupId: 'C' as GroupId, played: 3, points: 4, goalDifference: 0, goalsFor: 0 },
     ];
     const ranked = rankThirdPlaceEntries(entries);
     expect(ranked.map((e) => e.teamId)).toEqual(['high', 'mid', 'low']);
@@ -68,26 +134,24 @@ describe('rankThirdPlaceEntries', () => {
 
   it('breaks points ties by goal difference', () => {
     const entries = [
-      { teamId: 'a', groupId: 'A' as GroupId, points: 4, goalDifference: -1, goalsFor: 2 },
-      { teamId: 'b', groupId: 'B' as GroupId, points: 4, goalDifference: 3, goalsFor: 4 },
+      { teamId: 'a', groupId: 'A' as GroupId, played: 3, points: 4, goalDifference: -1, goalsFor: 2 },
+      { teamId: 'b', groupId: 'B' as GroupId, played: 3, points: 4, goalDifference: 3, goalsFor: 4 },
     ];
-    const ranked = rankThirdPlaceEntries(entries);
-    expect(ranked[0].teamId).toBe('b');
+    expect(rankThirdPlaceEntries(entries)[0].teamId).toBe('b');
   });
 
   it('breaks GD ties by goals scored', () => {
     const entries = [
-      { teamId: 'a', groupId: 'A' as GroupId, points: 4, goalDifference: 1, goalsFor: 2 },
-      { teamId: 'b', groupId: 'B' as GroupId, points: 4, goalDifference: 1, goalsFor: 5 },
+      { teamId: 'a', groupId: 'A' as GroupId, played: 3, points: 4, goalDifference: 1, goalsFor: 2 },
+      { teamId: 'b', groupId: 'B' as GroupId, played: 3, points: 4, goalDifference: 1, goalsFor: 5 },
     ];
-    const ranked = rankThirdPlaceEntries(entries);
-    expect(ranked[0].teamId).toBe('b');
+    expect(rankThirdPlaceEntries(entries)[0].teamId).toBe('b');
   });
 
   it('does not mutate the input array', () => {
     const entries = [
-      { teamId: 'b', groupId: 'B' as GroupId, points: 2, goalDifference: 0, goalsFor: 0 },
-      { teamId: 'a', groupId: 'A' as GroupId, points: 7, goalDifference: 0, goalsFor: 0 },
+      { teamId: 'b', groupId: 'B' as GroupId, played: 3, points: 2, goalDifference: 0, goalsFor: 0 },
+      { teamId: 'a', groupId: 'A' as GroupId, played: 3, points: 7, goalDifference: 0, goalsFor: 0 },
     ];
     const original = [...entries];
     rankThirdPlaceEntries(entries);
@@ -95,11 +159,16 @@ describe('rankThirdPlaceEntries', () => {
   });
 });
 
+// ---------------------------------------------------------------------------
+// qualifyingThirdPlace + qualifyingThirdPlaceGroups
+// ---------------------------------------------------------------------------
+
 describe('qualifyingThirdPlace + qualifyingThirdPlaceGroups', () => {
   it('returns the top 8 ids and their group letters', () => {
     const ranked = GROUP_IDS.map((g, i) => ({
       teamId: `team-${g}`,
       groupId: g,
+      played: 3,
       points: 12 - i,
       goalDifference: 0,
       goalsFor: 0,
@@ -107,5 +176,558 @@ describe('qualifyingThirdPlace + qualifyingThirdPlaceGroups', () => {
     expect(qualifyingThirdPlace(ranked)).toHaveLength(8);
     expect(qualifyingThirdPlace(ranked)[0]).toBe('team-A');
     expect(qualifyingThirdPlaceGroups(ranked)).toEqual(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// achievablePointRange
+// ---------------------------------------------------------------------------
+
+describe('achievablePointRange', () => {
+  it('returns fixed range when no remaining matches exist', () => {
+    const entry = makeEntry('t', 'A', 6);
+    expect(achievablePointRange(entry, [])).toEqual({ min: 6, max: 6 });
+  });
+
+  it('extends max by 3 for one remaining match', () => {
+    const entry = makeEntry('t', 'A', 4);
+    const matches = [makeMatch('m1', 'A', 't', 'opp', false)];
+    expect(achievablePointRange(entry, matches)).toEqual({ min: 4, max: 7 });
+  });
+
+  it('extends max by 6 for two remaining matches', () => {
+    const entry = makeEntry('t', 'A', 1);
+    const matches = [
+      makeMatch('m1', 'A', 't', 'opp1', false),
+      makeMatch('m2', 'A', 'opp2', 't', false),
+    ];
+    expect(achievablePointRange(entry, matches)).toEqual({ min: 1, max: 7 });
+  });
+
+  it('ignores already-played matches', () => {
+    const entry = makeEntry('t', 'A', 3);
+    const matches = [
+      makeMatch('m1', 'A', 't', 'opp1', true),  // played
+      makeMatch('m2', 'A', 't', 'opp2', false), // remaining
+    ];
+    expect(achievablePointRange(entry, matches)).toEqual({ min: 3, max: 6 });
+  });
+
+  it('ignores matches for other groups', () => {
+    const entry = makeEntry('t', 'A', 3);
+    const matches = [makeMatch('m1', 'B', 't', 'opp', false)]; // wrong group
+    expect(achievablePointRange(entry, matches)).toEqual({ min: 3, max: 3 });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// canRankAbove — fixed groups (all matches played)
+// ---------------------------------------------------------------------------
+
+describe('canRankAbove — both groups complete', () => {
+  const none: Match[] = [];
+
+  it('higher points always beats lower', () => {
+    expect(canRankAbove(makeEntry('a', 'A', 7), makeEntry('b', 'B', 5), none)).toBe(true);
+  });
+
+  it('lower points cannot beat higher', () => {
+    expect(canRankAbove(makeEntry('a', 'A', 3), makeEntry('b', 'B', 7), none)).toBe(false);
+  });
+
+  it('equal points — better GD wins', () => {
+    expect(canRankAbove(makeEntry('a', 'A', 4, 3, 5), makeEntry('b', 'B', 4, 1, 5), none)).toBe(true);
+    expect(canRankAbove(makeEntry('a', 'A', 4, 1, 5), makeEntry('b', 'B', 4, 3, 5), none)).toBe(false);
+  });
+
+  it('equal points+GD — better GF wins', () => {
+    expect(canRankAbove(makeEntry('a', 'A', 4, 2, 6), makeEntry('b', 'B', 4, 2, 4), none)).toBe(true);
+    expect(canRankAbove(makeEntry('a', 'A', 4, 2, 4), makeEntry('b', 'B', 4, 2, 6), none)).toBe(false);
+  });
+
+  it('equal stats — alphabetically earlier teamId ranks higher', () => {
+    expect(canRankAbove(makeEntry('aardvark', 'A', 4, 2, 4), makeEntry('zebra', 'B', 4, 2, 4), none)).toBe(true);
+    expect(canRankAbove(makeEntry('zebra', 'A', 4, 2, 4), makeEntry('aardvark', 'B', 4, 2, 4), none)).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// canRankAbove — mixed match counts (2-games vs 3-games)
+// ---------------------------------------------------------------------------
+
+describe('canRankAbove — mixed match counts', () => {
+  it('2-game team can rank above fixed team if win gives enough points', () => {
+    // team-a: 3 pts after 2 games, 1 remaining → can reach 6 pts
+    // team-b: 4 pts fixed
+    const a = makeEntry('team-a', 'A', 3);
+    const b = makeEntry('team-b', 'B', 4);
+    const matches = [makeMatch('m1', 'A', 'team-a', 'opp', false)];
+    expect(canRankAbove(a, b, matches)).toBe(true); // a can get 6 > 4
+  });
+
+  it('2-game team cannot rank above fixed team when max pts still falls short', () => {
+    // team-a: 1 pt after 2 games, 1 remaining → max 4 pts
+    // team-b: 5 pts fixed → min 5
+    const a = makeEntry('team-a', 'A', 1);
+    const b = makeEntry('team-b', 'B', 5);
+    const matches = [makeMatch('m1', 'A', 'team-a', 'opp', false)];
+    expect(canRankAbove(a, b, matches)).toBe(false); // 4 < 5
+  });
+
+  it('fixed team can rank above 2-game team that could surpass it only by winning', () => {
+    // team-a: 5 pts fixed
+    // team-b: 4 pts, 1 remaining → min 4, max 7
+    // a above b: a max (5) > b min (4) → feasible (b can lose → 4 < 5)
+    const a = makeEntry('team-a', 'A', 5);
+    const b = makeEntry('team-b', 'B', 4);
+    const matches = [makeMatch('m1', 'B', 'team-b', 'opp', false)];
+    expect(canRankAbove(a, b, matches)).toBe(true);
+  });
+
+  it('fixed team cannot rank above 2-game team whose minimum already exceeds it', () => {
+    // team-a: 4 pts fixed
+    // team-b: 5 pts, 1 remaining → min 5, max 8
+    const a = makeEntry('team-a', 'A', 4);
+    const b = makeEntry('team-b', 'B', 5);
+    const matches = [makeMatch('m1', 'B', 'team-b', 'opp', false)];
+    expect(canRankAbove(a, b, matches)).toBe(false); // a max 4 < b min 5
+  });
+
+  it('two 2-game teams: feasible when one can get more points', () => {
+    // a: 4 pts, max 7; b: 5 pts, max 8
+    // a above b: a max (7) > b min (5) → true (a wins, b loses)
+    const a = makeEntry('team-a', 'A', 4);
+    const b = makeEntry('team-b', 'B', 5);
+    const matchesA = [makeMatch('m1', 'A', 'team-a', 'opp', false)];
+    const matchesB = [makeMatch('m2', 'B', 'team-b', 'opp', false)];
+    expect(canRankAbove(a, b, [...matchesA, ...matchesB])).toBe(true);
+  });
+
+  it('two 2-game teams: infeasible when one can never reach the other minimum', () => {
+    // a: 1 pt, max 4; b: 5 pts, max 8
+    const a = makeEntry('team-a', 'A', 1);
+    const b = makeEntry('team-b', 'B', 5);
+    const matches = [
+      makeMatch('m1', 'A', 'team-a', 'opp', false),
+      makeMatch('m2', 'B', 'team-b', 'opp', false),
+    ];
+    expect(canRankAbove(a, b, matches)).toBe(false); // a max 4 < b min 5
+  });
+
+  it('boundary: 2-game team whose max equals fixed teams points — GD tunable → feasible', () => {
+    // a: 4 pts, 1 remaining → max 7; b: 7 pts fixed
+    // a max == b min → a has remaining match → GD free → feasible
+    const a = makeEntry('team-a', 'A', 4);
+    const b = makeEntry('team-b', 'B', 7);
+    const matches = [makeMatch('m1', 'A', 'team-a', 'opp', false)];
+    expect(canRankAbove(a, b, matches)).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// firstIllegalThirdPlaceRank + isLegalThirdPlaceRanking
+// ---------------------------------------------------------------------------
+
+describe('isLegalThirdPlaceRanking — basic', () => {
+  const none: Match[] = [];
+
+  it('accepts a correctly ordered ranking', () => {
+    const ranked = [makeEntry('a', 'A', 7), makeEntry('b', 'B', 5), makeEntry('c', 'C', 3)];
+    expect(isLegalThirdPlaceRanking(ranked, none)).toBe(true);
+    expect(firstIllegalThirdPlaceRank(ranked, none)).toBeNull();
+  });
+
+  it('accepts a single entry', () => {
+    expect(isLegalThirdPlaceRanking([makeEntry('a', 'A', 7)], none)).toBe(true);
+  });
+
+  it('accepts an empty list', () => {
+    expect(isLegalThirdPlaceRanking([], none)).toBe(true);
+  });
+
+  it('rejects a fully reversed ranking', () => {
+    const ranked = [makeEntry('c', 'C', 3), makeEntry('b', 'B', 5), makeEntry('a', 'A', 7)];
+    expect(isLegalThirdPlaceRanking(ranked, none)).toBe(false);
+    expect(firstIllegalThirdPlaceRank(ranked, none)).toBe(0); // first pair already wrong
+  });
+
+  it('identifies the first illegal index (not the last)', () => {
+    // rank 0 (7pts) → ok, rank 1 (3pts) → cannot be above rank 2 (5pts)
+    const ranked = [makeEntry('a', 'A', 7), makeEntry('c', 'C', 3), makeEntry('b', 'B', 5)];
+    expect(firstIllegalThirdPlaceRank(ranked, none)).toBe(1);
+  });
+});
+
+describe('isLegalThirdPlaceRanking — 8-of-12 cutoff', () => {
+  it('rejects ranking where position 9 has more points than position 8', () => {
+    // ranks 0-6 descending, rank 7 = 4 pts (last qualifier), rank 8 = 5 pts (first non-qualifier)
+    const ranked: ThirdPlaceEntry[] = GROUP_IDS.map((g, i) => {
+      const pts = i <= 6 ? 12 - i : i === 7 ? 4 : i === 8 ? 5 : 1;
+      return makeEntry(`t-${g}`, g, pts);
+    });
+    // pair (ranked[7]=4pts, ranked[8]=5pts) is illegal
+    expect(firstIllegalThirdPlaceRank(ranked, [])).toBe(7);
+    expect(isLegalThirdPlaceRanking(ranked, [])).toBe(false);
+  });
+
+  it('accepts ranking where position 8 equals position 9 in all stats', () => {
+    // Points equal; GF tiebreak: rank 7 teamId 'h-team' < rank 8 'i-team' alphabetically → rank 7 higher
+    const ranked: ThirdPlaceEntry[] = GROUP_IDS.map((g) => {
+      // All same stats; rely on alphabetical teamId tiebreak
+      return makeEntry(`${g.toLowerCase()}-team`, g, 4, 1, 3);
+    });
+    // 'a-team' < 'b-team' < ... → natural alphabetical order is legal
+    expect(isLegalThirdPlaceRanking(ranked, [])).toBe(true);
+  });
+});
+
+describe('isLegalThirdPlaceRanking — full 12-team mixed scenario', () => {
+  // Groups A–E: complete (3 games played), points 7,6,5,4,3
+  // Groups G–L: 2 games played (1 remaining match each), current points all 3 → min 3, max 6
+  // Group F: complete (3 games played), 2 pts — must sit below all 3-pt teams
+  // Valid ordering: a3,b3,c3,d3,e3, then g3..l3 (all can achieve 3+ pts), then f3 last
+  function buildMixedScenario() {
+    const entries: ThirdPlaceEntry[] = [
+      makeEntry('a3', 'A', 7), makeEntry('b3', 'B', 6), makeEntry('c3', 'C', 5),
+      makeEntry('d3', 'D', 4), makeEntry('e3', 'E', 3),
+      // 2-game teams — min 3 pts each (cannot drop below 3)
+      makeEntry('g3', 'G', 3), makeEntry('h3', 'H', 3), makeEntry('i3', 'I', 3),
+      makeEntry('j3', 'J', 3), makeEntry('k3', 'K', 3), makeEntry('l3', 'L', 3),
+      // f3: 2 pts fixed — must be last (f3 max 2 < every 2-game team's min 3)
+      makeEntry('f3', 'F', 2),
+    ];
+    const matches: Match[] = [
+      makeMatch('mg', 'G', 'g3', 'g-opp', false),
+      makeMatch('mh', 'H', 'h3', 'h-opp', false),
+      makeMatch('mi', 'I', 'i3', 'i-opp', false),
+      makeMatch('mj', 'J', 'j3', 'j-opp', false),
+      makeMatch('mk', 'K', 'k3', 'k-opp', false),
+      makeMatch('ml', 'L', 'l3', 'l-opp', false),
+    ];
+    return { entries, matches };
+  }
+
+  it('accepts the default ordering', () => {
+    const { entries, matches } = buildMixedScenario();
+    expect(isLegalThirdPlaceRanking(entries, matches)).toBe(true);
+  });
+
+  it('rejects placing a 2-pt fixed team above 2-game teams whose minimum is 3 pts', () => {
+    // Insert f3 (2pts, fixed) at index 5, pushing g3 to index 6
+    // Pair (f3=2pts, g3=3pts min): f3.max(2) < g3.min(3) → illegal at index 5
+    const { entries, matches } = buildMixedScenario();
+    const reordered = [
+      entries[0], entries[1], entries[2], entries[3], entries[4],
+      entries[11], // f3 (2 pts, fixed) inserted before 2-game teams
+      entries[5], entries[6], entries[7], entries[8], entries[9], entries[10],
+    ];
+    expect(isLegalThirdPlaceRanking(reordered, matches)).toBe(false);
+    expect(firstIllegalThirdPlaceRank(reordered, matches)).toBe(5);
+  });
+
+  it('allows a 2-game team (3 pts, can win→6) to outrank a fixed 5-pt team', () => {
+    // g3 = 3 pts + 1 remaining → max 6. c3 = 5 pts fixed.
+    // Can g3 rank above c3? g3 max (6) > c3 min (5) → yes
+    const { entries, matches } = buildMixedScenario();
+    const g3 = entries.find((e) => e.teamId === 'g3')!;
+    const c3 = entries.find((e) => e.teamId === 'c3')!;
+    expect(canRankAbove(g3, c3, matches)).toBe(true);
+  });
+
+  it('blocks a 2-game team (3 pts, max 6) from outranking a fixed 7-pt team', () => {
+    const { entries, matches } = buildMixedScenario();
+    const g3 = entries.find((e) => e.teamId === 'g3')!;
+    const a3 = entries.find((e) => e.teamId === 'a3')!; // 7 pts fixed
+    expect(canRankAbove(g3, a3, matches)).toBe(false); // 6 < 7
+  });
+
+  it('correctly handles a legal partial-group ranking at the cut-line', () => {
+    // Arrange so rank 8 (first non-qualifier) has a 2-game team that could match rank 7
+    // But natural order here is fine — test that a legal 8/9 boundary passes
+    const entries: ThirdPlaceEntry[] = [
+      makeEntry('a3', 'A', 7), makeEntry('b3', 'B', 6), makeEntry('c3', 'C', 5),
+      makeEntry('d3', 'D', 4), makeEntry('e3', 'E', 4), makeEntry('f3', 'F', 4),
+      makeEntry('g3', 'G', 4), makeEntry('h3', 'H', 4), // rank 7 (last qualifier)
+      makeEntry('i3', 'I', 3), // rank 8 (first non-qualifier): 3 pts fixed
+      makeEntry('j3', 'J', 2), makeEntry('k3', 'K', 1), makeEntry('l3', 'L', 0),
+    ];
+    // Groups I, J, K, L are complete (no remaining matches)
+    expect(isLegalThirdPlaceRanking(entries, [])).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Interaction scenarios — simulating the drag-and-drop constraint enforcement
+// These mirror the logic in ThirdPlace.tsx's onDragEnd handler.
+// ---------------------------------------------------------------------------
+
+/**
+ * Simulates the drag handler: applies arrayMove to an id list, maps to entries,
+ * and returns the first-illegal index (null = valid reorder).
+ */
+function simulateDrag(
+  idOrder: string[],
+  entryById: Record<string, ThirdPlaceEntry>,
+  from: number,
+  to: number,
+  matches: Match[],
+): number | null {
+  const next = [...idOrder];
+  const [item] = next.splice(from, 1);
+  next.splice(to, 0, item);
+  const entries = next.map((id) => entryById[id]).filter(Boolean) as ThirdPlaceEntry[];
+  return firstIllegalThirdPlaceRank(entries, matches);
+}
+
+describe('UI interaction — drag constraint enforcement', () => {
+  // 12 teams, all complete (3 games played), points strictly decreasing.
+  const staticEntries: ThirdPlaceEntry[] = GROUP_IDS.map((g, i) =>
+    makeEntry(`team-${g}`, g, 12 - i),
+  );
+  const staticById = Object.fromEntries(staticEntries.map((e) => [e.teamId, e]));
+  const staticIds = staticEntries.map((e) => e.teamId);
+  const noMatches: Match[] = [];
+
+  it('accepts a valid reorder when remaining matches make either ordering achievable', () => {
+    // Both teams have 1 remaining match (GD/GF tunable) so either can rank above the other.
+    const entries: ThirdPlaceEntry[] = GROUP_IDS.map((g) =>
+      makeEntry(`team-${g}`, g, 5),
+    );
+    const byId = Object.fromEntries(entries.map((e) => [e.teamId, e]));
+    const ids = entries.map((e) => e.teamId);
+    // Each group has 1 remaining match for its third-place team.
+    const matches: Match[] = GROUP_IDS.map((g) =>
+      makeMatch(`m${g}`, g, `team-${g}`, `opp-${g}`, false),
+    );
+    // All teams at 5 pts with remaining matches → any adjacent swap is valid.
+    expect(simulateDrag(ids, byId, 0, 5, matches)).toBeNull();
+    expect(simulateDrag(ids, byId, 11, 0, matches)).toBeNull();
+  });
+
+  it('rejects moving a low-pts team above a high-pts team', () => {
+    // Drag last team (0 pts) to rank-0 position
+    const result = simulateDrag(staticIds, staticById, 11, 0, noMatches);
+    expect(result).not.toBeNull();
+    // rank-0 after drag is team-L (0 pts), rank-1 is team-A (12 pts) → illegal at index 0
+    expect(result).toBe(0);
+  });
+
+  it('rejects moving rank-1 team to rank-3 when that creates an impossible pair', () => {
+    // Moving team-A (12 pts) from index 0 to index 2 produces [B(11),C(10),A(12),D(8)…]
+    // Pair (C=10, A=12): 10 < 12 → illegal at index 1
+    const result = simulateDrag(staticIds, staticById, 0, 2, noMatches);
+    expect(result).toBe(1);
+  });
+
+  it('accepts a reorder when remaining matches allow it', () => {
+    // Both a and b have 4 pts with 1 remaining match each — GD/GF freely tunable,
+    // so either can rank above the other.
+    const a = makeEntry('team-a', 'A', 4);
+    const b = makeEntry('team-b', 'B', 4);
+    const rest: ThirdPlaceEntry[] = ['C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'].map(
+      (g, i) => makeEntry(`team-${g}`, g as GroupId, 3 - i),
+    );
+    const all = [a, b, ...rest];
+    const byId = Object.fromEntries(all.map((e) => [e.teamId, e]));
+    const ids = all.map((e) => e.teamId);
+    const matchesAB: Match[] = [
+      makeMatch('mA', 'A', 'team-a', 'opp-a', false),
+      makeMatch('mB', 'B', 'team-b', 'opp-b', false),
+    ];
+    // With remaining matches, hi.max > lo.min → canRankAbove is true in both directions.
+    expect(simulateDrag(ids, byId, 0, 1, matchesAB)).toBeNull();
+    expect(simulateDrag(ids, byId, 1, 0, matchesAB)).toBeNull();
+  });
+
+  it('enforces the 8-of-12 qualification cut-line', () => {
+    // Drag the rank-8 (9th in 0-based: 4 pts) to rank-7 (5 pts) and verify it's rejected.
+    // In staticEntries: index 7 = team-H (5 pts), index 8 = team-I (4 pts)
+    const result = simulateDrag(staticIds, staticById, 8, 7, noMatches);
+    // After move: [..., team-I(4pts), team-H(5pts), ...]
+    // Pair at index 7: team-I(4) < team-H(5) → illegal at 7
+    expect(result).toBe(7);
+  });
+
+  it('allows a 2-game team to move up when it can reach the required points', () => {
+    // team-b: 3 pts, 1 remaining match → can reach 6 pts
+    // team-a: 4 pts fixed
+    // Ranking [b, a, …]: b max (6) > a min (4) → feasible
+    const a = makeEntry('team-a', 'A', 4);
+    const b = makeEntry('team-b', 'B', 3);
+    const rest: ThirdPlaceEntry[] = ['C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'].map(
+      (g, i) => makeEntry(`team-${g}`, g as GroupId, 2 - Math.floor(i / 2)),
+    );
+    const all = [a, b, ...rest];
+    const byId = Object.fromEntries(all.map((e) => [e.teamId, e]));
+    const ids = all.map((e) => e.teamId);
+    const matches: Match[] = [makeMatch('m1', 'B', 'team-b', 'b-opp', false)];
+    // b is at index 1, a at index 0. Drag b (index 1) to index 0 (above a):
+    expect(simulateDrag(ids, byId, 1, 0, matches)).toBeNull();
+  });
+
+  it('blocks a 2-game team from moving above a position it cannot reach', () => {
+    // team-b: 1 pt, 1 remaining → max 4 pts
+    // team-a: 5 pts fixed
+    // Ranking [b, a, …]: b max (4) < a min (5) → infeasible at index 0
+    const a = makeEntry('team-a', 'A', 5);
+    const b = makeEntry('team-b', 'B', 1);
+    const rest: ThirdPlaceEntry[] = ['C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'].map(
+      (g) => makeEntry(`team-${g}`, g as GroupId, 0),
+    );
+    const all = [a, b, ...rest];
+    const byId = Object.fromEntries(all.map((e) => [e.teamId, e]));
+    const ids = all.map((e) => e.teamId);
+    const matches: Match[] = [makeMatch('m1', 'B', 'team-b', 'b-opp', false)];
+    // b at index 1, a at index 0. Drag b to index 0:
+    const result = simulateDrag(ids, byId, 1, 0, matches);
+    expect(result).toBe(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// firstJointlyIllegalThirdPlaceRank / isJointlyFeasibleThirdPlaceRanking
+// ---------------------------------------------------------------------------
+
+describe('firstJointlyIllegalThirdPlaceRank', () => {
+  // Common fixture: 12 groups.
+  // Top 6 teams have pts [9,8,7,6,5,4] — all strictly above Senegal's WIN maximum of 3 pts,
+  // so they always outrank Senegal regardless of outcome.
+  // Scotland: 2 pts, Group G, fixed (no remaining match).
+  // Senegal:  0 pts, Group H, 1 remaining unplayed match.
+  // Ninth:    2 pts, Group I, fixed.
+  // Rest:     3 fixed teams at 1/0/0 pts in Groups J/K/L.
+  //
+  // The Senegal/Scotland correlated impossibility when Senegal is ranked below Scotland but in top 8:
+  //   WIN  → Senegal 3 pts > Scotland 2 pts → Senegal overtakes Scotland (pair 6,7 fails)
+  //   DRAW → Senegal 1 pt < Ninth 2 pts → Senegal falls below top 8 (pair 7,8 fails)
+  //   LOSS → same as DRAW (0 pts < 2 pts)
+  // No single outcome satisfies both adjacencies simultaneously.
+
+  const TOP_PTS = [9, 8, 7, 6, 5, 4] as const;
+  const topSix: ThirdPlaceEntry[] = (['A','B','C','D','E','F'] as GroupId[]).map(
+    (g, i) => makeEntry(`t${i + 1}`, g, TOP_PTS[i]),
+  );
+  const scotland = makeEntry('scotland', 'G', 2);
+  const senegal  = makeEntry('senegal', 'H', 0);
+  const ninth    = makeEntry('ninth', 'I', 2);
+  const rest3    = [
+    makeEntry('t10', 'J', 1),
+    makeEntry('t11', 'K', 0),
+    makeEntry('t12', 'L', 0),
+  ];
+
+  const senegalMatch = makeMatch('mH', 'H', 'senegal', 'h-opp', false);
+  const matchList    = [senegalMatch];
+
+  it('rejects the Senegal/Scotland correlated impossibility', () => {
+    const proposed = [...topSix, scotland, senegal, ninth, ...rest3];
+    const idx = firstJointlyIllegalThirdPlaceRank(proposed, matchList);
+    expect(idx).not.toBeNull();
+    expect(idx).toBe(6); // correlated fallback pinpoints the Scotland/Senegal pair
+    expect(isJointlyFeasibleThirdPlaceRanking(proposed, matchList)).toBe(false);
+  });
+
+  it('accepts the ordering when Senegal is above Scotland', () => {
+    // Senegal at index 6 (rank 7), Scotland at index 7 (rank 8).
+    // In the WIN scenario: Senegal 3 pts > Scotland 2 pts — valid.
+    // Top-6 teams (4–9 pts) always exceed Senegal's max 3 pts — no displacement.
+    const valid = [...topSix, senegal, scotland, ninth, ...rest3];
+    expect(firstJointlyIllegalThirdPlaceRank(valid, matchList)).toBeNull();
+    expect(isJointlyFeasibleThirdPlaceRanking(valid, matchList)).toBe(true);
+  });
+
+  it('accepts the ordering when Senegal is outside the top 8 entirely', () => {
+    // Scotland(7th), Ninth(8th), Senegal(9th).
+    // In the DRAW/LOSS scenarios: Senegal ≤1 pt < Ninth 2 pts — Senegal stays below the cut.
+    const valid = [...topSix, scotland, ninth, senegal, ...rest3];
+    expect(firstJointlyIllegalThirdPlaceRank(valid, matchList)).toBeNull();
+  });
+
+  it('rejects a pairwise-infeasible pair — lower pts placed above higher pts (no remaining matches)', () => {
+    const bad: ThirdPlaceEntry[] = [
+      makeEntry('lo', 'A', 5),
+      makeEntry('hi', 'B', 7),
+      ...GROUP_IDS.slice(2).map((g, i) => makeEntry(`f${i}`, g, 0)),
+    ];
+    expect(firstJointlyIllegalThirdPlaceRank(bad, [])).toBe(0);
+  });
+
+  it('accepts all-complete groups in strictly decreasing point order', () => {
+    const complete = GROUP_IDS.map((g, i) => makeEntry(`team-${g}`, g, 12 - i));
+    expect(firstJointlyIllegalThirdPlaceRank(complete, [])).toBeNull();
+  });
+
+  it('accepts when a lower team can reach above-neighbour via win and still trails its upper neighbour', () => {
+    // above: 5 pts fixed — always above low's maximum (1 + 3 = 4 pts).
+    // low: 1 pt, 1 remaining. WIN → 4 pts < 5 pts → above stays correctly ranked above low.
+    const above  = makeEntry('above', 'A', 5);
+    const low    = makeEntry('low',   'B', 1);
+    const others = (['C','D','E','F','G','H','I','J','K','L'] as GroupId[]).map(
+      (g, i) => makeEntry(`o${i}`, g, 0),
+    );
+    const lowMatch = makeMatch('mB', 'B', 'low', 'opp', false);
+    expect(firstJointlyIllegalThirdPlaceRank([above, low, ...others], [lowMatch])).toBeNull();
+  });
+
+  it('rejects correlated impossibility: b needs WIN to overtake c, but WIN also overtakes a', () => {
+    // [a(2pts fixed), b(0pts, 1 remaining), c(2pts fixed), ...]
+    // For b above c (pair 1,2): b must WIN → b 3 pts > c 2 pts ✓
+    // But b WIN (3 pts) also means b > a (2 pts) → pair 0,1 fails.
+    // In DRAW/LOSS: b ≤1 pt < c 2 pts → pair 1,2 fails.
+    // Correlated fallback: loMax(b) = 3 > hi.points(a) = 2 → returns index 0.
+    const a = makeEntry('a', 'A', 2);
+    const b = makeEntry('b', 'B', 0);
+    const c = makeEntry('c', 'C', 2);
+    const pad = (['D','E','F','G','H','I','J','K','L'] as GroupId[]).map(
+      (g, i) => makeEntry(`p${i}`, g, 0),
+    );
+    const bMatch = makeMatch('mB2', 'B', 'b', 'opp2', false);
+    const result = firstJointlyIllegalThirdPlaceRank([a, b, c, ...pad], [bMatch]);
+    expect(result).not.toBeNull();
+    expect(result).toBe(0);
+  });
+
+  it('GD direction: higher fixed-GD team can stay above lower team in a WIN scenario via scoreline', () => {
+    // higher: 3 pts, GD=+5, fixed (no remaining).
+    // lower:  3 pts, GD=0,  1 remaining.
+    // [higher, lower]: in WIN scenario lower GD min is +1; higher max GD is +5 > +1 → higher stays above
+    //                  (choose lower wins 1-0 → lower GD=+1 < higher GD=+5). Feasible.
+    // [lower, higher]: in WIN scenario lower GD unlimited → lower can exceed +5. Feasible.
+    const higher = makeEntry('higher', 'A', 3, 5, 5);
+    const lower  = makeEntry('lower',  'B', 3, 0, 0);
+    const pad2   = GROUP_IDS.slice(2).map((g, i) => makeEntry(`q${i}`, g, 0));
+    const lowerMatch = makeMatch('mB3', 'B', 'lower', 'opp3', false);
+    expect(firstJointlyIllegalThirdPlaceRank([higher, lower, ...pad2], [lowerMatch])).toBeNull();
+    expect(firstJointlyIllegalThirdPlaceRank([lower, higher, ...pad2], [lowerMatch])).toBeNull();
+  });
+
+  it('draw leaves GD fixed: LOSS scenario rescues an ordering where DRAW/WIN would invert the pair', () => {
+    // higher: 4 pts, GD=+3, fixed.
+    // lower:  3 pts, GD=+10, 1 remaining.
+    // [higher, lower]:
+    //   LOSS → lower stays 3 pts < 4 pts → higher correctly above lower. Feasible.
+    //   DRAW → lower 4 pts = higher 4 pts; lower GD +10 > higher GD +3 → lower would overtake.
+    //   WIN  → lower 6 pts > 4 pts → lower would overtake.
+    // LOSS scenario alone is enough to make the ordering feasible.
+    const hi2 = makeEntry('hi2', 'A', 4, 3, 3);
+    const lo2 = makeEntry('lo2', 'B', 3, 10, 10);
+    const pad3 = GROUP_IDS.slice(2).map((g, i) => makeEntry(`r${i}`, g, 0));
+    const loMatch2 = makeMatch('mB4', 'B', 'lo2', 'opp4', false);
+    expect(firstJointlyIllegalThirdPlaceRank([hi2, lo2, ...pad3], [loMatch2])).toBeNull();
+  });
+
+  it('handles all 12 teams having remaining matches', () => {
+    // All teams at equal pts — any ordering is feasible because every team can WIN
+    // to achieve arbitrary GD and outrank any neighbour.
+    const allRem    = GROUP_IDS.map((g) => makeEntry(`t-${g}`, g, 2));
+    const matches12 = GROUP_IDS.map((g) => makeMatch(`m${g}`, g, `t-${g}`, `opp-${g}`, false));
+    expect(firstJointlyIllegalThirdPlaceRank(allRem, matches12)).toBeNull();
+    // Reversed ordering is also feasible — each team can win big enough.
+    expect(firstJointlyIllegalThirdPlaceRank([...allRem].reverse(), matches12)).toBeNull();
+  });
+
+  it('returns null for an empty or single-team ranking', () => {
+    expect(firstJointlyIllegalThirdPlaceRank([], [])).toBeNull();
+    expect(firstJointlyIllegalThirdPlaceRank([makeEntry('x', 'A', 3)], [])).toBeNull();
   });
 });

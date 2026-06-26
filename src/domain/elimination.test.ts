@@ -114,4 +114,31 @@ describe('computePlacementPossibilities', () => {
     // t3 still has everything to play for.
     expect(p.t3.canFinish3rd).toBe(true);
   });
+
+  it('locks a team to 4th when H2H defeats prevent it from rising above tied teams', () => {
+    // t4 has already lost head-to-head to both t2 and t3.
+    // t4's only remaining game is vs t1.
+    // Even if t4 wins (reaching 3 pts and tying with t2 or t3), the H2H defeats
+    // mean it can never finish above either of them.
+    const matches = [
+      played('t1', 't2', 1, 0), // t1=3, t2=0 so far
+      played('t1', 't3', 1, 0), // t1=6, t3=0 so far
+      played('t2', 't4', 1, 0), // t2=3 total, t4=0 — t2 beat t4 in H2H
+      played('t3', 't4', 1, 0), // t3=3 total, t4=0 — t3 beat t4 in H2H
+      unplayed('t1', 't4'),
+      unplayed('t2', 't3'),
+    ];
+    const p = possibilitiesFor(matches);
+    expect(p.t4).toMatchObject({
+      canFinish1st: false,
+      canFinish2nd: false,
+      canFinish3rd: false, // H2H defeats to both t2 and t3 block this
+      canFinish4th: true,
+      locked: false,
+    });
+    // The other teams' possibilities are not disrupted by this fix.
+    expect(p.t1.canFinish1st).toBe(true);
+    expect(p.t2.canFinish3rd).toBe(true);
+    expect(p.t3.canFinish3rd).toBe(true);
+  });
 });

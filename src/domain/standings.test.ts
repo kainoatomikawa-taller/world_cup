@@ -84,6 +84,26 @@ describe('computeGroupStandings', () => {
     expect(table.map((r) => r.teamId)).toEqual(['t1', 't2', 't4', 't3']);
   });
 
+  it('applies head-to-head before overall goal difference per FIFA 2026 rules', () => {
+    // t1 beats t2 in H2H but accumulates a far worse overall GD because t3 thrashes
+    // t1 5-0. Under FIFA 2026 rules, H2H (criteria 2-4) must be resolved before
+    // overall GD (criterion 5), so t1 must rank above t2 despite the GD gap.
+    const matches = [
+      played('t1', 't2', 1, 0), // t1 beats t2 in H2H
+      played('t3', 't1', 5, 0), // t3 thrashes t1 → t1 overall GD = -5
+      played('t2', 't3', 1, 0), // t2 beats t3
+      played('t4', 't1', 1, 0), // t4 beats t1
+      played('t4', 't2', 1, 0), // t4 beats t2
+      played('t3', 't4', 1, 0), // t3 beats t4
+    ];
+    // Points: t3=6, t4=6, t1=3, t2=3.
+    // t3 vs t4 tie broken by H2H (t3 beat t4).
+    // t1 vs t2 tie: overall GD is t2=-1 > t1=-5, but H2H says t1 beat t2.
+    // H2H must win → t1 ranks above t2.
+    const table = computeGroupStandings('A', teams, matches);
+    expect(table.map((r) => r.teamId)).toEqual(['t3', 't4', 't1', 't2']);
+  });
+
   it('ignores unplayed matches', () => {
     const matches: Match[] = [
       played('t1', 't2', 2, 0),
