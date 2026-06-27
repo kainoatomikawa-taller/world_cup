@@ -19,8 +19,21 @@ The central design rule: **the rules engine is separate from the UI.**
 - `src/domain/` — pure TypeScript, **no React and no network access**. Tiebreakers, group standings, mathematical-elimination logic, third-place ranking, bracket seeding, and knockout propagation live here. This is where the real complexity and the tests are. Keep it pure.
 - `src/data/` — static tournament facts (`schedule2026.ts`, `assignmentTable.ts`) kept separate from live results (`api.ts` client + `adapter.ts` mapping). The `adapter` is the only place that knows the upstream API's shape.
 - `src/store/tournamentStore.ts` — a single Zustand store is the source of truth shared by all three screens, so a locked group result constrains the third-place screen and the bracket automatically.
-- `src/features/` — the three screens (`GroupStage`, `ThirdPlace`, `Bracket`) plus `shared/`. Drag-and-drop uses **dnd-kit**.
+- `src/features/` — feature screens plus `shared/`. Drag-and-drop uses **dnd-kit**.
 - `api/` — serverless proxy functions. The football API key lives **only** here (server-side), never in client code; the browser calls `/api/*`.
+
+### Navigation hierarchy
+
+The app has two levels of navigation:
+
+1. **`AppNav`** (`src/features/shared/AppNav.tsx`) — top-level platform tabs (`AppTab` type). Currently:
+   - `possibilities` — the full scenario tool (group stage → third-place → bracket)
+   - `fixtures` / `insights` / `lineups` / `ratings` — placeholder tabs for future sections
+2. **`StageNav`** (`src/features/shared/StageNav.tsx`) — inner segmented control rendered *only* within the Possibilities tab (`StageKey`: `fixtures | groups | thirdPlace | bracket`).
+
+The two levels are visually distinct: `AppNav` uses an underline-style indicator; `StageNav` uses a pill/segmented-control shape.
+
+New placeholder tabs use the shared `PlaceholderTab` component (`src/features/shared/PlaceholderTab.tsx`).
 
 ## Key domain facts
 

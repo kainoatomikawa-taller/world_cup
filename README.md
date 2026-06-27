@@ -1,32 +1,35 @@
-# World Cup Possibilities
+# World Cup 2026
 
-An interactive website for exploring different outcomes and scenarios of the FIFA World Cup. Users build their own version of the tournament — deciding group stage finishes, ranking third-place teams, and picking knockout winners — while the app keeps every choice consistent with what is still mathematically possible given the real results so far.
+An interactive platform for following and exploring the FIFA World Cup 2026. The app is structured as a multi-tab shell; today the **Possibilities** tab is fully built, and Fixtures, Insights, Lineups, and Ratings tabs are placeholders for future sections.
 
-## What it does
+## Possibilities tab
+
+The Possibilities tool lets users build their own road through the tournament — setting group stage finishes, ranking third-place teams, and picking knockout winners — while keeping every choice consistent with what is still mathematically possible given real results so far.
 
 The experience flows in the same order the tournament does:
 
-### 1. Group stage
+### 1. Fixtures
+A read-only schedule view of all group-stage and knockout matches, with kickoff times and results once played.
+
+### 2. Group stage
 - The 48 teams are split across 12 groups of 4.
 - The user **drags and drops teams within a group** to set the final standings (1st through 4th).
 - The top 2 teams in every group advance automatically (24 teams).
 
-### 2. Third-place ranking
+### 3. Third-place ranking
 - 8 of the 12 third-place teams advance to the knockout stage.
 - The user **drags and drops the 12 third-place teams** to rank them, deciding which 8 move on.
 
-### 3. Knockout bracket
-- The app **seeds the bracket the correct way** the tournament actually does it: the eight qualifying third-place teams are slotted into specific Round-of-32 matchups according to FIFA's predetermined assignment table, which depends on *which* groups the qualifying third-place teams came from.
+### 4. Knockout bracket
+- The app **seeds the bracket** the way the tournament actually does it: the eight qualifying third-place teams are slotted into specific Round-of-32 matchups according to FIFA's predetermined assignment table, which depends on *which* groups the qualifying third-place teams came from.
 - The user then **picks the winner of each match**, round by round, until the full bracket is filled out and a champion is crowned.
 
-### 4. Respect real-world results
+### 5. Respect real-world results
 The app pulls in **current, real tournament results** and constrains the user's choices accordingly:
 - A team that is **mathematically eliminated** from reaching the knockout stage cannot be placed in an advancing position.
 - A team that **cannot finish third** (or cannot place high enough to be one of the 8 qualifying third-place teams) cannot be ranked there.
 - Once a group's matches are **all played**, its standings lock and the user simply moves on — group order is fixed.
 - Knockout matchups that have **already been played** are locked into the bracket with their real results.
-
-Ideally this real-time data is sourced via web search / live data feeds rather than manual entry.
 
 ## Core concepts to get right
 
@@ -40,7 +43,7 @@ Ideally this real-time data is sourced via web search / live data feeds rather t
 **Functionally complete for hypothetical exploration; live data not yet wired.**
 
 Stack: React + TypeScript + Vite · dnd-kit (drag-and-drop) · Zustand (state, with
-localStorage persistence) · Vitest (54 passing tests). See `CLAUDE.md` and
+localStorage persistence) · Vitest (173 passing tests). See `CLAUDE.md` and
 `PROJECT_STRUCTURE.md` for architecture.
 
 ### Done
@@ -50,16 +53,20 @@ localStorage persistence) · Vitest (54 passing tests). See `CLAUDE.md` and
 - [x] Mathematical-elimination engine for group + third-place positions (`src/domain/elimination.ts`, `groupOrder.ts`, `thirdPlace.ts`).
 - [x] Third-place → Round-of-32 assignment table, computed as a bipartite matching (`src/data/assignmentTable.ts`).
 - [x] Bracket template, seeding, and knockout propagation (`src/data/bracketTemplate.ts`, `src/domain/bracketSeeding.ts`, `src/domain/knockout.ts`).
-- [x] All three screens: Group stage, Third place, Knockout bracket (`src/features/`).
+- [x] All three scenario screens: Group stage, Third place, Knockout bracket (`src/features/`).
 - [x] Pick winner / advance interaction with auto re-seeding + champion banner.
 - [x] localStorage persistence of all user picks; team flags.
 - [x] Full visual design system (`src/index.css` tokens + `src/App.css` components).
+- [x] Multi-tab app shell — `AppNav` with Possibilities, Fixtures, Insights, Lineups, Ratings tabs; placeholder content for future sections.
 
 ### Remaining
 - [ ] **Live results integration** — the big one. `FIXTURES` in `src/data/schedule2026.ts` is empty and `api/` + `src/data/adapter.ts` are stubs. Needs a serverless proxy holding the football-API key (never client-side) and `adapter.ts` mapping the upstream shape to `Match[]`. All constraint logic already works the moment real `Match[]` data flows in — it's just inert today.
 - [ ] **Partial per-group third-place locking** — `allGroupsComplete` is all-or-nothing today; lock each group's 3rd-place rank position as soon as that group finishes.
+- [ ] **Fixtures tab** — full schedule and results view (top-level tab, distinct from the Fixtures sub-view inside Possibilities).
+- [ ] **Insights, Lineups, Ratings tabs** — future platform sections; scaffold exists.
 
 ### How to resume
-- `npm run dev` (server), `npm test` (54 tests), `npm run build`, `npm run lint`.
+- `npm run dev` (server), `npm test` (173 tests), `npm run build`, `npm run lint`.
 - Logic lives in `src/domain/` (pure, tested). Data/results in `src/data/`. UI in `src/features/`. Shared state in `src/store/tournamentStore.ts`.
+- Navigation: top-level `AppNav` (platform tabs) → inner `StageNav` (within Possibilities only).
 - Next session almost certainly starts with the live-data integration above.
