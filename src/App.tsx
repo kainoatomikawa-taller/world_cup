@@ -3,7 +3,9 @@ import { Fixtures } from './features/Fixtures/Fixtures';
 import { GroupStage } from './features/GroupStage/GroupStage';
 import { ThirdPlace } from './features/ThirdPlace/ThirdPlace';
 import { Bracket } from './features/Bracket/Bracket';
+import { AppNav, type AppTab } from './features/shared/AppNav';
 import { StageNav, type StageKey } from './features/shared/StageNav';
+import { PlaceholderTab } from './features/shared/PlaceholderTab';
 import { useTournamentStore } from './store/tournamentStore';
 import { TEAMS } from './data/schedule2026';
 import { fetchLiveMatches } from './data/api';
@@ -12,6 +14,7 @@ import './App.css';
 type FetchStatus = 'loading' | 'live' | 'offline';
 
 export default function App() {
+  const [topTab, setTopTab] = useState<AppTab>('possibilities');
   const [stage, setStage] = useState<StageKey>('fixtures');
   const [fetchStatus, setFetchStatus] = useState<FetchStatus>('loading');
 
@@ -19,7 +22,6 @@ export default function App() {
   const setMatches = useTournamentStore((s) => s.setMatches);
 
   useEffect(() => {
-    // Populate teams immediately so the UI renders without waiting for the network.
     initialize(TEAMS, []);
 
     fetchLiveMatches()
@@ -28,8 +30,6 @@ export default function App() {
         setFetchStatus('live');
       })
       .catch(() => {
-        // Under plain `npm run dev` the /api/* proxy doesn't run — fall back
-        // gracefully to empty matches (manual-drag mode, same as before).
         setFetchStatus('offline');
       });
   }, [initialize, setMatches]);
@@ -37,22 +37,58 @@ export default function App() {
   return (
     <main className="app-shell">
       <header className="app-header">
-        <h1 className="app-title">World Cup 2026 Possibilities</h1>
+        <h1 className="app-title">World Cup 2026</h1>
         <p className="app-subtitle">
-          Build your own road to the final — set the groups, rank the third-place
-          teams, and play out the knockout bracket.
-        </p>
-        <p className={`live-status live-status--${fetchStatus}`}>
-          {fetchStatus === 'loading' && 'Fetching live scores…'}
-          {fetchStatus === 'live' && '● Live scores loaded'}
-          {fetchStatus === 'offline' && 'Scores unavailable — drag to set standings manually'}
+          Your complete guide to the 48-team tournament — scenarios, fixtures,
+          and insights in one place.
         </p>
       </header>
-      <StageNav current={stage} onChange={setStage} />
-      {stage === 'fixtures' && <Fixtures />}
-      {stage === 'groups' && <GroupStage />}
-      {stage === 'thirdPlace' && <ThirdPlace />}
-      {stage === 'bracket' && <Bracket />}
+
+      <AppNav current={topTab} onChange={setTopTab} />
+
+      {topTab === 'possibilities' && (
+        <>
+          <p className={`live-status live-status--${fetchStatus}`}>
+            {fetchStatus === 'loading' && 'Fetching live scores…'}
+            {fetchStatus === 'live' && '● Live scores loaded'}
+            {fetchStatus === 'offline' &&
+              'Scores unavailable — drag to set standings manually'}
+          </p>
+          <StageNav current={stage} onChange={setStage} />
+          {stage === 'fixtures' && <Fixtures />}
+          {stage === 'groups' && <GroupStage />}
+          {stage === 'thirdPlace' && <ThirdPlace />}
+          {stage === 'bracket' && <Bracket />}
+        </>
+      )}
+
+      {topTab === 'fixtures' && (
+        <PlaceholderTab
+          title="Fixtures"
+          description="Full schedule and results for all 104 matches across the group and knockout stages."
+        />
+      )}
+
+      {topTab === 'insights' && (
+        <PlaceholderTab
+          title="Insights"
+          description="Stats, trends, and analysis from across the tournament — form guides, scoring patterns, and more."
+        />
+      )}
+
+      {topTab === 'lineups' && (
+        <PlaceholderTab
+          title="Lineups"
+          description="Starting XIs, formations, and squad depth for every competing nation."
+        />
+      )}
+
+      {topTab === 'ratings' && (
+        <PlaceholderTab
+          title="Ratings"
+          description="Player and team performance ratings updated after every matchday."
+        />
+      )}
     </main>
   );
 }
