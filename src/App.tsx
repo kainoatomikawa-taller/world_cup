@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Fixtures } from './features/Fixtures/Fixtures';
 import { GroupStage } from './features/GroupStage/GroupStage';
 import { ThirdPlace } from './features/ThirdPlace/ThirdPlace';
 import { Bracket } from './features/Bracket/Bracket';
@@ -11,7 +12,7 @@ import './App.css';
 type FetchStatus = 'loading' | 'live' | 'offline';
 
 export default function App() {
-  const [stage, setStage] = useState<StageKey>('groups');
+  const [stage, setStage] = useState<StageKey>('fixtures');
   const [fetchStatus, setFetchStatus] = useState<FetchStatus>('loading');
 
   const initialize = useTournamentStore((s) => s.initialize);
@@ -48,6 +49,7 @@ export default function App() {
         </p>
       </header>
       <StageNav current={stage} onChange={setStage} />
+      {stage === 'fixtures' && <Fixtures />}
       {stage === 'groups' && <GroupStage />}
       {stage === 'thirdPlace' && <ThirdPlace />}
       {stage === 'bracket' && <Bracket />}

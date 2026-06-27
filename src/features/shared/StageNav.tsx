@@ -1,7 +1,8 @@
-// Simple navigation between the three stages of the experience.
-export type StageKey = 'groups' | 'thirdPlace' | 'bracket';
+// Simple navigation between the four screens of the experience.
+export type StageKey = 'fixtures' | 'groups' | 'thirdPlace' | 'bracket';
 
 const STAGES: { key: StageKey; label: string }[] = [
+  { key: 'fixtures', label: 'Fixtures' },
   { key: 'groups', label: 'Group stage' },
   { key: 'thirdPlace', label: 'Third place' },
   { key: 'bracket', label: 'Knockout' },
