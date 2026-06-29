@@ -339,13 +339,14 @@
 .team-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  background: transparent;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-700);
   border-bottom: 1px solid var(--border);
   user-select: none;
   cursor: grab;
   touch-action: none;
+  font-family: var(--font-body);
   transition: background 0.15s var(--ease);
 }
 
@@ -359,30 +360,34 @@
   border-bottom: 0;
 }
 
-.team-row:hover:not(.is-locked) {
-  background: var(--blue-tint);
+.team-row:hover:not(.is-locked):not(.is-static) {
+  background: var(--bg-600);
 }
 
 .team-row.is-locked {
   cursor: default;
+  opacity: 0.72;
 }
 
 .team-row.is-static {
   cursor: not-allowed;
+  opacity: 0.52;
 }
 
 .team-row.is-dragging {
-  background: var(--surface-raised);
+  background: var(--bg-600);
   box-shadow: var(--shadow-md);
   border-radius: var(--radius-xs);
+  border-bottom-color: transparent;
 }
 
 .row-pos {
   width: 18px;
   text-align: center;
-  color: var(--muted);
-  font-size: 13px;
+  color: var(--text-muted);
+  font-size: var(--type-sm);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .row-flag {
@@ -393,7 +398,8 @@
 .row-name {
   flex: 1;
   font-weight: 500;
-  font-size: 14px;
+  font-size: var(--type-sm);
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -401,19 +407,24 @@
 
 .row-stats {
   display: flex;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--muted);
+  gap: var(--space-2);
+  font-size: var(--type-xs);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
+/* Single accent: points column in blue marks the key standing metric. */
 .row-stats .pts {
   font-weight: 700;
-  color: var(--text);
+  color: var(--accent-blue);
+  min-width: 22px;
+  text-align: right;
 }
 
 .row-stats__empty {
-  font-size: 12px;
-  color: var(--faint);
+  font-size: var(--type-xs);
+  color: var(--text-faint);
+  letter-spacing: 0.03em;
 }
 
 /* ---------- Error / illegal-move note ---------- */
@@ -433,12 +444,12 @@
 .tp-head {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 12px 6px 34px;
-  font-size: 10px;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3) var(--space-2) 38px;
+  font-size: var(--type-xs);
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--faint);
+  color: var(--text-faint);
   font-weight: 600;
   border-bottom: 1px solid var(--border);
 }
@@ -446,33 +457,37 @@
 .tp-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 9px 12px;
-  background: var(--surface);
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-700);
   border-bottom: 1px solid var(--border);
-  border-left: 4px solid transparent;
+  /* Gold left-edge marker: visible only on advancing rows via .is-advancing */
+  border-left: 3px solid transparent;
   user-select: none;
   cursor: grab;
   touch-action: none;
+  font-family: var(--font-body);
   transition: background 0.15s var(--ease);
 }
 
 .tp-row.is-locked {
   touch-action: auto;
   cursor: default;
+  opacity: 0.72;
 }
 
-.tp-row:hover {
-  background: var(--blue-tint);
+.tp-row:hover:not(.is-locked) {
+  background: var(--bg-600);
 }
 
+/* Single accent marker: gold left bar flags the qualifying rows. */
 .tp-row.is-advancing {
-  border-left-color: var(--green);
+  border-left-color: var(--accent-gold);
 }
 
+/* Non-advancing rows: recessed but legible — no marker, lowered opacity. */
 .tp-row.is-out {
-  border-left-color: var(--border-strong);
-  opacity: 0.5;
+  opacity: 0.44;
 }
 
 .tp-row.is-infeasible {
@@ -481,26 +496,28 @@
 }
 
 .tp-row.is-dragging {
-  background: var(--surface-raised);
+  background: var(--bg-600);
   box-shadow: var(--shadow-md);
+  border-bottom-color: transparent;
 }
 
 .tp-rank {
-  width: 20px;
+  width: 22px;
   text-align: center;
-  color: var(--muted);
-  font-size: 13px;
+  color: var(--text-muted);
+  font-size: var(--type-sm);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .group-badge {
-  font-family: var(--font-head);
-  font-size: 11px;
+  font-family: var(--font-display);
+  font-size: var(--type-xs);
   font-weight: 700;
   letter-spacing: 0.03em;
   background: var(--blue-tint);
-  color: var(--blue);
-  border-radius: 6px;
+  color: var(--accent-blue);
+  border-radius: var(--radius-xs);
   padding: 2px 6px;
   min-width: 22px;
   text-align: center;
@@ -509,32 +526,36 @@
 .tp-name {
   flex: 1;
   font-weight: 500;
-  font-size: 14px;
+  font-size: var(--type-sm);
+  color: var(--text-primary);
 }
 
 .tp-stats {
   display: flex;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--muted);
+  gap: var(--space-2);
+  font-size: var(--type-xs);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .tp-stats .pts {
   font-weight: 700;
-  color: var(--text);
+  color: var(--text-primary);
   min-width: 20px;
   text-align: right;
 }
 
+/* Advance badge: gold to echo the left-edge qualifying marker. */
 .badge-advance {
-  font-size: 10px;
+  font-size: var(--type-xs);
   font-weight: 700;
-  letter-spacing: 0.02em;
-  color: var(--green);
-  background: var(--green-tint);
-  padding: 3px 8px;
-  border-radius: 999px;
-  min-width: 56px;
+  letter-spacing: 0.03em;
+  color: var(--accent-gold);
+  background: var(--gold-tint);
+  border: 1px solid rgba(255, 208, 40, 0.22);
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  min-width: 54px;
   text-align: center;
 }
 
@@ -542,25 +563,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 7px 12px;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
   margin: 2px 0;
   background: var(--gold-tint);
-  border-top: 1.5px dashed rgba(255, 208, 40, 0.5);
-  border-bottom: 1.5px dashed rgba(255, 208, 40, 0.5);
-  font-size: 11px;
+  border-top: 1px solid rgba(255, 208, 40, 0.28);
+  border-bottom: 1px solid rgba(255, 208, 40, 0.28);
+  font-size: var(--type-xs);
   font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--gold);
-  border-radius: var(--radius-xs);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
 }
 
 .legend {
   display: flex;
-  gap: 18px;
-  padding: 12px 4px 0;
-  font-size: 11px;
-  color: var(--muted);
+  gap: var(--space-5);
+  padding: var(--space-3) var(--space-1) 0;
+  font-size: var(--type-xs);
+  color: var(--text-muted);
 }
 
 .legend span {
@@ -570,9 +591,9 @@
 }
 
 .legend .dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
 }
 
 /* ---------- Bracket ---------- */

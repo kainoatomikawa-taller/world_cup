@@ -137,11 +137,11 @@ export function ThirdPlace() {
         {/* Legend */}
         <div className="legend">
           <span>
-            <span className="dot" style={{ background: 'var(--green)' }} />
+            <span className="dot" style={{ background: 'var(--accent-gold)' }} />
             Advances to Round of 32
           </span>
           <span>
-            <span className="dot" style={{ background: 'var(--border-strong)' }} />
+            <span className="dot" style={{ background: 'var(--text-faint)' }} />
             Eliminated
           </span>
         </div>
