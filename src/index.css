@@ -1,39 +1,43 @@
 /* ============================================================
-   Design tokens + base. High-tech minimalist, light & vibrant.
-   Electric-blue lead · stadium-green + tournament-gold accents.
+   Design tokens + base. Deep charcoal tournament aesthetic —
+   dark ground, flag-color accents used sparingly.
    ============================================================ */
 
 :root {
-  /* Brand */
-  --blue: #2563eb;
-  --blue-soft: #3b82f6;
-  --blue-tint: rgba(37, 99, 235, 0.08);
-  --blue-glow: rgba(37, 99, 235, 0.3);
-  --green: #16c47f;
-  --green-tint: rgba(22, 196, 127, 0.12);
-  --gold: #f5b301;
-  --gold-tint: rgba(245, 179, 1, 0.14);
+  /* --- Accent palette (flag colors — one or two per section max) --- */
+  --blue: #2D7FFF;
+  --blue-soft: #5599FF;
+  --blue-tint: rgba(45, 127, 255, 0.10);
+  --blue-glow: rgba(45, 127, 255, 0.28);
+  --green: #3DFF8A;
+  --green-tint: rgba(61, 255, 138, 0.10);
+  --gold: #FFD028;
+  --gold-tint: rgba(255, 208, 40, 0.12);
+  --pink: #FF2D78;
+  --pink-tint: rgba(255, 45, 120, 0.10);
+  --orange: #FF6B2D;
 
-  /* Neutrals */
-  --bg: #f7f9fc;
-  --surface: rgba(255, 255, 255, 0.72);
-  --surface-solid: #ffffff;
-  --border: rgba(15, 23, 42, 0.08);
-  --border-strong: rgba(15, 23, 42, 0.14);
-  --text: #0f172a;
-  --muted: #64748b;
-  --faint: #94a3b8;
+  /* --- Neutrals (dark) --- */
+  --bg: #0D0D10;
+  --surface: rgba(20, 20, 26, 0.92);
+  --surface-solid: #14141A;
+  --surface-raised: #1C1C24;
+  --border: rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.13);
+  --text: #F0F0F5;
+  --muted: #6B6B82;
+  --faint: #32323E;
 
-  /* Shape & depth */
+  /* --- Shape & depth --- */
   --radius: 14px;
   --radius-sm: 10px;
   --radius-xs: 7px;
-  --blur: 12px;
-  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
-  --shadow-md: 0 6px 20px rgba(15, 23, 42, 0.08);
-  --shadow-lift: 0 10px 30px rgba(37, 99, 235, 0.12);
+  --blur: 16px;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.7);
+  --shadow-lift: 0 12px 36px rgba(45, 127, 255, 0.22);
 
-  /* Type */
+  /* --- Type --- */
   --font-head: 'Space Grotesk', system-ui, 'Segoe UI', sans-serif;
   --font-body: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
 
@@ -57,12 +61,14 @@ body {
   margin: 0;
   min-height: 100svh;
   color: var(--text);
-  /* Vibrant but soft gradient mesh — gives glass cards something to blur over. */
+  /* Dot grid (tactical board texture) + subtle color-depth bleeds */
   background:
-    radial-gradient(38rem 38rem at 8% -8%, rgba(37, 99, 235, 0.13), transparent 60%),
-    radial-gradient(34rem 34rem at 104% 108%, rgba(22, 196, 127, 0.13), transparent 60%),
-    radial-gradient(30rem 30rem at 92% 4%, rgba(245, 179, 1, 0.1), transparent 60%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.032) 1px, transparent 1px),
+    radial-gradient(52rem 52rem at 5% -5%,  rgba(45, 127, 255, 0.07),  transparent 60%),
+    radial-gradient(44rem 44rem at 108% 112%, rgba(61, 255, 138, 0.05), transparent 60%),
+    radial-gradient(38rem 38rem at 96% 4%,  rgba(255, 208, 40, 0.05),  transparent 55%),
     var(--bg);
+  background-size: 24px 24px, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
   background-attachment: fixed;
 }
 

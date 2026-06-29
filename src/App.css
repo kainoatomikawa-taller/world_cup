@@ -8,25 +8,26 @@
 .app-shell {
   max-width: 1300px;
   margin: 0 auto;
-  padding: 32px 24px 64px;
+  padding: 40px 24px 80px;
 }
 
 .app-header {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .app-title {
-  font-size: 40px;
+  font-size: 44px;
   font-weight: 700;
   line-height: 1.05;
   background: linear-gradient(120deg, var(--blue), var(--green));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  letter-spacing: -0.03em;
 }
 
 .app-subtitle {
-  margin-top: 6px;
+  margin-top: 8px;
   color: var(--muted);
   font-size: 14px;
 }
@@ -45,6 +46,7 @@
   font-size: 14px;
   margin-bottom: 20px;
   max-width: 60ch;
+  line-height: 1.6;
 }
 
 /* ---------- App-level navigation (underline tabs) ---------- */
@@ -146,11 +148,12 @@
 .stage-tab[aria-current='true'] {
   color: #fff;
   background: linear-gradient(120deg, var(--blue), var(--blue-soft));
-  box-shadow: 0 4px 14px var(--blue-glow);
+  box-shadow: 0 4px 20px var(--blue-glow), 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 /* ---------- Generic glass card ---------- */
 .card {
+  position: relative;
   background: var(--surface);
   backdrop-filter: blur(var(--blur));
   -webkit-backdrop-filter: blur(var(--blur));
@@ -162,9 +165,23 @@
     border-color 0.2s var(--ease);
 }
 
+/* Corner kick arc — geometric motif clipped to top-right corner */
+.card::before {
+  content: '';
+  position: absolute;
+  top: -28px;
+  right: -28px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.055);
+  pointer-events: none;
+  z-index: 0;
+}
+
 .card:hover {
   box-shadow: var(--shadow-md);
-  border-color: var(--border-strong);
+  border-color: rgba(255, 255, 255, 0.14);
 }
 
 /* ---------- Group cards ---------- */
@@ -175,6 +192,8 @@
 }
 
 .card-head {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -199,6 +218,7 @@
   height: 16px;
   border-radius: 2px;
   background: linear-gradient(var(--blue), var(--green));
+  flex-shrink: 0;
 }
 
 .badge-final {
@@ -207,7 +227,7 @@
   letter-spacing: 0.08em;
   color: var(--blue);
   background: var(--blue-tint);
-  border: 1px solid var(--border);
+  border: 1px solid rgba(45, 127, 255, 0.22);
   padding: 3px 8px;
   border-radius: 999px;
 }
@@ -244,10 +264,7 @@
   border-bottom: 1px solid var(--border);
   user-select: none;
   cursor: grab;
-  /* Opt out of native touch-scroll so dnd-kit's pointer sensor can drive the
-     drag on touchscreens; re-enabled below for non-draggable rows. */
   touch-action: none;
-  /* NB: do not transition `transform` — dnd-kit owns it. */
   transition: background 0.15s var(--ease);
 }
 
@@ -274,7 +291,7 @@
 }
 
 .team-row.is-dragging {
-  background: var(--surface-solid);
+  background: var(--surface-raised);
   box-shadow: var(--shadow-md);
   border-radius: var(--radius-xs);
 }
@@ -282,7 +299,7 @@
 .row-pos {
   width: 18px;
   text-align: center;
-  color: var(--faint);
+  color: var(--muted);
   font-size: 13px;
   font-weight: 600;
 }
@@ -321,10 +338,10 @@
 /* ---------- Error / illegal-move note ---------- */
 .note-error {
   padding: 8px 12px;
-  background: rgba(239, 68, 68, 0.08);
-  color: #dc2626;
+  background: rgba(239, 68, 68, 0.13);
+  color: #FF6060;
   font-size: 12px;
-  border-top: 1px solid rgba(239, 68, 68, 0.2);
+  border-top: 1px solid rgba(239, 68, 68, 0.25);
 }
 
 /* ---------- Third-place ranking ---------- */
@@ -355,12 +372,10 @@
   border-left: 4px solid transparent;
   user-select: none;
   cursor: grab;
-  /* See .team-row: opt out of native touch-scroll for the drag sensor. */
   touch-action: none;
   transition: background 0.15s var(--ease);
 }
 
-/* When the ranking is locked the rows aren't draggable — allow scrolling. */
 .tp-row.is-locked {
   touch-action: auto;
   cursor: default;
@@ -376,23 +391,23 @@
 
 .tp-row.is-out {
   border-left-color: var(--border-strong);
-  opacity: 0.62;
+  opacity: 0.5;
 }
 
 .tp-row.is-infeasible {
-  border-left-color: #dc2626;
-  background: rgba(239, 68, 68, 0.06);
+  border-left-color: #FF5A5A;
+  background: rgba(239, 68, 68, 0.10);
 }
 
 .tp-row.is-dragging {
-  background: var(--surface-solid);
+  background: var(--surface-raised);
   box-shadow: var(--shadow-md);
 }
 
 .tp-rank {
   width: 20px;
   text-align: center;
-  color: var(--faint);
+  color: var(--muted);
   font-size: 13px;
   font-weight: 600;
 }
@@ -450,12 +465,12 @@
   padding: 7px 12px;
   margin: 2px 0;
   background: var(--gold-tint);
-  border-top: 1.5px dashed var(--gold);
-  border-bottom: 1.5px dashed var(--gold);
+  border-top: 1.5px dashed rgba(255, 208, 40, 0.5);
+  border-bottom: 1.5px dashed rgba(255, 208, 40, 0.5);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.04em;
-  color: #92710a;
+  color: var(--gold);
   border-radius: var(--radius-xs);
 }
 
@@ -513,7 +528,7 @@
   color: #fff;
   background: linear-gradient(120deg, var(--blue), var(--blue-soft));
   border-radius: 10px;
-  box-shadow: 0 4px 14px var(--blue-glow);
+  box-shadow: 0 4px 18px var(--blue-glow);
 }
 
 .round-slot {
@@ -531,11 +546,13 @@
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
-  transition: box-shadow 0.2s var(--ease), transform 0.2s var(--ease);
+  transition: box-shadow 0.2s var(--ease), transform 0.2s var(--ease),
+    border-color 0.2s var(--ease);
 }
 
 .match-card:hover {
   box-shadow: var(--shadow-lift);
+  border-color: rgba(45, 127, 255, 0.3);
   transform: translateY(-2px);
 }
 
@@ -557,7 +574,7 @@
 }
 
 .match-head__id {
-  color: var(--faint);
+  color: var(--muted);
 }
 
 .match-team {
@@ -588,11 +605,11 @@
 }
 
 .match-team.is-loser {
-  opacity: 0.4;
+  opacity: 0.38;
 }
 
 .match-team.is-tbd {
-  color: var(--faint);
+  color: var(--muted);
   cursor: default;
 }
 
@@ -641,10 +658,10 @@
   gap: 10px;
   padding: 12px 20px;
   margin-bottom: 20px;
-  background: linear-gradient(120deg, var(--gold-tint), rgba(245, 179, 1, 0.28));
-  border: 1.5px solid var(--gold);
+  background: linear-gradient(120deg, var(--gold-tint), rgba(255, 208, 40, 0.22));
+  border: 1.5px solid rgba(255, 208, 40, 0.45);
   border-radius: var(--radius);
-  box-shadow: 0 8px 24px rgba(245, 179, 1, 0.25);
+  box-shadow: 0 8px 28px rgba(255, 208, 40, 0.18);
   animation: pop 0.4s var(--ease);
 }
 
@@ -665,30 +682,30 @@
 
 .champion-banner__label {
   font-size: 12px;
-  color: #92710a;
+  color: #E8C47A;
   font-weight: 600;
 }
 
 .champion-banner--silver {
-  background: linear-gradient(120deg, rgba(160, 168, 178, 0.18), rgba(160, 168, 178, 0.32));
-  border-color: #a7b0bb;
-  box-shadow: 0 8px 24px rgba(160, 168, 178, 0.22);
+  background: linear-gradient(120deg, rgba(160, 168, 178, 0.12), rgba(160, 168, 178, 0.22));
+  border-color: rgba(167, 176, 187, 0.4);
+  box-shadow: 0 8px 24px rgba(160, 168, 178, 0.16);
   margin-left: 12px;
 }
 
 .champion-banner--silver .champion-banner__label {
-  color: #545b66;
+  color: #B5C0CC;
 }
 
 .champion-banner--bronze {
-  background: linear-gradient(120deg, rgba(176, 141, 87, 0.18), rgba(176, 141, 87, 0.3));
-  border-color: #b08d57;
-  box-shadow: 0 8px 24px rgba(176, 141, 87, 0.22);
+  background: linear-gradient(120deg, rgba(176, 141, 87, 0.12), rgba(176, 141, 87, 0.24));
+  border-color: rgba(176, 141, 87, 0.4);
+  box-shadow: 0 8px 24px rgba(176, 141, 87, 0.16);
   margin-left: 12px;
 }
 
 .champion-banner--bronze .champion-banner__label {
-  color: #6b5326;
+  color: #D4A87A;
 }
 
 /* ---------- Third-place playoff ---------- */
@@ -701,7 +718,7 @@
 
 .third-place-playoff .round-head {
   background: linear-gradient(120deg, #b08d57, #c8a877);
-  box-shadow: 0 4px 14px rgba(176, 141, 87, 0.3);
+  box-shadow: 0 4px 18px rgba(176, 141, 87, 0.3);
 }
 
 /* ---------- Fixtures ---------- */
@@ -712,6 +729,7 @@
   max-width: 700px;
 }
 
+/* Diamond pip geometric marker before section labels */
 .fixture-group__label {
   font-family: var(--font-head);
   font-size: 13px;
@@ -720,6 +738,20 @@
   text-transform: uppercase;
   color: var(--blue);
   margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fixture-group__label::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--blue);
+  border-radius: 1px;
+  flex-shrink: 0;
+  transform: rotate(45deg);
 }
 
 .fixture-list {
@@ -807,7 +839,7 @@
 
 .fixture-row__chevron {
   font-size: 15px;
-  color: var(--faint);
+  color: var(--muted);
   text-align: right;
   line-height: 1;
 }
@@ -834,11 +866,26 @@
   gap: 16px;
 }
 
+/* Diamond pip on section titles */
 .insights-section-title {
   font-family: var(--font-head);
   font-size: 18px;
   font-weight: 700;
   color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.insights-section-title::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  background: var(--blue);
+  border-radius: 1.5px;
+  flex-shrink: 0;
+  transform: rotate(45deg);
 }
 
 /* Fixtures */
@@ -862,6 +909,20 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--blue);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.insights-fixture-date::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  background: var(--blue);
+  border-radius: 0.5px;
+  flex-shrink: 0;
+  transform: rotate(45deg);
 }
 
 .insights-fixture-row {
@@ -906,7 +967,7 @@
 .insights-fixture-vs {
   font-size: 11px;
   font-weight: 600;
-  color: var(--faint);
+  color: var(--muted);
   flex-shrink: 0;
 }
 
@@ -960,7 +1021,6 @@
   padding: 7px 10px;
 }
 
-/* Target the td for team cell layout */
 .insights-standings-table tbody tr td:first-child {
   display: flex;
   align-items: center;
@@ -976,7 +1036,7 @@
 
 .ist-team-code {
   font-size: 11px;
-  color: var(--faint);
+  color: var(--muted);
   margin-left: 2px;
 }
 
@@ -986,9 +1046,9 @@
 }
 
 .ist-pos { color: var(--green); font-weight: 600; }
-.ist-neg { color: #ef4444; font-weight: 600; }
+.ist-neg { color: #FF6060; font-weight: 600; }
 
-.ist-row--qualifies td { background: var(--green-tint); }
+.ist-row--qualifies td { background: rgba(61, 255, 138, 0.06); }
 
 /* Scorers table */
 .insights-scorers-table {
@@ -1053,7 +1113,12 @@
 .insights-skeleton {
   height: 120px;
   border-radius: var(--radius-sm);
-  background: linear-gradient(90deg, var(--surface) 25%, var(--border) 50%, var(--surface) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--surface-solid) 25%,
+    rgba(255, 255, 255, 0.06) 50%,
+    var(--surface-solid) 75%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
 }
@@ -1071,7 +1136,7 @@
 
 .insights-error code {
   font-size: 12px;
-  background: var(--surface);
+  background: var(--surface-raised);
   border: 1px solid var(--border);
   border-radius: 4px;
   padding: 1px 5px;
@@ -1119,24 +1184,24 @@
 .mit-badge--tactical {
   color: var(--blue);
   background: var(--blue-tint);
-  border-color: rgba(37, 99, 235, 0.2);
+  border-color: rgba(45, 127, 255, 0.22);
 }
 
 .mit-badge--stats {
   color: var(--green);
   background: var(--green-tint);
-  border-color: rgba(22, 196, 127, 0.2);
+  border-color: rgba(61, 255, 138, 0.22);
 }
 
 .mit-badge--player {
-  color: #b45309;
+  color: var(--gold);
   background: var(--gold-tint);
-  border-color: rgba(245, 179, 1, 0.25);
+  border-color: rgba(255, 208, 40, 0.25);
 }
 
 .mit-badge--news {
   color: var(--muted);
-  background: rgba(100, 116, 139, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   border-color: var(--border);
 }
 
@@ -1198,7 +1263,7 @@
 }
 
 .matchday-nav__btn:disabled {
-  opacity: 0.28;
+  opacity: 0.22;
   cursor: default;
 }
 
@@ -1226,13 +1291,13 @@
 .matchday-nav__counter {
   font-size: 11px;
   font-weight: 600;
-  color: var(--faint);
+  color: var(--muted);
   letter-spacing: 0.04em;
   font-variant-numeric: tabular-nums;
 }
 
 .matchday-card-list {
-  /* no extra styles needed — inherits .card + .fixture-list */
+  /* inherits .card + .fixture-list */
 }
 
 .matchday-schedule-link {
@@ -1297,12 +1362,12 @@
 }
 
 .fixture-team--tbd {
-  color: var(--faint);
+  color: var(--muted);
   font-style: italic;
 }
 
 .fixture-row--tbd .fixture-score {
-  color: var(--faint);
+  color: var(--muted);
 }
 
 /* ---------- Fixture expandable rows ---------- */
@@ -1340,7 +1405,7 @@
   border: 0;
   border-left: 1px solid var(--border);
   cursor: pointer;
-  color: var(--faint);
+  color: var(--muted);
   font-size: 13px;
   padding: 0;
   transition: color 0.14s var(--ease), transform 0.2s var(--ease);
@@ -1362,7 +1427,7 @@
 .fixture-detail {
   padding: 8px 14px 10px;
   border-top: 1px solid var(--border);
-  background: color-mix(in srgb, var(--blue-tint) 60%, transparent);
+  background: color-mix(in srgb, var(--blue-tint) 55%, transparent);
   font-size: 11px;
   color: var(--muted);
   display: flex;
@@ -1390,7 +1455,7 @@
 }
 
 .fixture-detail__placeholder {
-  color: var(--faint);
+  color: var(--muted);
   font-style: italic;
 }
 
@@ -1670,8 +1735,8 @@
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--faint);
-  background: rgba(15, 23, 42, 0.03);
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.03);
   border-bottom: 1px solid var(--border);
 }
 
@@ -1698,7 +1763,7 @@
   text-align: center;
   font-size: 11px;
   font-weight: 700;
-  color: var(--faint);
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
 }
@@ -1718,7 +1783,7 @@
 
 .lineup-pos-badge--gk {
   background: var(--gold-tint);
-  color: #7a5c00;
+  color: #E8B84B;
 }
 
 .lineup-player__name {
@@ -1749,12 +1814,12 @@
 }
 
 .lineup-rating--empty {
-  color: var(--faint);
+  color: var(--muted);
 }
 
 .lineup-rating--high {
   background: var(--green-tint);
-  color: #0e7a50;
+  color: #2EDF7A;
 }
 
 .lineup-rating--mid {
@@ -1763,8 +1828,8 @@
 }
 
 .lineup-rating--low {
-  background: rgba(239, 68, 68, 0.1);
-  color: #dc2626;
+  background: rgba(239, 68, 68, 0.12);
+  color: #FF5A5A;
 }
 
 /* ---------- Game Stats tab ---------- */
@@ -1799,7 +1864,7 @@
 .gst-teams-divider {
   font-size: 11px;
   font-weight: 600;
-  color: var(--faint);
+  color: var(--muted);
 }
 
 .gst-list { padding: 0; }
@@ -1828,8 +1893,8 @@
 .gst-val--home { color: var(--blue); text-align: left; }
 .gst-val--away { color: var(--green); text-align: right; }
 
-.gst-val--yellow { color: #d97706; }
-.gst-val--red    { color: #dc2626; }
+.gst-val--yellow { color: #FFAE35; }
+.gst-val--red    { color: #FF5A5A; }
 
 .gst-stat-label {
   flex: 1;
@@ -1846,7 +1911,7 @@
   height: 6px;
   border-radius: 3px;
   overflow: hidden;
-  background: rgba(15, 23, 42, 0.05);
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .gst-bar {
@@ -1860,8 +1925,8 @@
 
 .gst-bar-wrap--missing .gst-bar--home,
 .gst-bar-wrap--missing .gst-bar--away {
-  background: var(--faint);
-  opacity: 0.35;
+  background: var(--muted);
+  opacity: 0.3;
 }
 
 /* ---------- Stats dashboard ---------- */
@@ -1874,7 +1939,9 @@
 }
 
 .stats-columns > .insights-section {
-  background: var(--bg);
+  background: var(--surface);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
@@ -1902,10 +1969,9 @@
   font-family: var(--font-head);
   font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.05em;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .stats-team-section {
@@ -1921,7 +1987,7 @@
   margin-right: 10px;
   font-size: 11px;
   font-weight: 600;
-  color: var(--faint);
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
 }
@@ -1934,7 +2000,7 @@
 
 .stats-code {
   font-size: 11px;
-  color: var(--faint);
+  color: var(--muted);
   margin-left: 5px;
 }
 
@@ -1946,7 +2012,7 @@
 .stats-col-rank {
   width: 30px;
   text-align: center !important;
-  color: var(--faint);
+  color: var(--muted);
   font-size: 11px;
 }
 
@@ -1975,10 +2041,10 @@
 /* ---------- Responsive ---------- */
 @media (max-width: 640px) {
   .app-shell {
-    padding: 20px 14px 48px;
+    padding: 24px 14px 56px;
   }
   .app-title {
-    font-size: 30px;
+    font-size: 32px;
   }
   .group-grid {
     grid-template-columns: 1fr;

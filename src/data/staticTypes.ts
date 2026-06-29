@@ -25,6 +25,7 @@ export interface ManifestData {
     'scorers.json': ManifestFileEntry;
     'player_stats.json': ManifestFileEntry;
     'player_ratings.json': ManifestFileEntry;
+    'news.json'?: ManifestFileEntry;
     'matches/': ManifestMatchesEntry;
   };
 }
@@ -152,4 +153,29 @@ export interface StaticMatchLineup {
   team_id: string;
   formation?: string;
   players: StaticMatchLineupPlayer[];
+}
+
+// ---- news.json ----
+//
+// AGGREGATOR CONTRACT REQUIREMENTS:
+//   • Link-out only — the article body is never stored or served by this app.
+//   • Card shape: headline + summary (≤ 280 chars) + thumbnail + source name + link.
+//   • Source attribution is mandatory: source_name must appear on every rendered card.
+//   • summary is a short excerpt or teaser supplied by the source; it must not be a
+//     rewrite or AI-generated expansion of the article.
+//   • url is the canonical, publicly-accessible link; clicking always opens the source.
+
+export interface StaticArticle {
+  id: string;               // SHA-256 hex of canonical url (dedup key)
+  source: string;           // machine slug, e.g. 'bbc-sport'
+  source_name: string;      // display name for attribution, e.g. 'BBC Sport'
+  headline: string;
+  url: string;              // canonical link-out; opens original article in new tab
+  thumbnail_url: string | null;
+  summary: string | null;   // short excerpt ≤ 280 chars; never full article text
+  published_at: string;     // ISO 8601 datetime
+  teams: string[];          // team id slugs mentioned, e.g. ['argentina', 'france']
+  entities: string[];       // other named entity slugs (players, coaches, venues)
+  cluster_id: string | null; // groups topically-related articles; null = unclustered
+  priority: number;         // higher = more prominent in ranked feed; 0 = default
 }

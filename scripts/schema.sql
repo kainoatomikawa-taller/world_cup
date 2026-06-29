@@ -195,6 +195,53 @@ CREATE INDEX IF NOT EXISTS idx_identity_map_unverified
     ON identity_map(verified) WHERE verified = 0;
 
 -- ---------------------------------------------------------------------------
+-- news
+-- Aggregated news articles for the tournament.
+--
+-- CONTRACT REQUIREMENTS (aggregator rule):
+--   • Link-out only — this table never stores full article text.
+--   • Displayed card shape: headline + summary (≤ 280 chars) + thumbnail + link.
+--   • Source attribution is mandatory: source_name must be shown on every card.
+--   • summary must be a short excerpt or teaser, not a rewrite of the article.
+--   • url must be the canonical, publicly-accessible link to the original article.
+--
+-- ID strategy: id = SHA-256 hex of the canonical url.  This gives a stable,
+-- collision-resistant primary key that doubles as a deduplication check
+-- (INSERT OR IGNORE on id skips re-ingest of already-known articles).
+--
+-- teams and entities are stored as JSON text arrays so SQLite's JSON
+-- functions (json_each) can be used in queries without a join table.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS news (
+    id              TEXT    PRIMARY KEY,           -- SHA-256 hex of canonical url
+    competition_id  TEXT    REFERENCES competitions(id),
+    source          TEXT    NOT NULL,              -- machine slug, e.g. 'bbc-sport'
+    source_name     TEXT    NOT NULL,              -- display name, e.g. 'BBC Sport'
+    headline        TEXT    NOT NULL,
+    url             TEXT    NOT NULL UNIQUE,       -- canonical link-out; never stored as a proxy
+    thumbnail_url   TEXT,                          -- nullable; card hero image
+    summary         TEXT,                          -- short excerpt ≤ 280 chars; never full text
+    published_at    TEXT    NOT NULL,              -- ISO 8601 datetime
+    teams           TEXT    NOT NULL DEFAULT '[]', -- JSON array of team id slugs, e.g. '["argentina","france"]'
+    entities        TEXT    NOT NULL DEFAULT '[]', -- JSON array of other named entity slugs
+    cluster_id      TEXT,                          -- groups topically-related articles; NULL = unclustered
+    priority        INTEGER NOT NULL DEFAULT 0,    -- higher = more prominent in ranked feed; 0 = default
+    fetched_at      TEXT                           -- ISO 8601 datetime of pipeline ingest
+);
+
+-- Chronological feed scoped to a competition.
+CREATE INDEX IF NOT EXISTS idx_news_feed
+    ON news(competition_id, published_at DESC);
+
+-- Cluster grouping (fetch all articles in a cluster).
+CREATE INDEX IF NOT EXISTS idx_news_cluster
+    ON news(cluster_id) WHERE cluster_id IS NOT NULL;
+
+-- Priority-ranked feed (editorial curation / boosted articles).
+CREATE INDEX IF NOT EXISTS idx_news_priority
+    ON news(competition_id, priority DESC, published_at DESC);
+
+-- ---------------------------------------------------------------------------
 -- identity_review  [view — not a base table]
 -- Convenience view for the manual-review workflow.  Shows every row that
 -- needs human attention: either auto-generated (verified=0) or unresolvable
