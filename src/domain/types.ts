@@ -31,6 +31,9 @@ export interface Match {
   awayGoals?: number;
   kickoff: string;       // ISO date string
   played: boolean;
+  // Enrichment — absent until the enrichment layer populates them.
+  lineups?: { home: Lineup; away: Lineup };
+  stats?: MatchStats;
 }
 
 export type Stage =
@@ -75,6 +78,74 @@ export interface BracketSlot {
   awayId?: string;
   winnerId?: string;     // user pick or real result
   locked: boolean;       // true if real result locks this slot
+}
+
+// ---------------------------------------------------------------------------
+// Player, Lineup, Rating, and Match-stats domain types
+// ---------------------------------------------------------------------------
+
+export type PlayerPosition = 'GK' | 'DEF' | 'MID' | 'FWD';
+
+export interface Player {
+  id: string;           // stable canonical slug
+  name: string;
+  teamId: string;       // Team.id
+  position?: PlayerPosition;
+  jerseyNumber?: number;
+}
+
+/** One player's entry in a lineup (starter or substitute). */
+export interface LineupEntry {
+  playerId: string;     // Player.id
+  jerseyNumber?: number;
+  position?: PlayerPosition;
+  minuteOn?: number;    // undefined for starters; set when a sub enters
+  minuteOff?: number;   // set when the player leaves the pitch
+}
+
+export interface Lineup {
+  teamId: string;
+  matchId: string;
+  formation?: string;   // e.g. "4-3-3"
+  starters: LineupEntry[];    // 11 entries
+  substitutes: LineupEntry[]; // bench players who entered or were named
+}
+
+/** A single player's match rating from one source. */
+export interface PlayerRating {
+  playerId: string;
+  teamId: string;
+  matchId: string;
+  rating: number;       // typically 0–10
+  source?: string;      // "sofascore" | "fbref" | etc.
+}
+
+/** Aggregated statistics for one team in a single match. */
+export interface TeamMatchStats {
+  possession: number;         // percentage 0–100
+  shots: number;
+  shotsOnTarget: number;
+  passes: number;
+  passCompletionPct?: number; // percentage 0–100
+  corners: number;
+  freeKicks: number;
+  yellowCards: number;
+  redCards: number;
+}
+
+/** Per-player statistics within a single match. */
+export interface PlayerMatchStats {
+  playerId: string;
+  touches?: number;
+  rating?: number;      // convenience copy; canonical source is PlayerRating
+}
+
+/** All statistics for a single match — team-level and individual. */
+export interface MatchStats {
+  matchId: string;
+  home: TeamMatchStats;
+  away: TeamMatchStats;
+  players?: PlayerMatchStats[];
 }
 
 /** The full user-facing tournament state held in the store. */
