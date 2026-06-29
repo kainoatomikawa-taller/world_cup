@@ -1,0 +1,17 @@
+{
+  "match_id": "537364",
+  "kickoff": "2026-06-16T01:00:00Z",
+  "stage": "group",
+  "group_id": "G",
+  "home_team_id": "iran",
+  "home_team": "Iran",
+  "home_code": "IRN",
+  "home_flag": "🇮🇷",
+  "home_goals": 2.0,
+  "away_team_id": "new-zealand",
+  "away_team": "New Zealand",
+  "away_code": "NZL",
+  "away_flag": "🇳🇿",
+  "away_goals": 2.0,
+  "played": 1
+}

@@ -1,0 +1,17 @@
+{
+  "match_id": "537349",
+  "kickoff": "2026-06-26T02:00:00Z",
+  "stage": "group",
+  "group_id": "D",
+  "home_team_id": "turkey",
+  "home_team": "Turkey",
+  "home_code": "TUR",
+  "home_flag": "🇹🇷",
+  "home_goals": 3.0,
+  "away_team_id": "united-states",
+  "away_team": "United States",
+  "away_code": "USA",
+  "away_flag": "🇺🇸",
+  "away_goals": 2.0,
+  "played": 1
+}

@@ -1,0 +1,17 @@
+{
+  "match_id": "537342",
+  "kickoff": "2026-06-19T22:00:00Z",
+  "stage": "group",
+  "group_id": "C",
+  "home_team_id": "scotland",
+  "home_team": "Scotland",
+  "home_code": "SCO",
+  "home_flag": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+  "home_goals": 0.0,
+  "away_team_id": "morocco",
+  "away_team": "Morocco",
+  "away_code": "MAR",
+  "away_flag": "🇲🇦",
+  "away_goals": 1.0,
+  "played": 1
+}

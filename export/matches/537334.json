@@ -1,0 +1,17 @@
+{
+  "match_id": "537334",
+  "kickoff": "2026-06-13T19:00:00Z",
+  "stage": "group",
+  "group_id": "B",
+  "home_team_id": "qatar",
+  "home_team": "Qatar",
+  "home_code": "QAT",
+  "home_flag": "🇶🇦",
+  "home_goals": 1.0,
+  "away_team_id": "switzerland",
+  "away_team": "Switzerland",
+  "away_code": "SUI",
+  "away_flag": "🇨🇭",
+  "away_goals": 1.0,
+  "played": 1
+}

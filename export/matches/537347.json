@@ -1,0 +1,17 @@
+{
+  "match_id": "537347",
+  "kickoff": "2026-06-20T03:00:00Z",
+  "stage": "group",
+  "group_id": "D",
+  "home_team_id": "turkey",
+  "home_team": "Turkey",
+  "home_code": "TUR",
+  "home_flag": "🇹🇷",
+  "home_goals": 0.0,
+  "away_team_id": "paraguay",
+  "away_team": "Paraguay",
+  "away_code": "PAR",
+  "away_flag": "🇵🇾",
+  "away_goals": 1.0,
+  "played": 1
+}

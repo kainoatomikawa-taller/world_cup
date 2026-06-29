@@ -1,0 +1,207 @@
+#!/usr/bin/env python3
+"""
+export_json.py — final pipeline stage: materialize SQLite data to static JSON.
+
+Opens the database read-only, calls each query.py function, and writes one
+JSON file per dataset into an export/ directory.  Also writes one file per
+match under export/matches/<match_id>.json, then writes manifest.json last
+with a UTC timestamp, schema version, and a content hash that changes whenever
+any exported payload changes.
+
+Re-runnable at any time; never writes to the database.
+
+Usage:
+    python scripts/export_json.py
+    python scripts/export_json.py --db-path /path/to.db
+    python scripts/export_json.py --out-dir /path/to/export
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from config import COMPETITION_ID, DEFAULT_DB
+from query import (
+    all_competitions,
+    all_fixtures,
+    all_player_ratings,
+    competition_table,
+    enriched_player_stats,
+    top_scorers,
+)
+
+# Bump when the shape of any exported file changes.
+SCHEMA_VERSION = "1"
+
+DEFAULT_OUT: Path = REPO_ROOT / "export"
+
+
+# ---------------------------------------------------------------------------
+# Serialization helpers
+# ---------------------------------------------------------------------------
+
+
+def _to_records(df) -> list[dict]:
+    """Convert a DataFrame to a JSON-serialisable list of dicts."""
+    return json.loads(df.to_json(orient="records"))
+
+
+def _write_json(path: Path, data: object) -> str:
+    """Write *data* as pretty-printed JSON; return its SHA-256 hex digest."""
+    text = json.dumps(data, ensure_ascii=False, indent=2)
+    path.write_text(text, encoding="utf-8")
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
+def _content_hash(digests: list[str]) -> str:
+    """Stable hash of an arbitrary collection of SHA-256 digests."""
+    joined = "|".join(sorted(digests))
+    return hashlib.sha256(joined.encode()).hexdigest()
+
+
+# ---------------------------------------------------------------------------
+# Per-match export
+# ---------------------------------------------------------------------------
+
+
+def _export_matches(fixtures: list[dict], matches_dir: Path) -> dict[str, str]:
+    """Write one JSON file per match; return {match_id: sha256}."""
+    matches_dir.mkdir(parents=True, exist_ok=True)
+    hashes: dict[str, str] = {}
+    for match in fixtures:
+        mid = str(match["match_id"])
+        digest = _write_json(matches_dir / f"{mid}.json", match)
+        hashes[mid] = digest
+    return hashes
+
+
+# ---------------------------------------------------------------------------
+# Main export
+# ---------------------------------------------------------------------------
+
+
+def export(
+    db_path: Path,
+    out_dir: Path,
+    competition_id: str = COMPETITION_ID,
+) -> None:
+    """Run all queries and write JSON to *out_dir*. Never writes to the database."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    file_manifest: dict[str, dict] = {}
+    all_digests: list[str] = []
+
+    # ── 1 ── competitions ─────────────────────────────────────────────────
+    print("[1/7] Exporting competitions …")
+    comps = _to_records(all_competitions(db_path))
+    digest = _write_json(out_dir / "competitions.json", comps)
+    file_manifest["competitions.json"] = {"rows": len(comps), "sha256": digest}
+    all_digests.append(digest)
+    print(f"       {len(comps)} competition(s)")
+
+    # ── 2 ── fixtures (all matches, played + unplayed) ────────────────────
+    print("[2/7] Exporting fixtures …")
+    fixtures = _to_records(all_fixtures(db_path, competition_id))
+    digest = _write_json(out_dir / "fixtures.json", fixtures)
+    file_manifest["fixtures.json"] = {"rows": len(fixtures), "sha256": digest}
+    all_digests.append(digest)
+    played = sum(1 for f in fixtures if f.get("played"))
+    print(f"       {len(fixtures)} fixture(s) ({played} played, {len(fixtures) - played} unplayed)")
+
+    # ── 3 ── standings ────────────────────────────────────────────────────
+    print("[3/7] Exporting standings …")
+    standings = _to_records(competition_table(db_path, competition_id))
+    digest = _write_json(out_dir / "standings.json", standings)
+    file_manifest["standings.json"] = {"rows": len(standings), "sha256": digest}
+    all_digests.append(digest)
+    print(f"       {len(standings)} standing row(s)")
+
+    # ── 4 ── scorers ──────────────────────────────────────────────────────
+    print("[4/7] Exporting scorers …")
+    scorers = _to_records(top_scorers(db_path, competition_id, limit=200))
+    digest = _write_json(out_dir / "scorers.json", scorers)
+    file_manifest["scorers.json"] = {"rows": len(scorers), "sha256": digest}
+    all_digests.append(digest)
+    print(f"       {len(scorers)} scorer(s)")
+
+    # ── 5 ── player stats ─────────────────────────────────────────────────
+    print("[5/7] Exporting player stats …")
+    player_stats = _to_records(enriched_player_stats(db_path, competition_id, limit=500))
+    digest = _write_json(out_dir / "player_stats.json", player_stats)
+    file_manifest["player_stats.json"] = {"rows": len(player_stats), "sha256": digest}
+    all_digests.append(digest)
+    print(f"       {len(player_stats)} player stat row(s)")
+
+    # ── 6 ── player ratings ───────────────────────────────────────────────
+    print("[6/7] Exporting player ratings …")
+    ratings = _to_records(all_player_ratings(db_path, competition_id))
+    digest = _write_json(out_dir / "player_ratings.json", ratings)
+    file_manifest["player_ratings.json"] = {"rows": len(ratings), "sha256": digest}
+    all_digests.append(digest)
+    print(f"       {len(ratings)} player rating(s)")
+
+    # ── 7 ── per-match files ──────────────────────────────────────────────
+    print("[7/7] Exporting per-match files …")
+    matches_dir = out_dir / "matches"
+    match_hashes = _export_matches(fixtures, matches_dir)
+    all_digests.extend(match_hashes.values())
+    file_manifest["matches/"] = {
+        "count": len(match_hashes),
+        "sha256_by_id": match_hashes,
+    }
+    print(f"       {len(match_hashes)} match file(s) → {matches_dir}")
+
+    # ── manifest ──────────────────────────────────────────────────────────
+    manifest = {
+        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "schema_version": SCHEMA_VERSION,
+        "competition_id": competition_id,
+        "content_hash": _content_hash(all_digests),
+        "files": file_manifest,
+    }
+    (out_dir / "manifest.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    print(f"\nDone — manifest.json written → {out_dir}")
+    print(f"  content_hash: {manifest['content_hash']}")
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "--db-path",
+        default=DEFAULT_DB,
+        type=Path,
+        metavar="PATH",
+        help=f"SQLite database file (default: {DEFAULT_DB})",
+    )
+    parser.add_argument(
+        "--out-dir",
+        default=DEFAULT_OUT,
+        type=Path,
+        metavar="DIR",
+        help=f"Output directory (default: {DEFAULT_OUT})",
+    )
+    args = parser.parse_args()
+    export(args.db_path, args.out_dir)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,17 @@
+{
+  "match_id": "537341",
+  "kickoff": "2026-06-20T00:30:00Z",
+  "stage": "group",
+  "group_id": "C",
+  "home_team_id": "brazil",
+  "home_team": "Brazil",
+  "home_code": "BRA",
+  "home_flag": "🇧🇷",
+  "home_goals": 3.0,
+  "away_team_id": "haiti",
+  "away_team": "Haiti",
+  "away_code": "HAI",
+  "away_flag": "🇭🇹",
+  "away_goals": 0.0,
+  "played": 1
+}

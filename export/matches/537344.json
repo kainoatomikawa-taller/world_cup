@@ -1,0 +1,17 @@
+{
+  "match_id": "537344",
+  "kickoff": "2026-06-24T22:00:00Z",
+  "stage": "group",
+  "group_id": "C",
+  "home_team_id": "morocco",
+  "home_team": "Morocco",
+  "home_code": "MAR",
+  "home_flag": "🇲🇦",
+  "home_goals": 4.0,
+  "away_team_id": "haiti",
+  "away_team": "Haiti",
+  "away_code": "HAI",
+  "away_flag": "🇭🇹",
+  "away_goals": 2.0,
+  "played": 1
+}

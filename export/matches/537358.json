@@ -1,0 +1,17 @@
+{
+  "match_id": "537358",
+  "kickoff": "2026-06-15T02:00:00Z",
+  "stage": "group",
+  "group_id": "F",
+  "home_team_id": "sweden",
+  "home_team": "Sweden",
+  "home_code": "SWE",
+  "home_flag": "🇸🇪",
+  "home_goals": 5.0,
+  "away_team_id": "tunisia",
+  "away_team": "Tunisia",
+  "away_code": "TUN",
+  "away_flag": "🇹🇳",
+  "away_goals": 1.0,
+  "played": 1
+}

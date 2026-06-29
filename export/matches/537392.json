@@ -1,0 +1,17 @@
+{
+  "match_id": "537392",
+  "kickoff": "2026-06-16T22:00:00Z",
+  "stage": "group",
+  "group_id": "I",
+  "home_team_id": "iraq",
+  "home_team": "Iraq",
+  "home_code": "IRQ",
+  "home_flag": "🇮🇶",
+  "home_goals": 1.0,
+  "away_team_id": "norway",
+  "away_team": "Norway",
+  "away_code": "NOR",
+  "away_flag": "🇳🇴",
+  "away_goals": 4.0,
+  "played": 1
+}

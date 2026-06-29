@@ -1,0 +1,17 @@
+{
+  "match_id": "537409",
+  "kickoff": "2026-06-17T20:00:00Z",
+  "stage": "group",
+  "group_id": "L",
+  "home_team_id": "england",
+  "home_team": "England",
+  "home_code": "ENG",
+  "home_flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+  "home_goals": 4.0,
+  "away_team_id": "croatia",
+  "away_team": "Croatia",
+  "away_code": "CRO",
+  "away_flag": "🇭🇷",
+  "away_goals": 2.0,
+  "played": 1
+}

@@ -1,0 +1,17 @@
+{
+  "match_id": "537327",
+  "kickoff": "2026-06-11T19:00:00Z",
+  "stage": "group",
+  "group_id": "A",
+  "home_team_id": "mexico",
+  "home_team": "Mexico",
+  "home_code": "MEX",
+  "home_flag": "🇲🇽",
+  "home_goals": 2.0,
+  "away_team_id": "south-africa",
+  "away_team": "South Africa",
+  "away_code": "RSA",
+  "away_flag": "🇿🇦",
+  "away_goals": 0.0,
+  "played": 1
+}

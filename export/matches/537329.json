@@ -1,0 +1,17 @@
+{
+  "match_id": "537329",
+  "kickoff": "2026-06-18T16:00:00Z",
+  "stage": "group",
+  "group_id": "A",
+  "home_team_id": "czech-republic",
+  "home_team": "Czech Republic",
+  "home_code": "CZE",
+  "home_flag": "🇨🇿",
+  "home_goals": 1.0,
+  "away_team_id": "south-africa",
+  "away_team": "South Africa",
+  "away_code": "RSA",
+  "away_flag": "🇿🇦",
+  "away_goals": 1.0,
+  "played": 1
+}

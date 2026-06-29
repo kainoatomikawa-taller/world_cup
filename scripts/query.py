@@ -362,6 +362,107 @@ def enriched_player_stats(
         return pd.read_sql_query(sql, conn, params=params)
 
 
+def all_competitions(db_path: Path) -> pd.DataFrame:
+    """Return all competitions stored in the database.
+
+    Args:
+        db_path: Path to the SQLite database file.
+
+    Returns:
+        DataFrame with columns: id, name, year, format, start_date, end_date.
+    """
+    sql = """
+        SELECT id, name, year, format, start_date, end_date
+        FROM   competitions
+        ORDER BY year DESC
+    """
+    with _read_conn(db_path) as conn:
+        return pd.read_sql_query(sql, conn)
+
+
+def all_fixtures(
+    db_path: Path,
+    competition_id: str = DEFAULT_COMPETITION,
+) -> pd.DataFrame:
+    """Return all matches (played and unplayed) ordered by kickoff.
+
+    Args:
+        db_path: Path to the SQLite database file.
+        competition_id: Competition slug (default: 'fifa-wc-2026').
+
+    Returns:
+        DataFrame with columns: match_id, kickoff, stage, group_id,
+        home_team_id, home_team, home_code, home_flag, home_goals,
+        away_team_id, away_team, away_code, away_flag, away_goals, played.
+    """
+    sql = """
+        SELECT
+            m.id            AS match_id,
+            m.kickoff,
+            m.stage,
+            m.group_id,
+            ht.id           AS home_team_id,
+            ht.name         AS home_team,
+            ht.code         AS home_code,
+            ht.flag         AS home_flag,
+            m.home_goals,
+            at.id           AS away_team_id,
+            at.name         AS away_team,
+            at.code         AS away_code,
+            at.flag         AS away_flag,
+            m.away_goals,
+            m.played
+        FROM  matches m
+        JOIN  teams   ht ON ht.id = m.home_team_id
+        JOIN  teams   at ON at.id = m.away_team_id
+        WHERE m.competition_id = :competition_id
+        ORDER BY m.kickoff
+    """
+    with _read_conn(db_path) as conn:
+        return pd.read_sql_query(
+            sql, conn, params={"competition_id": competition_id}
+        )
+
+
+def all_player_ratings(
+    db_path: Path,
+    competition_id: str = DEFAULT_COMPETITION,
+    *,
+    limit: int = 1000,
+) -> pd.DataFrame:
+    """Return player ratings joined to canonical team information.
+
+    Args:
+        db_path: Path to the SQLite database file.
+        competition_id: Competition slug (default: 'fifa-wc-2026').
+        limit: Maximum rows to return.
+
+    Returns:
+        DataFrame with columns: player_id, team, team_code, match_id,
+        source, rating.
+    """
+    sql = """
+        SELECT
+            pr.player_id,
+            t.name      AS team,
+            t.code      AS team_code,
+            pr.match_id,
+            pr.source,
+            pr.rating
+        FROM  player_ratings pr
+        JOIN  teams           t  ON t.id = pr.team_id
+        WHERE pr.competition_id = :competition_id
+        ORDER BY pr.rating DESC NULLS LAST
+        LIMIT :limit
+    """
+    with _read_conn(db_path) as conn:
+        return pd.read_sql_query(
+            sql,
+            conn,
+            params={"competition_id": competition_id, "limit": limit},
+        )
+
+
 def unmatched_entities(
     db_path: Path,
     *,

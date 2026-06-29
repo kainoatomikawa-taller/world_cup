@@ -1,0 +1,17 @@
+{
+  "match_id": "537370",
+  "kickoff": "2026-06-15T22:00:00Z",
+  "stage": "group",
+  "group_id": "H",
+  "home_team_id": "saudi-arabia",
+  "home_team": "Saudi Arabia",
+  "home_code": "KSA",
+  "home_flag": "🇸🇦",
+  "home_goals": 1.0,
+  "away_team_id": "uruguay",
+  "away_team": "Uruguay",
+  "away_code": "URU",
+  "away_flag": "🇺🇾",
+  "away_goals": 1.0,
+  "played": 1
+}

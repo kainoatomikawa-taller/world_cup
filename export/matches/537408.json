@@ -1,0 +1,17 @@
+{
+  "match_id": "537408",
+  "kickoff": "2026-06-27T23:30:00Z",
+  "stage": "group",
+  "group_id": "K",
+  "home_team_id": "dr-congo",
+  "home_team": "DR Congo",
+  "home_code": "COD",
+  "home_flag": "🇨🇩",
+  "home_goals": 3.0,
+  "away_team_id": "uzbekistan",
+  "away_team": "Uzbekistan",
+  "away_code": "UZB",
+  "away_flag": "🇺🇿",
+  "away_goals": 1.0,
+  "played": 1
+}

@@ -1,0 +1,17 @@
+{
+  "match_id": "537331",
+  "kickoff": "2026-06-25T01:00:00Z",
+  "stage": "group",
+  "group_id": "A",
+  "home_team_id": "czech-republic",
+  "home_team": "Czech Republic",
+  "home_code": "CZE",
+  "home_flag": "🇨🇿",
+  "home_goals": 0.0,
+  "away_team_id": "mexico",
+  "away_team": "Mexico",
+  "away_code": "MEX",
+  "away_flag": "🇲🇽",
+  "away_goals": 3.0,
+  "played": 1
+}

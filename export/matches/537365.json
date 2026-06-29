@@ -1,0 +1,17 @@
+{
+  "match_id": "537365",
+  "kickoff": "2026-06-21T19:00:00Z",
+  "stage": "group",
+  "group_id": "G",
+  "home_team_id": "belgium",
+  "home_team": "Belgium",
+  "home_code": "BEL",
+  "home_flag": "🇧🇪",
+  "home_goals": 0.0,
+  "away_team_id": "iran",
+  "away_team": "Iran",
+  "away_code": "IRN",
+  "away_flag": "🇮🇷",
+  "away_goals": 0.0,
+  "played": 1
+}

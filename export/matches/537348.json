@@ -1,0 +1,17 @@
+{
+  "match_id": "537348",
+  "kickoff": "2026-06-19T19:00:00Z",
+  "stage": "group",
+  "group_id": "D",
+  "home_team_id": "united-states",
+  "home_team": "United States",
+  "home_code": "USA",
+  "home_flag": "🇺🇸",
+  "home_goals": 2.0,
+  "away_team_id": "australia",
+  "away_team": "Australia",
+  "away_code": "AUS",
+  "away_flag": "🇦🇺",
+  "away_goals": 0.0,
+  "played": 1
+}

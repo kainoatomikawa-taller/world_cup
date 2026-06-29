@@ -1,0 +1,17 @@
+{
+  "match_id": "537356",
+  "kickoff": "2026-06-25T20:00:00Z",
+  "stage": "group",
+  "group_id": "E",
+  "home_team_id": "curacao",
+  "home_team": "Curaçao",
+  "home_code": "CUW",
+  "home_flag": "🇨🇼",
+  "home_goals": 0.0,
+  "away_team_id": "ivory-coast",
+  "away_team": "Ivory Coast",
+  "away_code": "CIV",
+  "away_flag": "🇨🇮",
+  "away_goals": 2.0,
+  "played": 1
+}

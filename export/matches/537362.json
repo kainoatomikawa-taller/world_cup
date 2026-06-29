@@ -1,0 +1,17 @@
+{
+  "match_id": "537362",
+  "kickoff": "2026-06-25T23:00:00Z",
+  "stage": "group",
+  "group_id": "F",
+  "home_team_id": "japan",
+  "home_team": "Japan",
+  "home_code": "JPN",
+  "home_flag": "🇯🇵",
+  "home_goals": 1.0,
+  "away_team_id": "sweden",
+  "away_team": "Sweden",
+  "away_code": "SWE",
+  "away_flag": "🇸🇪",
+  "away_goals": 1.0,
+  "played": 1
+}

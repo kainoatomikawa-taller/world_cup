@@ -1,0 +1,17 @@
+{
+  "match_id": "537332",
+  "kickoff": "2026-06-25T01:00:00Z",
+  "stage": "group",
+  "group_id": "A",
+  "home_team_id": "south-africa",
+  "home_team": "South Africa",
+  "home_code": "RSA",
+  "home_flag": "🇿🇦",
+  "home_goals": 1.0,
+  "away_team_id": "south-korea",
+  "away_team": "South Korea",
+  "away_code": "KOR",
+  "away_flag": "🇰🇷",
+  "away_goals": 0.0,
+  "played": 1
+}

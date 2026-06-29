@@ -1,0 +1,17 @@
+{
+  "match_id": "537412",
+  "kickoff": "2026-06-23T23:00:00Z",
+  "stage": "group",
+  "group_id": "L",
+  "home_team_id": "panama",
+  "home_team": "Panama",
+  "home_code": "PAN",
+  "home_flag": "🇵🇦",
+  "home_goals": 0.0,
+  "away_team_id": "croatia",
+  "away_team": "Croatia",
+  "away_code": "CRO",
+  "away_flag": "🇭🇷",
+  "away_goals": 1.0,
+  "played": 1
+}

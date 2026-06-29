@@ -1,0 +1,17 @@
+{
+  "match_id": "537413",
+  "kickoff": "2026-06-27T21:00:00Z",
+  "stage": "group",
+  "group_id": "L",
+  "home_team_id": "panama",
+  "home_team": "Panama",
+  "home_code": "PAN",
+  "home_flag": "🇵🇦",
+  "home_goals": 0.0,
+  "away_team_id": "england",
+  "away_team": "England",
+  "away_code": "ENG",
+  "away_flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+  "away_goals": 2.0,
+  "played": 1
+}

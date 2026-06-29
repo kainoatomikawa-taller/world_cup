@@ -1,0 +1,17 @@
+{
+  "match_id": "537394",
+  "kickoff": "2026-06-23T00:00:00Z",
+  "stage": "group",
+  "group_id": "I",
+  "home_team_id": "norway",
+  "home_team": "Norway",
+  "home_code": "NOR",
+  "home_flag": "🇳🇴",
+  "home_goals": 3.0,
+  "away_team_id": "senegal",
+  "away_team": "Senegal",
+  "away_code": "SEN",
+  "away_flag": "🇸🇳",
+  "away_goals": 2.0,
+  "played": 1
+}

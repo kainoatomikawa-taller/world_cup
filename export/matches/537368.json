@@ -1,0 +1,17 @@
+{
+  "match_id": "537368",
+  "kickoff": "2026-06-27T03:00:00Z",
+  "stage": "group",
+  "group_id": "G",
+  "home_team_id": "egypt",
+  "home_team": "Egypt",
+  "home_code": "EGY",
+  "home_flag": "🇪🇬",
+  "home_goals": 1.0,
+  "away_team_id": "iran",
+  "away_team": "Iran",
+  "away_code": "IRN",
+  "away_flag": "🇮🇷",
+  "away_goals": 1.0,
+  "played": 1
+}

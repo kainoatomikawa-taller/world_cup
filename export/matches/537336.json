@@ -1,0 +1,17 @@
+{
+  "match_id": "537336",
+  "kickoff": "2026-06-18T22:00:00Z",
+  "stage": "group",
+  "group_id": "B",
+  "home_team_id": "canada",
+  "home_team": "Canada",
+  "home_code": "CAN",
+  "home_flag": "🇨🇦",
+  "home_goals": 6.0,
+  "away_team_id": "qatar",
+  "away_team": "Qatar",
+  "away_code": "QAT",
+  "away_flag": "🇶🇦",
+  "away_goals": 0.0,
+  "played": 1
+}

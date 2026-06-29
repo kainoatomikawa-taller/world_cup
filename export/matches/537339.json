@@ -1,0 +1,17 @@
+{
+  "match_id": "537339",
+  "kickoff": "2026-06-13T22:00:00Z",
+  "stage": "group",
+  "group_id": "C",
+  "home_team_id": "brazil",
+  "home_team": "Brazil",
+  "home_code": "BRA",
+  "home_flag": "🇧🇷",
+  "home_goals": 1.0,
+  "away_team_id": "morocco",
+  "away_team": "Morocco",
+  "away_code": "MAR",
+  "away_flag": "🇲🇦",
+  "away_goals": 1.0,
+  "played": 1
+}

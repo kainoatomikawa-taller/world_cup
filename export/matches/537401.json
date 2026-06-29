@@ -1,0 +1,17 @@
+{
+  "match_id": "537401",
+  "kickoff": "2026-06-28T02:00:00Z",
+  "stage": "group",
+  "group_id": "J",
+  "home_team_id": "jordan",
+  "home_team": "Jordan",
+  "home_code": "JOR",
+  "home_flag": "🇯🇴",
+  "home_goals": 1.0,
+  "away_team_id": "argentina",
+  "away_team": "Argentina",
+  "away_code": "ARG",
+  "away_flag": "🇦🇷",
+  "away_goals": 3.0,
+  "played": 1
+}

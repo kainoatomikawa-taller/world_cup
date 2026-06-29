@@ -1,0 +1,17 @@
+{
+  "match_id": "537374",
+  "kickoff": "2026-06-27T00:00:00Z",
+  "stage": "group",
+  "group_id": "H",
+  "home_team_id": "cape-verde",
+  "home_team": "Cape Verde",
+  "home_code": "CPV",
+  "home_flag": "🇨🇻",
+  "home_goals": 0.0,
+  "away_team_id": "saudi-arabia",
+  "away_team": "Saudi Arabia",
+  "away_code": "KSA",
+  "away_flag": "🇸🇦",
+  "away_goals": 0.0,
+  "played": 1
+}
