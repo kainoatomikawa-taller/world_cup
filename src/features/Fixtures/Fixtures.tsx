@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useFixtures, type StaticFixture } from '../../data/useFixtures';
 import { useMatchDetail } from '../../data/useMatchDetail';
 
@@ -21,11 +21,6 @@ const KNOCKOUT_LABEL: Record<string, string> = {
   final: 'Final',
 };
 
-interface FixtureGroup {
-  label: string;
-  items: StaticFixture[];
-}
-
 function formatDateLabel(dateStr: string): string {
   const [year, month, day] = dateStr.split('-').map(Number);
   const date = new Date(Date.UTC(year, month - 1, day));
@@ -44,30 +39,43 @@ function formatKickoff(isoStr: string): string {
   });
 }
 
-function groupByDateOrStage(fixtures: StaticFixture[]): FixtureGroup[] {
+// ---------------------------------------------------------------------------
+// Match-day grouping
+// ---------------------------------------------------------------------------
+
+interface MatchDay {
+  date: string;
+  label: string;
+  items: StaticFixture[];
+}
+
+function groupIntoMatchDays(fixtures: StaticFixture[]): MatchDay[] {
   const sorted = [...fixtures].sort((a, b) => {
-    const stageDiff =
-      (STAGE_ORDER[a.stage] ?? 99) - (STAGE_ORDER[b.stage] ?? 99);
+    const stageDiff = (STAGE_ORDER[a.stage] ?? 99) - (STAGE_ORDER[b.stage] ?? 99);
     if (stageDiff !== 0) return stageDiff;
     return a.kickoff.localeCompare(b.kickoff);
   });
-
-  const map = new Map<string, FixtureGroup>();
+  const map = new Map<string, MatchDay>();
   for (const f of sorted) {
-    let key: string;
-    let label: string;
-    if (f.stage === 'group') {
-      const dateStr = f.kickoff.slice(0, 10);
-      key = `date:${dateStr}`;
-      label = formatDateLabel(dateStr);
-    } else {
-      key = `stage:${f.stage}`;
-      label = KNOCKOUT_LABEL[f.stage] ?? f.stage;
+    const date = f.kickoff.slice(0, 10);
+    if (!map.has(date)) {
+      map.set(date, { date, label: formatDateLabel(date), items: [] });
     }
-    if (!map.has(key)) map.set(key, { label, items: [] });
-    map.get(key)!.items.push(f);
+    map.get(date)!.items.push(f);
   }
   return Array.from(map.values());
+}
+
+function defaultDayIndex(days: MatchDay[]): number {
+  if (days.length === 0) return 0;
+  const today = new Date().toISOString().slice(0, 10);
+  const todayIdx = days.findIndex((d) => d.date === today);
+  if (todayIdx !== -1) return todayIdx;
+  const nextIdx = days.findIndex((d) => d.date > today);
+  if (nextIdx !== -1) return nextIdx;
+  const finalIdx = days.findLastIndex((d) => d.items.some((f) => f.stage === 'final'));
+  if (finalIdx !== -1) return finalIdx;
+  return days.length - 1;
 }
 
 // ---------------------------------------------------------------------------
@@ -165,12 +173,63 @@ function FixtureRow({
 }
 
 // ---------------------------------------------------------------------------
-// Fixtures screen
+// Fixtures screen — match-day browser
 // ---------------------------------------------------------------------------
 
 export function Fixtures() {
   const { fixtures, loading, error } = useFixtures();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [dayIndex, setDayIndex] = useState(0);
+  const initialized = useRef(false);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+
+  const matchDays = useMemo(() => groupIntoMatchDays(fixtures), [fixtures]);
+
+  // Set default day once data arrives
+  useEffect(() => {
+    if (matchDays.length > 0 && !initialized.current) {
+      initialized.current = true;
+      setDayIndex(defaultDayIndex(matchDays));
+    }
+  }, [matchDays]);
+
+  // Clear selected row when day changes
+  useEffect(() => {
+    setSelectedId(null);
+  }, [dayIndex]);
+
+  const goPrev = useCallback(() => setDayIndex((i) => Math.max(0, i - 1)), []);
+  const goNext = useCallback(
+    () => setDayIndex((i) => Math.min(matchDays.length - 1, i + 1)),
+    [matchDays.length],
+  );
+
+  // Keyboard navigation
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'ArrowLeft') goPrev();
+      else if (e.key === 'ArrowRight') goNext();
+    }
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [goPrev, goNext]);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    touchStartX.current = null;
+    touchStartY.current = null;
+    if (Math.abs(dx) < 40 || Math.abs(dy) > Math.abs(dx)) return;
+    if (dx < 0) goNext();
+    else goPrev();
+  }
 
   if (loading) {
     return <p className="screen-intro">Loading fixtures…</p>;
@@ -184,33 +243,61 @@ export function Fixtures() {
     );
   }
 
-  const groups = groupByDateOrStage(fixtures);
-
-  if (groups.length === 0) {
+  if (matchDays.length === 0) {
     return <p className="screen-intro">No fixtures available yet.</p>;
   }
+
+  const current = matchDays[dayIndex];
+  const atStart = dayIndex === 0;
+  const atEnd = dayIndex === matchDays.length - 1;
 
   function toggle(id: string) {
     setSelectedId((prev) => (prev === id ? null : id));
   }
 
   return (
-    <div className="fixtures-screen">
-      {groups.map((group) => (
-        <section key={group.label} className="fixture-group">
-          <h2 className="fixture-group__label">{group.label}</h2>
-          <div className="card fixture-list">
-            {group.items.map((f) => (
-              <FixtureRow
-                key={f.match_id}
-                fixture={f}
-                selected={selectedId === f.match_id}
-                onToggle={() => toggle(f.match_id)}
-              />
-            ))}
-          </div>
-        </section>
-      ))}
+    <div
+      className="matchday-browser"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      <div className="matchday-nav">
+        <button
+          className="matchday-nav__btn"
+          onClick={goPrev}
+          disabled={atStart}
+          aria-label="Previous match day"
+        >
+          ←
+        </button>
+
+        <div className="matchday-nav__center">
+          <span className="matchday-nav__date">{current.label}</span>
+          <span className="matchday-nav__counter">
+            {dayIndex + 1} / {matchDays.length}
+          </span>
+        </div>
+
+        <button
+          className="matchday-nav__btn"
+          onClick={goNext}
+          disabled={atEnd}
+          aria-label="Next match day"
+        >
+          →
+        </button>
+      </div>
+
+      <div className="card fixture-list matchday-card-list">
+        {current.items.map((f) => (
+          <FixtureRow
+            key={f.match_id}
+            fixture={f}
+            selected={selectedId === f.match_id}
+            onToggle={() => toggle(f.match_id)}
+          />
+        ))}
+      </div>
     </div>
   );
 }
