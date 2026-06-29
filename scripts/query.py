@@ -196,6 +196,163 @@ def top_scorers(
         return pd.read_sql_query(sql, conn, params=params)
 
 
+def identity_coverage(
+    db_path: Path,
+    *,
+    entity_type: str | None = None,
+) -> pd.DataFrame:
+    """Return per-source identity mapping counts for audit purposes.
+
+    Shows how many rows in identity_map are verified, unverified, or sentinel
+    (unmatched) for each source.  Run this before joining enrichment data to
+    catch gaps early.
+
+    Args:
+        db_path: Path to the SQLite database file.
+        entity_type: Optional filter — 'team' or 'player'.  If None, all
+                     entity types are aggregated together.
+
+    Returns:
+        DataFrame with columns: source, entity_type, verified,
+        unverified, unmatched, total.
+    """
+    type_clause = "AND im.entity_type = :entity_type" if entity_type else ""
+    sql = f"""
+        SELECT
+            im.source,
+            im.entity_type,
+            SUM(CASE WHEN im.canonical_id != '__unmatched__' AND im.verified = 1
+                     THEN 1 ELSE 0 END)                    AS verified,
+            SUM(CASE WHEN im.canonical_id != '__unmatched__' AND im.verified = 0
+                     THEN 1 ELSE 0 END)                    AS unverified,
+            SUM(CASE WHEN im.canonical_id  = '__unmatched__'
+                     THEN 1 ELSE 0 END)                    AS unmatched,
+            COUNT(*)                                        AS total
+        FROM  identity_map im
+        WHERE 1=1 {type_clause}
+        GROUP BY im.source, im.entity_type
+        ORDER BY im.entity_type, im.source
+    """
+    params: dict[str, object] = {}
+    if entity_type:
+        params["entity_type"] = entity_type
+
+    with _read_conn(db_path) as conn:
+        return pd.read_sql_query(sql, conn, params=params)
+
+
+def enriched_player_stats(
+    db_path: Path,
+    competition_id: str = DEFAULT_COMPETITION,
+    *,
+    source: str | None = None,
+    limit: int = 50,
+) -> pd.DataFrame:
+    """Return player_stats joined to canonical team and identity information.
+
+    This is the canonical join pattern for enrichment data: player_stats rows
+    use the canonical player_id slug (resolved via identity_map by the adapter
+    layer) so the join is a simple foreign-key lookup.  The query also surfaces
+    the source display name from identity_map for readability.
+
+    Args:
+        db_path: Path to the SQLite database file.
+        competition_id: Competition slug (default: 'fifa-wc-2026').
+        source: Optional enrichment source filter (e.g. 'sofascore', 'fbref').
+                If None, one representative display name per player is used.
+        limit: Maximum rows to return.
+
+    Returns:
+        DataFrame with columns: player_id, display_name, source, team,
+        team_code, matches_played, minutes, goals, assists,
+        shots, shots_on_target, passes, pass_accuracy.
+    """
+    source_join = "AND im.source = :source" if source else ""
+    sql = f"""
+        SELECT
+            ps.player_id,
+            COALESCE(im.source_name, ps.player_id)  AS display_name,
+            im.source,
+            t.name                                   AS team,
+            t.code                                   AS team_code,
+            ps.matches_played,
+            ps.minutes,
+            ps.goals,
+            ps.assists,
+            ps.shots,
+            ps.shots_on_target,
+            ps.passes,
+            ps.pass_accuracy
+        FROM  player_stats ps
+        JOIN  teams         t  ON t.id = ps.team_id
+        LEFT JOIN identity_map im
+               ON im.canonical_id = ps.player_id
+              AND im.entity_type  = 'player'
+              AND im.verified     = 1
+              {source_join}
+        WHERE ps.competition_id = :competition_id
+          AND ps.match_id IS NULL   -- tournament aggregate rows only
+        ORDER BY ps.goals DESC, ps.minutes DESC
+        LIMIT :limit
+    """
+    params: dict[str, object] = {
+        "competition_id": competition_id,
+        "limit": limit,
+    }
+    if source:
+        params["source"] = source
+
+    with _read_conn(db_path) as conn:
+        return pd.read_sql_query(sql, conn, params=params)
+
+
+def unmatched_entities(
+    db_path: Path,
+    *,
+    entity_type: str | None = None,
+    source: str | None = None,
+) -> pd.DataFrame:
+    """Return identity_map rows that could not be resolved (sentinel rows).
+
+    These require human review: either add a mapping to identity.py's seed
+    tables and re-run `python scripts/identity.py seed`, or manually UPDATE
+    identity_map to set the correct canonical_id and verified=1.
+
+    Args:
+        db_path: Path to the SQLite database file.
+        entity_type: Optional filter — 'team' or 'player'.
+        source: Optional source filter (e.g. 'sofascore').
+
+    Returns:
+        DataFrame with columns: id, entity_type, source, source_id,
+        source_name, notes.
+    """
+    clauses = ["im.canonical_id = '__unmatched__'"]
+    params: dict[str, object] = {}
+    if entity_type:
+        clauses.append("im.entity_type = :entity_type")
+        params["entity_type"] = entity_type
+    if source:
+        clauses.append("im.source = :source")
+        params["source"] = source
+
+    where = " AND ".join(clauses)
+    sql = f"""
+        SELECT
+            im.id,
+            im.entity_type,
+            im.source,
+            im.source_id,
+            im.source_name,
+            im.notes
+        FROM identity_map im
+        WHERE {where}
+        ORDER BY im.entity_type, im.source, im.source_name
+    """
+    with _read_conn(db_path) as conn:
+        return pd.read_sql_query(sql, conn, params=params)
+
+
 # ---------------------------------------------------------------------------
 # CLI demo — proves the end-to-end ingest → query loop
 # ---------------------------------------------------------------------------

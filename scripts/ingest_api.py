@@ -37,6 +37,8 @@ from typing import Any
 
 import requests
 
+from identity import normalize_name, register_unmatched, resolve_team as _identity_resolve_team, seed_identity_map
+
 # ---------------------------------------------------------------------------
 # Repository layout
 # ---------------------------------------------------------------------------
@@ -264,13 +266,14 @@ class ApiClient:
 # ---------------------------------------------------------------------------
 
 def _seed_teams(conn: sqlite3.Connection, dry_run: bool) -> None:
-    """Upsert the 48 canonical teams from the static list into the teams table."""
+    """Upsert the 48 canonical teams and populate identity_map with all known aliases."""
     rows = [
         (t.id, COMPETITION_ID, t.name, t.code, t.group_id, t.flag)
         for t in _TEAMS
     ]
     if dry_run:
         print(f"  [dry-run] would upsert {len(rows)} teams")
+        print(f"  [dry-run] would seed identity_map with all source name aliases")
         return
     conn.executemany(
         """
@@ -287,6 +290,9 @@ def _seed_teams(conn: sqlite3.Connection, dry_run: bool) -> None:
     )
     conn.commit()
     print(f"  {len(rows)} teams upserted")
+    # Populate identity_map with all known name aliases across all sources.
+    inserted, _ = seed_identity_map(conn)
+    print(f"  {inserted} identity alias rows seeded (football-data, fbref, understat, sofascore)")
 
 
 def _ingest_competition(
@@ -337,9 +343,15 @@ def _ingest_team_identity(
         tla = (t.get("tla") or "").upper()
         name = t.get("name") or ""
         short = t.get("shortName") or ""
+        # Try legacy inline resolver first, then fall back to identity module
         slug = _resolve_team(tla, name, short)
         if not slug:
+            slug = _identity_resolve_team("football-data", fd_id, name, conn=conn)
+        if not slug:
             unresolved.append(f"{tla}/{name}")
+            if not dry_run:
+                register_unmatched("team", "football-data", fd_id, name,
+                                   notes=f"tla={tla}", conn=conn)
             continue
         rows.append((slug, "team", "football-data", fd_id, name))
 

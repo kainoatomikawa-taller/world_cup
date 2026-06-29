@@ -186,3 +186,29 @@ CREATE INDEX IF NOT EXISTS idx_identity_map_canonical
     ON identity_map(canonical_id, entity_type);
 CREATE INDEX IF NOT EXISTS idx_identity_map_unverified
     ON identity_map(verified) WHERE verified = 0;
+
+-- ---------------------------------------------------------------------------
+-- identity_review  [view — not a base table]
+-- Convenience view for the manual-review workflow.  Shows every row that
+-- needs human attention: either auto-generated (verified=0) or unresolvable
+-- (canonical_id='__unmatched__').  Update via:
+--
+--   UPDATE identity_map SET canonical_id='<slug>', verified=1 WHERE id=<id>;
+-- ---------------------------------------------------------------------------
+CREATE VIEW IF NOT EXISTS identity_review AS
+SELECT
+    im.id,
+    CASE
+        WHEN im.canonical_id = '__unmatched__' THEN 'unmatched'
+        ELSE 'unverified'
+    END                 AS review_status,
+    im.entity_type,
+    im.source,
+    im.source_id,
+    im.source_name,
+    im.canonical_id,
+    im.notes
+FROM identity_map im
+WHERE im.canonical_id = '__unmatched__'
+   OR im.verified = 0
+ORDER BY im.entity_type, im.source, im.source_name;
