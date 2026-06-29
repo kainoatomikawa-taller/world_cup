@@ -5,6 +5,7 @@ import { ThirdPlace } from './features/ThirdPlace/ThirdPlace';
 import { Bracket } from './features/Bracket/Bracket';
 import { InsightsDashboard } from './features/Insights/InsightsDashboard';
 import { StageNav, type StageKey } from './features/shared/StageNav';
+import { MatchDetail } from './features/MatchDetail/MatchDetail';
 import { PlayerStats } from './features/Ratings/PlayerStats';
 import { useTournamentStore } from './store/tournamentStore';
 import { TEAMS } from './data/schedule2026';
@@ -36,6 +37,7 @@ export default function App() {
 
   const initialize = useTournamentStore((s) => s.initialize);
   const setMatches = useTournamentStore((s) => s.setMatches);
+  const view = useTournamentStore((s) => s.view);
 
   useEffect(() => {
     initialize(TEAMS, []);
@@ -63,6 +65,10 @@ export default function App() {
         </p>
       </header>
 
+      {view === 'matchDetail' ? (
+        <MatchDetail />
+      ) : (
+        <>
       <StageNav current={topTab} onChange={setTopTab} />
 
       {topTab === 'possibilities' && (
@@ -105,6 +111,8 @@ export default function App() {
       {topTab === 'insights' && <InsightsDashboard />}
 
       {topTab === 'stats' && <PlayerStats />}
+        </>
+      )}
     </main>
   );
 }

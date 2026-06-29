@@ -23,6 +23,12 @@ interface TournamentStore extends TournamentState {
   setPick: (matchId: number, teamId: string) => void;
   /** Remove a winner pick (e.g. user clicks the current winner to deselect). */
   clearPick: (matchId: number) => void;
+
+  // --- navigation ---
+  view: 'tab' | 'matchDetail';
+  selectedMatchId: string | null;
+  openMatchDetail: (matchId: string) => void;
+  closeMatchDetail: () => void;
 }
 
 const emptyGroupOrder = () =>
@@ -39,6 +45,8 @@ export const useTournamentStore = create<TournamentStore>()(
       groupOrder: emptyGroupOrder(),
       thirdPlaceRanking: [],
       bracketPicks: {},
+      view: 'tab',
+      selectedMatchId: null,
 
       initialize: (teams, matches) =>
         set({
@@ -75,6 +83,12 @@ export const useTournamentStore = create<TournamentStore>()(
           delete next[matchId];
           return { bracketPicks: next };
         }),
+
+      openMatchDetail: (matchId) =>
+        set({ view: 'matchDetail', selectedMatchId: matchId }),
+
+      closeMatchDetail: () =>
+        set({ view: 'tab', selectedMatchId: null }),
     }),
     {
       name: 'wc2026-picks',
