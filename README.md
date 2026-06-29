@@ -40,11 +40,9 @@ The app pulls in **current, real tournament results** and constrains the user's 
 
 ## Status
 
-**Functionally complete for hypothetical exploration; live data not yet wired.**
+**Frontend complete for hypothetical exploration. Python data pipeline built; frontend wiring to live data is the remaining gap.**
 
-Stack: React + TypeScript + Vite · dnd-kit (drag-and-drop) · Zustand (state, with
-localStorage persistence) · Vitest (173 passing tests). See `CLAUDE.md` and
-`PROJECT_STRUCTURE.md` for architecture.
+Stack: React + TypeScript + Vite · dnd-kit (drag-and-drop) · Zustand (state, with localStorage persistence) · Vitest (173 passing tests) · Python 3.11 + SQLite (data pipeline, 73 tests). See `CLAUDE.md` and `PROJECT_STRUCTURE.md` for architecture.
 
 ### Done
 - [x] Frontend stack + drag-and-drop library chosen (React/Vite/dnd-kit/Zustand).
@@ -58,15 +56,19 @@ localStorage persistence) · Vitest (173 passing tests). See `CLAUDE.md` and
 - [x] localStorage persistence of all user picks; team flags.
 - [x] Full visual design system (`src/index.css` tokens + `src/App.css` components).
 - [x] Multi-tab app shell — `AppNav` with Possibilities, Fixtures, Insights, Lineups, Ratings tabs; placeholder content for future sections.
+- [x] SQLite schema (`scripts/schema.sql`) — backbone tables for competitions, teams, matches, standings, scorers, player_stats, player_ratings, and identity_map.
+- [x] football-data.org ingest pipeline (`scripts/ingest_api.py`) — fetches and upserts competition, teams, matches, standings, and top scorers.
+- [x] Read-only query layer (`scripts/query.py`) — pandas DataFrames for fixtures, standings, scorers, identity coverage, and enriched player stats.
+- [x] Cross-source identity mapping (`scripts/identity.py`) — reconciles team and player names across football-data.org, FBref, Understat, and Sofascore; 287 seed aliases, fuzzy player matching, unmatched surfacing for manual review.
 
 ### Remaining
-- [ ] **Live results integration** — the big one. `FIXTURES` in `src/data/schedule2026.ts` is empty and `api/` + `src/data/adapter.ts` are stubs. Needs a serverless proxy holding the football-API key (never client-side) and `adapter.ts` mapping the upstream shape to `Match[]`. All constraint logic already works the moment real `Match[]` data flows in — it's just inert today.
+- [ ] **Frontend live-data wiring** — `FIXTURES` in `src/data/schedule2026.ts` is empty and `api/matches.ts` + `src/data/adapter.ts` are stubs. The Python pipeline already has the data in SQLite; this step is connecting the serverless proxy to that store and mapping the response to `Match[]`. All constraint logic already works the moment real `Match[]` data flows in.
 - [ ] **Partial per-group third-place locking** — `allGroupsComplete` is all-or-nothing today; lock each group's 3rd-place rank position as soon as that group finishes.
 - [ ] **Fixtures tab** — full schedule and results view (top-level tab, distinct from the Fixtures sub-view inside Possibilities).
-- [ ] **Insights, Lineups, Ratings tabs** — future platform sections; scaffold exists.
+- [ ] **Insights, Lineups, Ratings tabs** — future platform sections; scaffold and identity mapping foundation exist.
 
 ### How to resume
 - `npm run dev` (server), `npm test` (173 tests), `npm run build`, `npm run lint`.
 - Logic lives in `src/domain/` (pure, tested). Data/results in `src/data/`. UI in `src/features/`. Shared state in `src/store/tournamentStore.ts`.
 - Navigation: top-level `AppNav` (platform tabs) → inner `StageNav` (within Possibilities only).
-- Next session almost certainly starts with the live-data integration above.
+- Python pipeline: `python scripts/init_db.py` → `python scripts/ingest_api.py` → `python scripts/identity.py seed`. See `CLAUDE.md` for all pipeline commands.

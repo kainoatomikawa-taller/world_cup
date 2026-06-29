@@ -4,11 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
+**Frontend (Node)**
 - `npm run dev` — start the Vite dev server.
 - `npm run build` — type-check (`tsc -b`) and build for production.
 - `npm test` — run the Vitest suite once.
 - `npm run test:watch` — Vitest in watch mode. A single file: `npx vitest run src/domain/standings.test.ts`.
 - `npm run lint` — ESLint.
+
+**Data pipeline (Python — run from `scripts/`)**
+- `python scripts/init_db.py` — create/re-apply schema to `db/world_cup.db` (idempotent).
+- `python scripts/ingest_api.py` — pull football-data.org data into SQLite (needs `FOOTBALL_API_KEY` in `.env.local`).
+- `python scripts/identity.py seed` — pre-populate `identity_map` with all known name aliases (football-data.org, FBref, Understat, Sofascore). Run after `init_db` and before enrichment scripts.
+- `python scripts/identity.py report` — print identity coverage and surface entities needing manual review.
+- `python scripts/query.py` — demo the read-only query functions (upcoming fixtures, group table, top scorers).
+- `cd scripts && .venv/bin/python -m pytest` — run all Python tests (73 tests across `test_query.py` and `test_identity.py`).
 
 ## Architecture
 
@@ -16,11 +25,20 @@ This is a React + TypeScript + Vite app for exploring FIFA World Cup 2026 scenar
 
 The central design rule: **the rules engine is separate from the UI.**
 
+**Frontend (TypeScript)**
 - `src/domain/` — pure TypeScript, **no React and no network access**. Tiebreakers, group standings, mathematical-elimination logic, third-place ranking, bracket seeding, and knockout propagation live here. This is where the real complexity and the tests are. Keep it pure.
 - `src/data/` — static tournament facts (`schedule2026.ts`, `assignmentTable.ts`) kept separate from live results (`api.ts` client + `adapter.ts` mapping). The `adapter` is the only place that knows the upstream API's shape.
 - `src/store/tournamentStore.ts` — a single Zustand store is the source of truth shared by all three screens, so a locked group result constrains the third-place screen and the bracket automatically.
 - `src/features/` — feature screens plus `shared/`. Drag-and-drop uses **dnd-kit**.
 - `api/` — serverless proxy functions. The football API key lives **only** here (server-side), never in client code; the browser calls `/api/*`.
+
+**Data pipeline (Python — `scripts/`)**
+- `schema.sql` / `init_db.py` — SQLite schema at `db/world_cup.db`. Tables: `competitions`, `teams`, `matches`, `standings`, `scorers`, `player_stats`, `player_ratings`, `identity_map`. Schema is idempotent (safe to re-run).
+- `ingest_api.py` — fetches football-data.org data (competition, teams, matches, standings, scorers) and upserts into SQLite. Rate-limited to the free tier (10 req/min). Requires `FOOTBALL_API_KEY` in `.env.local`.
+- `identity.py` — cross-source identity reconciliation. Resolves team and player names from football-data.org, FBref, Understat, and Sofascore to canonical slugs used across the whole pipeline. **All future enrichment scripts must use `resolve_team()` / `resolve_player()` from this module** rather than writing their own name matching. Unresolved entities are written to `identity_map` as sentinel rows (`canonical_id='__unmatched__'`) so they surface in `identity.py report`.
+- `query.py` — read-only pandas query functions over the SQLite store: `upcoming_fixtures()`, `competition_table()`, `top_scorers()`, `identity_coverage()`, `enriched_player_stats()`, `unmatched_entities()`.
+
+The Python `team.id` slugs and the TypeScript `team.id` slugs are **identical by design** — both layers reference the same 48 canonical slugs so data can flow between them without translation.
 
 ### Navigation hierarchy
 
@@ -66,5 +84,7 @@ Implemented in `src/domain/tiebreakers.ts`. The sequence below is applied strict
 
 ## Conventions
 
-- The `domain/` and `data/` modules are currently stubs that `throw 'not implemented'`. Implement them following the build order in `PROJECT_STRUCTURE.md` (standings/tiebreakers first, then elimination, then bracket).
 - Intentionally-unused stub parameters are prefixed with `_` (ESLint is configured to ignore that pattern).
+- The TypeScript `domain/` and `data/` modules are fully implemented — do not treat them as stubs.
+- Python enrichment scripts must import from `identity.py` for all name resolution rather than writing ad-hoc matching. Call `register_unmatched()` for any entity that fails resolution so it appears in the review report.
+- The Python venv lives at `scripts/.venv`. Run Python commands with `scripts/.venv/bin/python` or activate with `source scripts/.venv/bin/activate`.
