@@ -1334,6 +1334,117 @@
   font-weight: 600;
 }
 
+/* ---------- Match detail page ---------- */
+
+.match-detail-page {
+  max-width: 700px;
+}
+
+.match-detail-back-btn {
+  background: none;
+  border: none;
+  color: var(--blue);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.14s var(--ease);
+}
+
+.match-detail-back-btn:hover {
+  color: var(--text);
+}
+
+.match-detail-header {
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.mdh-stage {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--blue);
+}
+
+.mdh-teams {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  justify-content: center;
+}
+
+.mdh-team {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  font-size: 17px;
+  font-weight: 700;
+  font-family: var(--font-head);
+}
+
+.mdh-team--home {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.mdh-team--away {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.mdh-flag {
+  font-size: 26px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.mdh-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mdh-score {
+  flex-shrink: 0;
+  font-size: 28px;
+  font-weight: 700;
+  font-family: var(--font-head);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  min-width: 64px;
+  text-align: center;
+}
+
+.mdh-date {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.match-detail-tabs {
+  margin-bottom: 20px;
+}
+
+.match-detail-tab-panel {
+  min-height: 180px;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 640px) {
   .app-shell {
