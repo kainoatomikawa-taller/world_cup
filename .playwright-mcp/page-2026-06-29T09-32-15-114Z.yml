@@ -1,0 +1,34 @@
+- main [ref=e3]:
+  - generic [ref=e4]:
+    - heading "World Cup 2026" [level=1] [ref=e5]
+    - paragraph [ref=e6]: Your complete guide to the 48-team tournament — scenarios, fixtures, and insights in one place.
+  - navigation [ref=e8119]:
+    - button "Possibilities" [ref=e8120] [cursor=pointer]
+    - button "Fixtures" [ref=e8121] [cursor=pointer]
+    - button "Insights" [ref=e8122] [cursor=pointer]
+    - button "Stats" [ref=e8123] [cursor=pointer]
+  - generic [ref=e8124]:
+    - generic [ref=e8125]:
+      - button "Previous match day" [ref=e8126] [cursor=pointer]: ←
+      - generic [ref=e8127]:
+        - generic [ref=e8128]: 29 June 2026
+        - generic [ref=e8129]: 19 / 24
+      - button "Next match day" [ref=e8130] [cursor=pointer]: →
+    - generic [ref=e8131]:
+      - generic [ref=e8133]:
+        - generic [ref=e8134]:
+          - generic [ref=e8135]: 🇧🇷
+          - generic [ref=e8136]: Brazil
+        - generic [ref=e8138]: 10:00
+        - generic [ref=e8139]:
+          - generic [ref=e8140]: Japan
+          - generic [ref=e8141]: 🇯🇵
+      - generic [ref=e8143]:
+        - generic [ref=e8144]:
+          - generic [ref=e8145]: 🇩🇪
+          - generic [ref=e8146]: Germany
+        - generic [ref=e8148]: 13:30
+        - generic [ref=e8149]:
+          - generic [ref=e8150]: Paraguay
+          - generic [ref=e8151]: 🇵🇾
+    - button "View full schedule ›" [ref=e8153] [cursor=pointer]

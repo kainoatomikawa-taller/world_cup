@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTournamentStore } from '../../store/tournamentStore';
 import { useMatchDetail } from '../../data/useMatchDetail';
+import { LineupsTab } from './LineupsTab';
 
 type MatchTab = 'lineups' | 'gameStats' | 'insights';
 
@@ -95,11 +96,7 @@ export function MatchDetail() {
 
           <div className="match-detail-tab-panel">
             {activeTab === 'lineups' && (
-              <div className="placeholder-screen">
-                <p className="placeholder-desc">
-                  Lineup data is not yet available for this match.
-                </p>
-              </div>
+              <LineupsTab detail={detail} />
             )}
             {activeTab === 'gameStats' && (
               <div className="placeholder-screen">

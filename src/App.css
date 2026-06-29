@@ -1445,6 +1445,137 @@
   min-height: 180px;
 }
 
+/* ---------- Lineups tab ---------- */
+
+.lineups-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.lineup-team__header {
+  background: linear-gradient(120deg, var(--blue-tint), transparent);
+}
+
+.lineup-team__flag {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.lineup-team__formation {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--blue);
+  background: var(--blue-tint);
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.lineup-section__title {
+  padding: 5px 12px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--faint);
+  background: rgba(15, 23, 42, 0.03);
+  border-bottom: 1px solid var(--border);
+}
+
+.lineup-player {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  transition: background 0.12s var(--ease);
+}
+
+.lineup-player:last-child {
+  border-bottom: 0;
+}
+
+.lineup-player:hover {
+  background: var(--blue-tint);
+}
+
+.lineup-player__num {
+  width: 20px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.lineup-pos-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: var(--blue-tint);
+  color: var(--blue);
+  flex-shrink: 0;
+  width: 28px;
+  text-align: center;
+}
+
+.lineup-pos-badge--gk {
+  background: var(--gold-tint);
+  color: #7a5c00;
+}
+
+.lineup-player__name {
+  flex: 1;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.lineup-player__sub-on {
+  font-size: 11px;
+  color: var(--green);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.lineup-rating {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 6px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  min-width: 34px;
+  text-align: center;
+}
+
+.lineup-rating--empty {
+  color: var(--faint);
+}
+
+.lineup-rating--high {
+  background: var(--green-tint);
+  color: #0e7a50;
+}
+
+.lineup-rating--mid {
+  background: var(--blue-tint);
+  color: var(--blue);
+}
+
+.lineup-rating--low {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 640px) {
   .app-shell {
@@ -1469,5 +1600,8 @@
   .app-nav-tab {
     padding-left: 12px;
     padding-right: 12px;
+  }
+  .lineups-panel {
+    grid-template-columns: 1fr;
   }
 }

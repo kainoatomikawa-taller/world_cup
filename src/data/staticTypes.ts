@@ -50,7 +50,12 @@ export interface StaticFixture {
   played: number;
 }
 
-export type StaticMatchDetail = StaticFixture;
+export type StaticMatchDetail = StaticFixture & {
+  lineups?: {
+    home: StaticMatchLineup;
+    away: StaticMatchLineup;
+  };
+};
 
 // ---- standings.json ----
 
@@ -110,4 +115,22 @@ export interface StaticPlayerRating {
   match_id: string;
   source: string;
   rating: number;
+}
+
+// ---- matches/<id>.json (lineup extension) ----
+
+export interface StaticMatchLineupPlayer {
+  player_id: string;
+  player_name: string;
+  jersey_number: number;
+  position: 'GK' | 'DEF' | 'MID' | 'FWD';
+  is_starter: boolean;
+  minute_on?: number;
+  minute_off?: number;
+}
+
+export interface StaticMatchLineup {
+  team_id: string;
+  formation?: string;
+  players: StaticMatchLineupPlayer[];
 }

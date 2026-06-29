@@ -1,0 +1,49 @@
+- main [ref=e3]:
+  - generic [ref=e4]:
+    - heading "World Cup 2026" [level=1] [ref=e5]
+    - paragraph [ref=e6]: Your complete guide to the 48-team tournament — scenarios, fixtures, and insights in one place.
+  - navigation [ref=e7]:
+    - button "Possibilities" [ref=e8] [cursor=pointer]
+    - button "Fixtures" [ref=e9] [cursor=pointer]
+    - button "Insights" [ref=e10] [cursor=pointer]
+    - button "Stats" [ref=e11] [cursor=pointer]
+  - generic [ref=e416]:
+    - generic [ref=e417]:
+      - button "Previous match day" [active] [ref=e418] [cursor=pointer]: ←
+      - generic [ref=e419]:
+        - generic [ref=e420]: 28 June 2026
+        - generic [ref=e421]: 18 / 24
+      - button "Next match day" [ref=e422] [cursor=pointer]: →
+    - generic [ref=e423]:
+      - button "🇯🇴 Jordan J 1 – 3 Argentina 🇦🇷" [ref=e447] [cursor=pointer]:
+        - generic [ref=e448]:
+          - generic [ref=e449]: 🇯🇴
+          - generic [ref=e450]: Jordan
+        - generic [ref=e451]:
+          - generic [ref=e452]: J
+          - generic [ref=e453]: 1 – 3
+        - generic [ref=e454]:
+          - generic [ref=e455]: Argentina
+          - generic [ref=e456]: 🇦🇷
+        - generic [ref=e457]: ›
+      - button "🇩🇿 Algeria J 3 – 3 Austria 🇦🇹" [ref=e459] [cursor=pointer]:
+        - generic [ref=e460]:
+          - generic [ref=e461]: 🇩🇿
+          - generic [ref=e462]: Algeria
+        - generic [ref=e463]:
+          - generic [ref=e464]: J
+          - generic [ref=e465]: 3 – 3
+        - generic [ref=e466]:
+          - generic [ref=e467]: Austria
+          - generic [ref=e468]: 🇦🇹
+        - generic [ref=e469]: ›
+      - button "🇿🇦 South Africa 0 – 1 Canada 🇨🇦" [ref=e471] [cursor=pointer]:
+        - generic [ref=e472]:
+          - generic [ref=e473]: 🇿🇦
+          - generic [ref=e474]: South Africa
+        - generic [ref=e476]: 0 – 1
+        - generic [ref=e477]:
+          - generic [ref=e478]: Canada
+          - generic [ref=e479]: 🇨🇦
+        - generic [ref=e480]: ›
+    - button "View full schedule ›" [ref=e445] [cursor=pointer]

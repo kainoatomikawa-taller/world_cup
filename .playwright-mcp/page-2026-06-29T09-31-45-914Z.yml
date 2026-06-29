@@ -1,0 +1,106 @@
+- main [ref=e3]:
+  - generic [ref=e4]:
+    - heading "World Cup 2026" [level=1] [ref=e5]
+    - paragraph [ref=e6]: Your complete guide to the 48-team tournament — scenarios, fixtures, and insights in one place.
+  - navigation [ref=e7]:
+    - button "Possibilities" [ref=e8] [cursor=pointer]
+    - button "Fixtures" [ref=e9] [cursor=pointer]
+    - button "Insights" [ref=e10] [cursor=pointer]
+    - button "Stats" [ref=e11] [cursor=pointer]
+  - generic [ref=e7775]:
+    - generic [ref=e7776]:
+      - button "Previous match day" [active] [ref=e7777] [cursor=pointer]: ←
+      - generic [ref=e7778]:
+        - generic [ref=e7779]: 27 June 2026
+        - generic [ref=e7780]: 17 / 24
+      - button "Next match day" [ref=e7781] [cursor=pointer]: →
+    - generic [ref=e7782]:
+      - button "🇺🇾 Uruguay H 0 – 1 Spain 🇪🇸" [ref=e7841] [cursor=pointer]:
+        - generic [ref=e7842]:
+          - generic [ref=e7843]: 🇺🇾
+          - generic [ref=e7844]: Uruguay
+        - generic [ref=e7845]:
+          - generic [ref=e7846]: H
+          - generic [ref=e7847]: 0 – 1
+        - generic [ref=e7848]:
+          - generic [ref=e7849]: Spain
+          - generic [ref=e7850]: 🇪🇸
+        - generic [ref=e7851]: ›
+      - button "🇨🇻 Cape Verde H 0 – 0 Saudi Arabia 🇸🇦" [ref=e7853] [cursor=pointer]:
+        - generic [ref=e7854]:
+          - generic [ref=e7855]: 🇨🇻
+          - generic [ref=e7856]: Cape Verde
+        - generic [ref=e7857]:
+          - generic [ref=e7858]: H
+          - generic [ref=e7859]: 0 – 0
+        - generic [ref=e7860]:
+          - generic [ref=e7861]: Saudi Arabia
+          - generic [ref=e7862]: 🇸🇦
+        - generic [ref=e7863]: ›
+      - button "🇳🇿 New Zealand G 1 – 5 Belgium 🇧🇪" [ref=e7865] [cursor=pointer]:
+        - generic [ref=e7866]:
+          - generic [ref=e7867]: 🇳🇿
+          - generic [ref=e7868]: New Zealand
+        - generic [ref=e7869]:
+          - generic [ref=e7870]: G
+          - generic [ref=e7871]: 1 – 5
+        - generic [ref=e7872]:
+          - generic [ref=e7873]: Belgium
+          - generic [ref=e7874]: 🇧🇪
+        - generic [ref=e7875]: ›
+      - button "🇪🇬 Egypt G 1 – 1 Iran 🇮🇷" [ref=e7877] [cursor=pointer]:
+        - generic [ref=e7878]:
+          - generic [ref=e7879]: 🇪🇬
+          - generic [ref=e7880]: Egypt
+        - generic [ref=e7881]:
+          - generic [ref=e7882]: G
+          - generic [ref=e7883]: 1 – 1
+        - generic [ref=e7884]:
+          - generic [ref=e7885]: Iran
+          - generic [ref=e7886]: 🇮🇷
+        - generic [ref=e7887]: ›
+      - button "🇵🇦 Panama L 0 – 2 England 🏴󠁧󠁢󠁥󠁮󠁧󠁿" [ref=e7889] [cursor=pointer]:
+        - generic [ref=e7890]:
+          - generic [ref=e7891]: 🇵🇦
+          - generic [ref=e7892]: Panama
+        - generic [ref=e7893]:
+          - generic [ref=e7894]: L
+          - generic [ref=e7895]: 0 – 2
+        - generic [ref=e7896]:
+          - generic [ref=e7897]: England
+          - generic [ref=e7898]: 🏴󠁧󠁢󠁥󠁮󠁧󠁿
+        - generic [ref=e7899]: ›
+      - button "🇭🇷 Croatia L 2 – 1 Ghana 🇬🇭" [ref=e7901] [cursor=pointer]:
+        - generic [ref=e7902]:
+          - generic [ref=e7903]: 🇭🇷
+          - generic [ref=e7904]: Croatia
+        - generic [ref=e7905]:
+          - generic [ref=e7906]: L
+          - generic [ref=e7907]: 2 – 1
+        - generic [ref=e7908]:
+          - generic [ref=e7909]: Ghana
+          - generic [ref=e7910]: 🇬🇭
+        - generic [ref=e7911]: ›
+      - button "🇨🇴 Colombia K 0 – 0 Portugal 🇵🇹" [ref=e7913] [cursor=pointer]:
+        - generic [ref=e7914]:
+          - generic [ref=e7915]: 🇨🇴
+          - generic [ref=e7916]: Colombia
+        - generic [ref=e7917]:
+          - generic [ref=e7918]: K
+          - generic [ref=e7919]: 0 – 0
+        - generic [ref=e7920]:
+          - generic [ref=e7921]: Portugal
+          - generic [ref=e7922]: 🇵🇹
+        - generic [ref=e7923]: ›
+      - button "🇨🇩 DR Congo K 3 – 1 Uzbekistan 🇺🇿" [ref=e7925] [cursor=pointer]:
+        - generic [ref=e7926]:
+          - generic [ref=e7927]: 🇨🇩
+          - generic [ref=e7928]: DR Congo
+        - generic [ref=e7929]:
+          - generic [ref=e7930]: K
+          - generic [ref=e7931]: 3 – 1
+        - generic [ref=e7932]:
+          - generic [ref=e7933]: Uzbekistan
+          - generic [ref=e7934]: 🇺🇿
+        - generic [ref=e7935]: ›
+    - button "View full schedule ›" [ref=e7804] [cursor=pointer]
