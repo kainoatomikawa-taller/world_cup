@@ -8,11 +8,39 @@
 .app-shell {
   max-width: 1300px;
   margin: 0 auto;
-  padding: 40px 24px 80px;
+  padding: var(--space-11) var(--space-8) var(--space-12);
 }
 
 .app-header {
-  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: var(--space-10);
+  padding-top: var(--space-3);
+}
+
+/* Corner-kick arc pair — geometric motif, lime accent, clipped to top-right */
+.app-header::before {
+  content: '';
+  position: absolute;
+  top: -56px;
+  right: -56px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(61, 255, 138, 0.12);
+  pointer-events: none;
+}
+
+.app-header::after {
+  content: '';
+  position: absolute;
+  top: -96px;
+  right: -96px;
+  width: 288px;
+  height: 288px;
+  border-radius: 50%;
+  border: 1px solid rgba(61, 255, 138, 0.055);
+  pointer-events: none;
 }
 
 .app-title {
@@ -28,19 +56,50 @@
 }
 
 .app-subtitle {
-  margin-top: 8px;
+  margin-top: var(--space-3);
   color: var(--muted);
   font-size: 14px;
 }
 
+/* ---- Live-status indicator ---- */
+/* Dot carries the state color; text stays uniformly muted across all states. */
 .live-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   margin-top: 0;
-  margin-bottom: 12px;
-  font-size: 12px;
+  margin-bottom: var(--space-4);
+  font-size: var(--type-xs);
+  color: var(--text-muted);
 }
-.live-status--loading { color: var(--muted); }
-.live-status--ready   { color: var(--green); }
-.live-status--offline { color: var(--muted); }
+
+.live-status::before {
+  content: '';
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-faint);
+}
+
+.live-status--loading::before {
+  background: var(--text-muted);
+  animation: status-pulse 1.6s ease-in-out infinite;
+}
+
+.live-status--ready::before {
+  background: var(--accent-lime);
+  box-shadow: 0 0 0 3px rgba(61, 255, 138, 0.20);
+}
+
+.live-status--offline::before {
+  background: var(--text-faint);
+}
+
+@keyframes status-pulse {
+  0%, 100% { opacity: 0.35; }
+  50%       { opacity: 1; }
+}
 
 .screen-intro {
   color: var(--muted);
@@ -54,7 +113,7 @@
 .app-nav {
   display: flex;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 24px;
+  margin-bottom: var(--space-8);
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
@@ -119,7 +178,7 @@
   display: inline-flex;
   gap: 4px;
   padding: 4px;
-  margin-bottom: 28px;
+  margin-bottom: var(--space-9);
   background: var(--surface);
   backdrop-filter: blur(var(--blur));
   -webkit-backdrop-filter: blur(var(--blur));
@@ -2190,7 +2249,7 @@
 /* ---------- Responsive ---------- */
 @media (max-width: 640px) {
   .app-shell {
-    padding: 24px 14px 56px;
+    padding: var(--space-8) var(--space-4) var(--space-12);
   }
   .app-title {
     font-size: 32px;
