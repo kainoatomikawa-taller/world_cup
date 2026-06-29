@@ -14,10 +14,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Data pipeline (Python — run from `scripts/`)**
 - `python scripts/init_db.py` — create/re-apply schema to `db/world_cup.db` (idempotent).
 - `python scripts/ingest_api.py` — pull football-data.org data into SQLite (needs `FOOTBALL_API_KEY` in `.env.local`).
+- `python scripts/ingest_news.py` — fetch World Cup news from RSS feeds (BBC, Sky, ESPN, Fox) and optionally GNews (needs `GNEWS_API_KEY` in `.env.local`). Supports `--dry-run`, `--skip-gnews`, `--limit`.
+- `python scripts/cluster_news.py` — Phase 2: cluster and deduplicate stories across sources by headline similarity + shared teams; writes `cluster_id` and `entities` back to the `news` table.
+- `python scripts/rank_news.py` — Phase 2: compute four-signal priority scores (source coverage, recency decay, source weight, fixture relevance) and write `priority` (0–1000) to the `news` table.
+- `python scripts/export_json.py` — export all SQLite tables to static JSON under `public/data/` (read-only; never writes to the DB). Must run after every ingest to refresh the frontend.
+- `bash scripts/run_news.sh` — wrapper that runs `ingest_news.py → cluster_news.py → rank_news.py → export_json.py` in sequence with PID-file overlap prevention and logging.
 - `python scripts/identity.py seed` — pre-populate `identity_map` with all known name aliases (football-data.org, FBref, Understat, Sofascore). Run after `init_db` and before enrichment scripts.
 - `python scripts/identity.py report` — print identity coverage and surface entities needing manual review.
 - `python scripts/query.py` — demo the read-only query functions (upcoming fixtures, group table, top scorers).
-- `cd scripts && .venv/bin/python -m pytest` — run all Python tests (73 tests across `test_query.py` and `test_identity.py`).
+- `cd scripts && .venv/bin/python -m pytest` — run all Python tests (tests across `test_query.py`, `test_identity.py`, `test_cluster.py`, `test_gnews.py`).
 
 ## Architecture
 
@@ -33,10 +38,14 @@ The central design rule: **the rules engine is separate from the UI.**
 - `api/` — serverless proxy functions. The football API key lives **only** here (server-side), never in client code; the browser calls `/api/*`.
 
 **Data pipeline (Python — `scripts/`)**
-- `schema.sql` / `init_db.py` — SQLite schema at `db/world_cup.db`. Tables: `competitions`, `teams`, `matches`, `standings`, `scorers`, `player_stats`, `player_ratings`, `identity_map`. Schema is idempotent (safe to re-run).
+- `schema.sql` / `init_db.py` — SQLite schema at `db/world_cup.db`. Tables: `competitions`, `teams`, `matches`, `standings`, `scorers`, `player_stats`, `player_ratings`, `identity_map`, `news`. Schema is idempotent (safe to re-run).
 - `ingest_api.py` — fetches football-data.org data (competition, teams, matches, standings, scorers) and upserts into SQLite. Rate-limited to the free tier (10 req/min). Requires `FOOTBALL_API_KEY` in `.env.local`.
+- `ingest_news.py` — three-phase news ingest: RSS feeds (Phase 1) + optional GNews API (Phase 3). Dedupes by SHA-256 URL hash, strips HTML, truncates summaries to 280 chars. Link-out only — full article text is never stored. Requires `GNEWS_API_KEY` for Phase 3.
+- `cluster_news.py` — assigns stable `cluster_id` values (SHA-256 of earliest URL in cluster) and extracts `entities` JSON arrays using time-windowed Jaccard similarity on headline tokens.
+- `rank_news.py` — four-signal priority scoring: source coverage (40%), recency decay 2^(−age/12h) (25%), source tier weight (15%), fixture proximity (20%). Scaled 0–1000; all articles in a cluster share the same score.
+- `export_json.py` — materialises all query results to `public/data/*.json` (and `export/`). Writes atomically (tmp → rename). Generates `manifest.json` with a content hash. The frontend reads only from `public/data/`.
 - `identity.py` — cross-source identity reconciliation. Resolves team and player names from football-data.org, FBref, Understat, and Sofascore to canonical slugs used across the whole pipeline. **All future enrichment scripts must use `resolve_team()` / `resolve_player()` from this module** rather than writing their own name matching. Unresolved entities are written to `identity_map` as sentinel rows (`canonical_id='__unmatched__'`) so they surface in `identity.py report`.
-- `query.py` — read-only pandas query functions over the SQLite store: `upcoming_fixtures()`, `competition_table()`, `top_scorers()`, `identity_coverage()`, `enriched_player_stats()`, `unmatched_entities()`.
+- `query.py` — read-only pandas query functions over the SQLite store: `upcoming_fixtures()`, `competition_table()`, `top_scorers()`, `identity_coverage()`, `enriched_player_stats()`, `unmatched_entities()`, `recent_news()`.
 
 The Python `team.id` slugs and the TypeScript `team.id` slugs are **identical by design** — both layers reference the same 48 canonical slugs so data can flow between them without translation.
 
@@ -46,7 +55,8 @@ The app has two levels of navigation:
 
 1. **`AppNav`** (`src/features/shared/AppNav.tsx`) — top-level platform tabs (`AppTab` type). Currently:
    - `possibilities` — the full scenario tool (group stage → third-place → bracket)
-   - `fixtures` / `insights` / `lineups` / `ratings` — placeholder tabs for future sections
+   - `insights` — live dashboard: Latest News feed, Upcoming Fixtures, Group Standings, Top Scorers (reads from `public/data/*.json`)
+   - `fixtures` / `stats` — placeholder tabs for future sections
 2. **`StageNav`** (`src/features/shared/StageNav.tsx`) — inner segmented control rendered *only* within the Possibilities tab (`StageKey`: `fixtures | groups | thirdPlace | bracket`).
 
 The two levels are visually distinct: `AppNav` uses an underline-style indicator; `StageNav` uses a pill/segmented-control shape.

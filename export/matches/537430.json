@@ -13,5 +13,6 @@
   "away_code": "GHA",
   "away_flag": "🇬🇭",
   "away_goals": null,
-  "played": 0
+  "played": 0,
+  "venue": null
 }

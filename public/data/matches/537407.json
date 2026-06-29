@@ -13,5 +13,6 @@
   "away_code": "POR",
   "away_flag": "🇵🇹",
   "away_goals": 0.0,
-  "played": 1
+  "played": 1,
+  "venue": null
 }

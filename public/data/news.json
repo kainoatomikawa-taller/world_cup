@@ -1,0 +1,159 @@
+[
+  {
+    "id": "94f508482c43e44049c90f0177b37d1985c1ac4867f1857db249837be80fa539",
+    "source": "bbc-sport",
+    "source_name": "BBC Sport",
+    "headline": "How Tuchel is still searching for solutions out wide - Shearer",
+    "url": "https://www.bbc.co.uk/sport/football/articles/cqj1g9egd80o?at_medium=RSS&at_campaign=rss",
+    "thumbnail_url": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/4000/live/e23d0350-7385-11f1-9e21-8bd55db03589.jpg",
+    "summary": "Former England captain Alan Shearer explains why there are lots of reasons to be positive about England so far at this World Cup, but having a settled side is not one of them.",
+    "published_at": "2026-06-29T11:27:47+00:00",
+    "teams": [
+      "england"
+    ],
+    "entities": [],
+    "cluster_id": null,
+    "priority": 0
+  },
+  {
+    "id": "bfe7b4c8584ab09fcb8defd10f54a2ffd60ea811b874e2e988cb05b2fe480e84",
+    "source": "bbc-sport",
+    "source_name": "BBC Sport",
+    "headline": "Move over Messi and Ronaldo - the new generation shining at World Cup",
+    "url": "https://www.bbc.co.uk/sport/football/articles/c4gy9yd8lgwo?at_medium=RSS&at_campaign=rss",
+    "thumbnail_url": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/703e/live/b86d8070-715c-11f1-909a-0f95894a566f.jpg",
+    "summary": "BBC Sport looks at five young players who are making a big impression on the same World Cup stage as veterans Lionel Messi and Cristiano Ronaldo.",
+    "published_at": "2026-06-29T10:33:25+00:00",
+    "teams": [],
+    "entities": [],
+    "cluster_id": null,
+    "priority": 0
+  },
+  {
+    "id": "710fe8d1d0e4893910eac8f8cfd4de059e97809f973ba6627b74eb4080f59e7b",
+    "source": "bbc-sport",
+    "source_name": "BBC Sport",
+    "headline": "Why Netherlands v Morocco is more than just a match",
+    "url": "https://www.bbc.co.uk/sport/football/articles/clye1l3m9k4o?at_medium=RSS&at_campaign=rss",
+    "thumbnail_url": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/cd35/live/eb4d3330-7302-11f1-8b3a-1977d6dee6ef.jpg",
+    "summary": "Morocco’s World Cup meeting with the Netherlands tells a story about migration, identity and the battle for Dutch-born talent.",
+    "published_at": "2026-06-29T10:16:02+00:00",
+    "teams": [
+      "netherlands",
+      "morocco"
+    ],
+    "entities": [],
+    "cluster_id": null,
+    "priority": 0
+  },
+  {
+    "id": "281e4facb4f91fb8944abb4956a1296055648a9f56c94642ea72ac11180b8430",
+    "source": "bbc-sport",
+    "source_name": "BBC Sport",
+    "headline": "Clarke says standing down 'easy' decision after World Cup exit",
+    "url": "https://www.bbc.co.uk/sport/football/articles/c3ry1jyzpejo?at_medium=RSS&at_campaign=rss",
+    "thumbnail_url": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/8499/live/4e314420-739c-11f1-a8fc-c51d60fec73b.jpg",
+    "summary": "Steve Clarke says it was an easy decision to step down as Scotland head coach because he always planned to depart if they did not qualify for the knock-out stages.",
+    "published_at": "2026-06-29T09:25:31+00:00",
+    "teams": [
+      "scotland"
+    ],
+    "entities": [],
+    "cluster_id": null,
+    "priority": 0
+  },
+  {
+    "id": "8c00d26412a08bee37c73e365c26fb9aee50c35fa2a1c39f4893602ce89338c8",
+    "source": "espn",
+    "source_name": "ESPN",
+    "headline": "From Messi to Haaland: Which World Cup frontrunner...",
+    "url": "https://www.espn.com/soccer/story/_/id/49209852/world-cup-superstars-lionel-messi-cristiano-ronaldo-kylian-mbappe-vinicius-erling-haaland-dependency",
+    "thumbnail_url": null,
+    "summary": "The superstars have shown up at the 2026 World Cup, but which team is most reliant on its talisman to keep moving through the competition?",
+    "published_at": "2026-06-29T08:50:36+00:00",
+    "teams": [],
+    "entities": [],
+    "cluster_id": null,
+    "priority": 0
+  },
+  {
+    "id": "f75cebaacf9384cb1a50b7cefee494045e98ca5670316de069cc714488417f5a",
+    "source": "espn",
+    "source_name": "ESPN",
+    "headline": "Reranking Europe's top clubs by player performance...",
+    "url": "https://www.espn.com/soccer/story/_/id/49204950/reranking-europe-top-clubs-player-performance-world-cup-bayern-real-madrid-liverpool",
+    "thumbnail_url": null,
+    "summary": "Bayern Munich, Real Madrid and PSG players have impressed, but which clubs have had the best World Cup?",
+    "published_at": "2026-06-29T08:50:36+00:00",
+    "teams": [],
+    "entities": [],
+    "cluster_id": null,
+    "priority": 0
+  },
+  {
+    "id": "e0388b8c5a52038719058f1d6502263610fccfaaf9e4ed1de20d637f1291d000",
+    "source": "espn",
+    "source_name": "ESPN",
+    "headline": "Ancelotti refuses to engage in Japan 'mind games'",
+    "url": "https://www.espn.com/soccer/story/_/id/49211268/brazil-manager-carlo-ancelotti-refuses-engage-japan-mind-games-ahead-round-32-clash-world-cup",
+    "thumbnail_url": null,
+    "summary": "Brazil manager Carlo Ancelotti refused to engage in \"mind games\" ahead of the round-of-32 clash with Japan on Monday.",
+    "published_at": "2026-06-29T07:11:54+00:00",
+    "teams": [
+      "brazil",
+      "japan"
+    ],
+    "entities": [],
+    "cluster_id": null,
+    "priority": 0
+  },
+  {
+    "id": "f278e3f5d3fc28faee5cc4f31132d541b5cf1c5061c0c216180cbd32d08de187",
+    "source": "espn",
+    "source_name": "ESPN",
+    "headline": "Marsch's 'Canadian heroes' deliver defining win",
+    "url": "https://www.espn.com/soccer/story/_/id/49210369/marsch-canadian-heroes-defining-win-south-africa",
+    "thumbnail_url": null,
+    "summary": "After Canada beat South Africa to win their first-ever FIFA World Cup knockout match and advance to the round of 16, coach Jesse Marsch didn't hesitate to call his players \"Canadian heroes.\"",
+    "published_at": "2026-06-29T07:11:54+00:00",
+    "teams": [
+      "south-africa",
+      "canada"
+    ],
+    "entities": [],
+    "cluster_id": null,
+    "priority": 0
+  },
+  {
+    "id": "03df8c88bbc216ac6aa1e0e84ada8b467dd63a661098f96fd6fdbcd37189915e",
+    "source": "bbc-sport",
+    "source_name": "BBC Sport",
+    "headline": "How the new Brazil is taking shape and why Cunha is key",
+    "url": "https://www.bbc.co.uk/sport/football/articles/clywddlrykdo?at_medium=RSS&at_campaign=rss",
+    "thumbnail_url": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/fdbf/live/974b8340-724e-11f1-b46f-17a6b71f4bc4.jpg",
+    "summary": "Former Brazil midfielder Lucas Leiva explains why Manchester United striker Matheus Cunha is so important to Brazil's adaptable system under Carlo Ancelotti.",
+    "published_at": "2026-06-29T07:03:47+00:00",
+    "teams": [
+      "brazil"
+    ],
+    "entities": [],
+    "cluster_id": null,
+    "priority": 0
+  },
+  {
+    "id": "e1cbbbee06d9aeccc33fdfeace7a32d30135d7f701b78e48f5a0dabe483359b5",
+    "source": "sky-sports",
+    "source_name": "Sky Sports",
+    "headline": "Boyd: Clarke criticism an absolute disgrace",
+    "url": "https://www.skysports.com/football/news/12040/13558536/kris-boyd-labels-steve-clarke-criticism-an-absolute-disgrace-after-he-steps-down-as-scotland-head-coach",
+    "thumbnail_url": "https://e0.365dm.com/26/06/1920x1080/skysports-steve-clarke-scotland_7282192.jpg?20260625020440",
+    "summary": "Kris Boyd has labelled criticism of Steve Clarke an \"absolute disgrace\" after he stepped down as Scotland head coach.",
+    "published_at": "2026-06-28T12:49:00+00:00",
+    "teams": [
+      "scotland"
+    ],
+    "entities": [],
+    "cluster_id": null,
+    "priority": 0
+  }
+]

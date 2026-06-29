@@ -13,5 +13,6 @@
   "away_code": "MAR",
   "away_flag": "🇲🇦",
   "away_goals": null,
-  "played": 0
+  "played": 0,
+  "venue": null
 }

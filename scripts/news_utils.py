@@ -198,14 +198,56 @@ _BASE_RELEVANCE: frozenset[str] = frozenset([
 # Merge in all team-name terms so any article naming a WC team passes.
 _RELEVANCE_TERMS: frozenset[str] = _BASE_RELEVANCE | frozenset(_TEAM_LOOKUP.keys())
 
+# Terms that definitively indicate a non-football sport.  An article matching
+# any of these is excluded even if it also names a World Cup team (e.g. an
+# England cricket article mentions "England" which is a WC team slug).
+_SPORT_BLOCKLIST: frozenset[str] = frozenset([
+    "cricket",
+    "wicket",
+    "innings",
+    "ashes",
+    "test match",
+    " nfl ",
+    "nfl draft",
+    "super bowl",
+    " nba ",
+    " nhl ",
+    " mlb ",
+    "basketball",
+    "baseball",
+    "ice hockey",
+    "formula 1",
+    "formula one",
+    " f1 grand",
+    "motogp",
+    "le mans",
+    " golf ",
+    "pga tour",
+    "masters tournament",
+    "wimbledon",
+    "tennis",
+    " ufc ",
+    " mma ",
+    "boxing match",
+    "heavyweight",
+    "rugby union",
+    "rugby league",
+    "six nations",
+    "super rugby",
+    "cycling race",
+    "tour de france",
+])
+
 
 def _is_relevant(headline: str, summary: str) -> bool:
     """Return True if the article is football/World Cup relevant.
 
-    Matches against the combined lowercase string of headline and summary.
-    Any term from the relevance set must be present as a substring.
+    First rejects articles that mention a sport-specific term from
+    _SPORT_BLOCKLIST, then requires at least one term from _RELEVANCE_TERMS.
     """
     combined = (headline + " " + summary).lower()
+    if any(term in combined for term in _SPORT_BLOCKLIST):
+        return False
     return any(term in combined for term in _RELEVANCE_TERMS)
 
 

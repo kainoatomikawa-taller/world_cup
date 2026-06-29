@@ -13,5 +13,6 @@
   "away_code": "MEX",
   "away_flag": "🇲🇽",
   "away_goals": 3.0,
-  "played": 1
+  "played": 1,
+  "venue": null
 }

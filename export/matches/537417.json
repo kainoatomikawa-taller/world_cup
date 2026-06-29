@@ -13,5 +13,6 @@
   "away_code": "CAN",
   "away_flag": "🇨🇦",
   "away_goals": 1.0,
-  "played": 1
+  "played": 1,
+  "venue": null
 }
