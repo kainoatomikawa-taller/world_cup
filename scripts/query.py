@@ -196,6 +196,62 @@ def top_scorers(
         return pd.read_sql_query(sql, conn, params=params)
 
 
+def recent_results(
+    db_path: Path,
+    competition_id: str = DEFAULT_COMPETITION,
+    *,
+    stage: str | None = None,
+    limit: int = 10,
+) -> pd.DataFrame:
+    """Return recently played matches ordered newest-first, with scores.
+
+    Args:
+        db_path: Path to the SQLite database file.
+        competition_id: Competition slug (default: 'fifa-wc-2026').
+        stage: Optional stage filter — same values as upcoming_fixtures.
+               If None, all stages are included.
+        limit: Maximum rows to return.
+
+    Returns:
+        DataFrame with columns: match_id, kickoff, stage, group_id,
+        home_team, home_code, home_flag, home_goals, away_goals,
+        away_team, away_code, away_flag.
+    """
+    stage_clause = "AND m.stage = :stage" if stage else ""
+    sql = f"""
+        SELECT
+            m.id            AS match_id,
+            m.kickoff,
+            m.stage,
+            m.group_id,
+            ht.name         AS home_team,
+            ht.code         AS home_code,
+            ht.flag         AS home_flag,
+            m.home_goals,
+            m.away_goals,
+            at.name         AS away_team,
+            at.code         AS away_code,
+            at.flag         AS away_flag
+        FROM  matches m
+        JOIN  teams   ht ON ht.id = m.home_team_id
+        JOIN  teams   at ON at.id = m.away_team_id
+        WHERE m.competition_id = :competition_id
+          AND m.played = 1
+          {stage_clause}
+        ORDER BY m.kickoff DESC
+        LIMIT :limit
+    """
+    params: dict[str, object] = {
+        "competition_id": competition_id,
+        "limit": limit,
+    }
+    if stage:
+        params["stage"] = stage
+
+    with _read_conn(db_path) as conn:
+        return pd.read_sql_query(sql, conn, params=params)
+
+
 def identity_coverage(
     db_path: Path,
     *,
@@ -385,6 +441,10 @@ def main() -> None:
     db: Path = args.db_path
 
     _section(
+        "Recent results — last 5 played matches",
+        recent_results(db, limit=5),
+    )
+    _section(
         "Upcoming fixtures — next 8 across all stages",
         upcoming_fixtures(db, limit=8),
     )
@@ -395,6 +455,10 @@ def main() -> None:
     _section(
         "Top 10 scorers",
         top_scorers(db, limit=10),
+    )
+    _section(
+        "Identity coverage — rows per source",
+        identity_coverage(db),
     )
 
 
