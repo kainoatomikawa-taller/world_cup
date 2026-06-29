@@ -18,7 +18,7 @@
   padding-top: var(--space-3);
 }
 
-/* Corner-kick arc pair — geometric motif, lime accent, clipped to top-right */
+/* Corner-kick arc pair — motif-arc instances, lime, clipped to top-right */
 .app-header::before {
   content: '';
   position: absolute;
@@ -27,7 +27,7 @@
   width: 180px;
   height: 180px;
   border-radius: 50%;
-  border: 1.5px solid rgba(61, 255, 138, 0.12);
+  border: 1.5px solid var(--motif-stroke-lime);
   pointer-events: none;
 }
 
@@ -39,7 +39,7 @@
   width: 288px;
   height: 288px;
   border-radius: 50%;
-  border: 1px solid rgba(61, 255, 138, 0.055);
+  border: 1px solid rgba(61, 255, 138, 0.05);
   pointer-events: none;
 }
 
@@ -246,7 +246,7 @@
     border-color 0.2s var(--ease);
 }
 
-/* Corner kick arc — geometric motif clipped to top-right corner */
+/* motif-arc--sm--tr (neutral stroke) clipped to top-right corner */
 .card::before {
   content: '';
   position: absolute;
@@ -255,7 +255,22 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.055);
+  border: 1.5px solid var(--motif-stroke);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* motif-corner-sq--br (neutral) — second accent, diagonally opposite */
+.card::after {
+  content: '';
+  position: absolute;
+  bottom: var(--space-2);
+  right: var(--space-2);
+  width: 4px;
+  height: 4px;
+  background: var(--accent-lime);
+  opacity: 0.12;
+  border-radius: 1px;
   pointer-events: none;
   z-index: 0;
 }
@@ -596,6 +611,157 @@
   border-radius: 2px;
 }
 
+/* ================================================================
+   GEOMETRIC MOTIF SYSTEM
+   ----------------------------------------------------------------
+   A small vocabulary of CSS-only decorative accents. Rules:
+     · Low-opacity stroke or micro-fill only — never a large fill.
+     · At most 1–2 motifs per section; always pointer-events: none.
+     · Use --motif-stroke-* tokens for strokes; match the section's
+       dominant accent (blue for bracket, gold for third-place, etc).
+     · Never overlap interactive targets or primary type.
+     · Parent must have position: relative; overflow: hidden for arcs.
+
+   Motif inventory:
+     .motif-arc        — quarter-circle arc clipped to a corner.
+                         Add .motif-arc--{blue|gold} to change colour.
+                         Add .motif-arc--{sm|md|lg} + .motif-arc--{tr|tl|br|bl}
+                         for size + corner. Or use the preset combos below.
+     .motif-corner-sq  — small filled square flush to a corner.
+                         Add .motif-corner-sq--{blue|gold|lime} + --{tl|tr|bl|br}.
+     .motif-pip        — inline rotated-square diamond (use inside flex labels).
+                         Add .motif-pip--{lime|gold}.
+     .motif-chevron    — inline right-pointing angle mark.
+                         Add .motif-chevron--{lime|gold}.
+
+   Placement example (arc):
+     <span className="motif-arc motif-arc--sm motif-arc--tr" aria-hidden="true" />
+   inside a container that has position: relative; overflow: hidden.
+
+   Applied in this file to:
+     .app-header::before/::after — lime arcs (see app-header block)
+     .card::before               — neutral arc (see generic card block)
+     .card::after                — lime corner-sq (see generic card block)
+     .tp-list::before/::after    — gold corner-sq + gold arc
+     .match-card::before         — blue arc
+     .round-head::before         — white/dim chevron
+   ================================================================ */
+
+/* ----- Standalone motif elements ----- */
+
+.motif-arc {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid var(--motif-stroke-lime); /* default colour */
+  pointer-events: none;
+  z-index: 0;
+}
+
+.motif-arc--blue { border-color: var(--motif-stroke-blue); }
+.motif-arc--gold { border-color: var(--motif-stroke-gold); }
+
+/* Size + position presets: offset = -(diameter / 2) so the centre
+   lands exactly at the container corner, leaving a clean quarter arc. */
+.motif-arc--sm { width:  64px; height:  64px; }
+.motif-arc--md { width: 128px; height: 128px; }
+.motif-arc--lg { width: 256px; height: 256px; }
+
+.motif-arc--sm.motif-arc--tr { top:    -32px; right:  -32px; }
+.motif-arc--sm.motif-arc--tl { top:    -32px; left:   -32px; }
+.motif-arc--sm.motif-arc--br { bottom: -32px; right:  -32px; }
+.motif-arc--sm.motif-arc--bl { bottom: -32px; left:   -32px; }
+.motif-arc--md.motif-arc--tr { top:    -64px; right:  -64px; }
+.motif-arc--md.motif-arc--tl { top:    -64px; left:   -64px; }
+.motif-arc--md.motif-arc--br { bottom: -64px; right:  -64px; }
+.motif-arc--lg.motif-arc--tr { top:   -128px; right: -128px; }
+.motif-arc--lg.motif-arc--tl { top:   -128px; left:  -128px; }
+
+.motif-corner-sq {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--accent-lime);
+  opacity: 0.14;
+  border-radius: 1px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.motif-corner-sq--blue { background: var(--accent-blue); }
+.motif-corner-sq--gold { background: var(--accent-gold); }
+
+.motif-corner-sq--tl { top:    var(--space-2); left:  var(--space-2); }
+.motif-corner-sq--tr { top:    var(--space-2); right: var(--space-2); }
+.motif-corner-sq--bl { bottom: var(--space-2); left:  var(--space-2); }
+.motif-corner-sq--br { bottom: var(--space-2); right: var(--space-2); }
+
+/* Inline diamond pip — pair with a flex container.
+   Mirrors the ::before pattern on .insights-section-title etc. */
+.motif-pip {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  background: var(--accent-blue);
+  border-radius: 1px;
+  transform: rotate(45deg);
+  opacity: 0.85;
+}
+
+.motif-pip--lime { background: var(--accent-lime); }
+.motif-pip--gold { background: var(--accent-gold); }
+
+/* Inline right-pointing chevron — built from two borders, no SVG needed. */
+.motif-chevron {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid var(--accent-blue);
+  border-top: 1.5px solid var(--accent-blue);
+  transform: rotate(45deg);
+  opacity: 0.45;
+}
+
+.motif-chevron--lime { border-color: var(--accent-lime); }
+.motif-chevron--gold { border-color: var(--accent-gold); }
+
+/* ----- Applied motifs on existing containers ----- */
+
+/* Third-place list: gold corner-sq (top-left) + gold arc (bottom-right),
+   echoing the qualification accent used throughout the ThirdPlace screen. */
+.tp-list {
+  position: relative;
+  overflow: hidden;
+}
+
+.tp-list::before {
+  content: '';
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  width: 4px;
+  height: 4px;
+  background: var(--accent-gold);
+  opacity: 0.20;
+  border-radius: 1px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.tp-list::after {
+  content: '';
+  position: absolute;
+  bottom: -40px;
+  right: -40px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 1px solid var(--motif-stroke-gold);
+  pointer-events: none;
+  z-index: 0;
+}
+
 /* ---------- Bracket ---------- */
 .bracket-scroll {
   overflow: auto;
@@ -619,6 +785,7 @@
 }
 
 .round-head {
+  position: relative; /* anchors motif-chevron::before */
   width: 216px;
   padding: 8px 0;
   margin-bottom: 2px;
@@ -634,6 +801,20 @@
   box-shadow: 0 4px 18px var(--blue-glow);
 }
 
+/* motif-chevron at left edge of each round label */
+.round-head::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-right: 1.5px solid rgba(255, 255, 255, 0.35);
+  border-top: 1.5px solid rgba(255, 255, 255, 0.35);
+  transform: translateY(-50%) rotate(45deg);
+  pointer-events: none;
+}
+
 .round-slot {
   display: flex;
   align-items: center;
@@ -642,6 +823,7 @@
 
 /* Elevated charcoal card — solid surface, no blur needed. */
 .match-card {
+  position: relative; /* anchors motif-arc::before */
   width: 216px;
   background: var(--bg-700);
   border: 1px solid var(--border);
@@ -650,6 +832,20 @@
   overflow: hidden;
   transition: box-shadow 0.2s var(--ease), transform 0.2s var(--ease),
     border-color 0.2s var(--ease);
+}
+
+/* motif-arc--sm--tr, blue stroke — placed at top-right of each match card */
+.match-card::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--motif-stroke-blue);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .match-card:hover {

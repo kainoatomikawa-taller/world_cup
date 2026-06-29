@@ -73,6 +73,15 @@
   --border:        rgba(255, 255, 255, 0.07);
   --border-strong: rgba(255, 255, 255, 0.13);
 
+  /* ── Geometric motif strokes ─────────────────────────────── *
+   * For decorative arcs, corner marks, chevrons only.          *
+   * Never use as a primary colour; always stay ≤0.15 opacity.  *
+   * ─────────────────────────────────────────────────────────  */
+  --motif-stroke:      rgba(255, 255, 255, 0.06);   /* neutral  */
+  --motif-stroke-blue: rgba(45,  127, 255, 0.12);   /* blue     */
+  --motif-stroke-lime: rgba(61,  255, 138, 0.09);   /* lime     */
+  --motif-stroke-gold: rgba(255, 208,  40, 0.11);   /* gold     */
+
   /* ── Depth ───────────────────────────────────────────────── */
   --blur:        16px;
   --shadow-sm:   0 2px 8px rgba(0, 0, 0, 0.5);
