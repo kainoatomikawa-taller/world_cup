@@ -14,6 +14,15 @@ dist-ssr
 .env
 .env.*
 
+# SQLite databases — track schema (scripts/schema.sql) but not the data files
+db/*.db
+db/*.db-shm
+db/*.db-wal
+
+# Python
+scripts/__pycache__/
+scripts/.venv/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
