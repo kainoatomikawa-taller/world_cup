@@ -89,6 +89,17 @@ else
     failures=$((failures + 1))
 fi
 
+# news table: RSS-feed articles (runs fast; included in the daily full pipeline)
+log "── ingest_news.py $DRY_RUN_FLAG ──"
+# shellcheck disable=SC2086
+if "$PYTHON" "$REPO_ROOT/scripts/ingest_news.py" $DRY_RUN_FLAG >> "$LOG_FILE" 2>&1; then
+    log "ingest_news.py: OK"
+else
+    rc=$?
+    log "ingest_news.py: FAILED (exit $rc) — existing news rows are unaffected"
+    failures=$((failures + 1))
+fi
+
 # static JSON for the front-end (export/ → public/data/)
 log "── export_json.py ──"
 if "$PYTHON" "$REPO_ROOT/scripts/export_json.py" >> "$LOG_FILE" 2>&1; then

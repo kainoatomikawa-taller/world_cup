@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useFixtures, type StaticFixture } from '../../data/useFixtures';
 import { useStandings, type StaticStanding } from '../../data/useStandings';
 import { useScorers, type StaticScorer } from '../../data/useScorers';
+import { useInsights, type StaticArticle } from '../../data/useInsights';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -24,6 +26,17 @@ function formatKickoff(iso: string): { date: string; time: string } {
   };
 }
 
+function relativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const minutes = Math.floor(diff / 60_000);
+  if (minutes < 2) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return days === 1 ? 'yesterday' : `${days}d ago`;
+}
+
 // ---------------------------------------------------------------------------
 // Section wrapper
 // ---------------------------------------------------------------------------
@@ -43,6 +56,80 @@ function Skeleton() {
 
 function PanelError({ message }: { message: string }) {
   return <p className="insights-error">Could not load data: {message}</p>;
+}
+
+// ---------------------------------------------------------------------------
+// News
+// ---------------------------------------------------------------------------
+
+function NewsThumb({ url, headline }: { url: string | null; headline: string }) {
+  const [failed, setFailed] = useState(false);
+
+  if (!url || failed) {
+    return (
+      <div className="news-thumb news-thumb--fallback" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M3 9h18M8 5v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      className="news-thumb"
+      src={url}
+      alt={headline}
+      onError={() => setFailed(true)}
+      loading="lazy"
+    />
+  );
+}
+
+function NewsCard({ article }: { article: StaticArticle }) {
+  return (
+    <a
+      className="news-card card"
+      href={article.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`${article.headline} — ${article.source_name}`}
+    >
+      <NewsThumb url={article.thumbnail_url} headline={article.headline} />
+      <div className="news-card__body">
+        <div className="news-card__meta-top">
+          <span className="news-card__source">{article.source_name}</span>
+          <span className="news-card__time">{relativeTime(article.published_at)}</span>
+        </div>
+        <p className="news-card__headline">{article.headline}</p>
+        {article.summary && (
+          <p className="news-card__summary">{article.summary}</p>
+        )}
+      </div>
+    </a>
+  );
+}
+
+function NewsPanel({ articles }: { articles: StaticArticle[] }) {
+  if (articles.length === 0) {
+    return (
+      <div className="news-empty">
+        <p className="news-empty__msg">
+          No news articles yet.{' '}
+          <code>python scripts/ingest_news.py</code> to fetch the latest football news.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="news-feed">
+      {articles.map((a) => (
+        <NewsCard key={a.id} article={a} />
+      ))}
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -202,16 +289,18 @@ function ScorersPanel({ scorers }: { scorers: StaticScorer[] }) {
 // ---------------------------------------------------------------------------
 
 export function InsightsDashboard() {
+  const { articles, loading: nLoading, error: nError } = useInsights();
   const { fixtures, loading: fLoading, error: fError } = useFixtures();
   const { standings, loading: sLoading, error: sError } = useStandings();
   const { scorers, loading: scLoading, error: scError } = useScorers();
 
   return (
     <div className="insights-dashboard">
-      <p className="screen-intro">
-        Live stats and standings from the local database — refreshed whenever you run{' '}
-        <code>npm run export:data</code>.
-      </p>
+      <Section title="Latest News">
+        {nLoading && <Skeleton />}
+        {nError && <PanelError message={nError} />}
+        {!nLoading && !nError && <NewsPanel articles={articles} />}
+      </Section>
 
       <Section title="Upcoming Fixtures">
         {fLoading && <Skeleton />}

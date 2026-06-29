@@ -464,6 +464,52 @@ def all_player_ratings(
         )
 
 
+def recent_news(
+    db_path: Path,
+    competition_id: str = DEFAULT_COMPETITION,
+    *,
+    limit: int = 50,
+) -> pd.DataFrame:
+    """Return news articles ordered by recency (most recent first).
+
+    Includes rows where competition_id matches OR is NULL (articles ingested
+    before the competition row existed are kept rather than excluded).
+
+    Args:
+        db_path: Path to the SQLite database file.
+        competition_id: Competition slug (default: 'fifa-wc-2026').
+        limit: Maximum rows to return.
+
+    Returns:
+        DataFrame with columns: id, source, source_name, headline, url,
+        thumbnail_url, summary, published_at, teams, entities, cluster_id,
+        priority.  ``teams`` and ``entities`` are JSON text arrays.
+    """
+    sql = """
+        SELECT
+            n.id,
+            n.source,
+            n.source_name,
+            n.headline,
+            n.url,
+            n.thumbnail_url,
+            n.summary,
+            n.published_at,
+            n.teams,
+            n.entities,
+            n.cluster_id,
+            n.priority
+        FROM  news n
+        WHERE (n.competition_id = :competition_id OR n.competition_id IS NULL)
+        ORDER BY n.published_at DESC
+        LIMIT :limit
+    """
+    with _read_conn(db_path) as conn:
+        return pd.read_sql_query(
+            sql, conn, params={"competition_id": competition_id, "limit": limit}
+        )
+
+
 def unmatched_entities(
     db_path: Path,
     *,

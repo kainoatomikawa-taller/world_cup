@@ -36,6 +36,7 @@ from query import (
     all_player_ratings,
     competition_table,
     enriched_player_stats,
+    recent_news,
     top_scorers,
 )
 
@@ -53,6 +54,7 @@ _FRONTEND_FILES = (
     "scorers.json",
     "player_stats.json",
     "player_ratings.json",
+    "news.json",
     "manifest.json",
 )
 
@@ -173,7 +175,7 @@ def export(
     all_digests: list[str] = []
 
     # ── 1 ── competitions ─────────────────────────────────────────────────
-    print("[1/7] Exporting competitions …")
+    print("[1/8] Exporting competitions …")
     comps = _to_records(all_competitions(db_path))
     digest = _write_json(out_dir / "competitions.json", comps)
     file_manifest["competitions.json"] = {"rows": len(comps), "sha256": digest}
@@ -181,7 +183,7 @@ def export(
     print(f"       {len(comps)} competition(s)")
 
     # ── 2 ── fixtures (all matches, played + unplayed) ────────────────────
-    print("[2/7] Exporting fixtures …")
+    print("[2/8] Exporting fixtures …")
     fixtures = _to_records(all_fixtures(db_path, competition_id))
     digest = _write_json(out_dir / "fixtures.json", fixtures)
     file_manifest["fixtures.json"] = {"rows": len(fixtures), "sha256": digest}
@@ -190,7 +192,7 @@ def export(
     print(f"       {len(fixtures)} fixture(s) ({played} played, {len(fixtures) - played} unplayed)")
 
     # ── 3 ── standings ────────────────────────────────────────────────────
-    print("[3/7] Exporting standings …")
+    print("[3/8] Exporting standings …")
     standings = _to_records(competition_table(db_path, competition_id))
     digest = _write_json(out_dir / "standings.json", standings)
     file_manifest["standings.json"] = {"rows": len(standings), "sha256": digest}
@@ -198,7 +200,7 @@ def export(
     print(f"       {len(standings)} standing row(s)")
 
     # ── 4 ── scorers ──────────────────────────────────────────────────────
-    print("[4/7] Exporting scorers …")
+    print("[4/8] Exporting scorers …")
     scorers = _to_records(top_scorers(db_path, competition_id, limit=200))
     digest = _write_json(out_dir / "scorers.json", scorers)
     file_manifest["scorers.json"] = {"rows": len(scorers), "sha256": digest}
@@ -206,7 +208,7 @@ def export(
     print(f"       {len(scorers)} scorer(s)")
 
     # ── 5 ── player stats ─────────────────────────────────────────────────
-    print("[5/7] Exporting player stats …")
+    print("[5/8] Exporting player stats …")
     player_stats = _to_records(enriched_player_stats(db_path, competition_id, limit=500))
     digest = _write_json(out_dir / "player_stats.json", player_stats)
     file_manifest["player_stats.json"] = {"rows": len(player_stats), "sha256": digest}
@@ -214,7 +216,7 @@ def export(
     print(f"       {len(player_stats)} player stat row(s)")
 
     # ── 6 ── player ratings ───────────────────────────────────────────────
-    print("[6/7] Exporting player ratings …")
+    print("[6/8] Exporting player ratings …")
     ratings = _to_records(all_player_ratings(db_path, competition_id))
     digest = _write_json(out_dir / "player_ratings.json", ratings)
     file_manifest["player_ratings.json"] = {"rows": len(ratings), "sha256": digest}
@@ -222,7 +224,7 @@ def export(
     print(f"       {len(ratings)} player rating(s)")
 
     # ── 7 ── per-match files ──────────────────────────────────────────────
-    print("[7/7] Exporting per-match files …")
+    print("[7/8] Exporting per-match files …")
     matches_dir = out_dir / "matches"
     match_hashes = _export_matches(fixtures, matches_dir)
     all_digests.extend(match_hashes.values())
@@ -231,6 +233,23 @@ def export(
         "sha256_by_id": match_hashes,
     }
     print(f"       {len(match_hashes)} match file(s) → {matches_dir}")
+
+    # ── 8 ── news ─────────────────────────────────────────────────────────
+    print("[8/8] Exporting news …")
+    _NEWS_TOP_N = 100  # Phase 1: most-recent N articles, recency-ordered
+    raw_news = _to_records(recent_news(db_path, competition_id, limit=_NEWS_TOP_N))
+    for _article in raw_news:
+        for _col in ("teams", "entities"):
+            _val = _article.get(_col)
+            if isinstance(_val, str):
+                try:
+                    _article[_col] = json.loads(_val)
+                except (json.JSONDecodeError, ValueError):
+                    _article[_col] = []
+    digest = _write_json(out_dir / "news.json", raw_news)
+    file_manifest["news.json"] = {"rows": len(raw_news), "sha256": digest}
+    all_digests.append(digest)
+    print(f"       {len(raw_news)} article(s)")
 
     # ── manifest ──────────────────────────────────────────────────────────
     manifest = {

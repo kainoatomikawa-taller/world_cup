@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  launchd agent for world-cup-insights hourly news ingest.
+
+  Runs run_news.sh every hour — faster cadence than the twice-daily full
+  ingest (com.world-cup-insights.ingest.plist) so the news feed stays fresh
+  without re-fetching the heavier API or stats data.
+
+  SETUP (one-time):
+    1. Replace REPO_ROOT below with the absolute path to this repository.
+    2. Copy (or symlink) to ~/Library/LaunchAgents/:
+         cp scripts/launchd/com.world-cup-insights.news.plist \
+            ~/Library/LaunchAgents/
+    3. Load the agent:
+         launchctl load ~/Library/LaunchAgents/com.world-cup-insights.news.plist
+    4. Verify it is registered:
+         launchctl list | grep world-cup
+
+  ADJUST SCHEDULE:
+    Edit StartInterval (seconds) below, then reload:
+      launchctl unload ~/Library/LaunchAgents/com.world-cup-insights.news.plist
+      launchctl load   ~/Library/LaunchAgents/com.world-cup-insights.news.plist
+
+  UNINSTALL:
+    launchctl unload ~/Library/LaunchAgents/com.world-cup-insights.news.plist
+    rm ~/Library/LaunchAgents/com.world-cup-insights.news.plist
+
+  LOGS:
+    run_news.sh output → REPO_ROOT/logs/ingest.log (shared with full ingest)
+    launchd stderr      → REPO_ROOT/logs/launchd_news.log
+-->
+<plist version="1.0">
+<dict>
+
+  <key>Label</key>
+  <string>com.world-cup-insights.news</string>
+
+  <!-- ── Replace REPO_ROOT with the absolute path to this repository ──────── -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>REPO_ROOT/scripts/run_news.sh</string>
+  </array>
+
+  <!-- Run every 3600 seconds (1 hour). -->
+  <key>StartInterval</key>
+  <integer>3600</integer>
+
+  <key>StandardOutPath</key>
+  <string>REPO_ROOT/logs/launchd_news.log</string>
+  <key>StandardErrorPath</key>
+  <string>REPO_ROOT/logs/launchd_news.log</string>
+
+  <!-- Do not run immediately at load time -->
+  <key>RunAtLoad</key>
+  <false/>
+
+</dict>
+</plist>
