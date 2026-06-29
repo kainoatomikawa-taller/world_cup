@@ -47,7 +47,14 @@ DEFAULT_FRONTEND: Path = REPO_ROOT / "public" / "data"
 
 # Files that belong in the front-end static assets directory.
 # Manifest is always included so the browser can detect stale data.
-_FRONTEND_FILES = ("fixtures.json", "standings.json", "scorers.json", "manifest.json")
+_FRONTEND_FILES = (
+    "fixtures.json",
+    "standings.json",
+    "scorers.json",
+    "player_stats.json",
+    "player_ratings.json",
+    "manifest.json",
+)
 
 
 # ---------------------------------------------------------------------------
@@ -101,6 +108,13 @@ def _sync_frontend(out_dir: Path, frontend_dir: Path) -> None:
         src = out_dir / fname
         if src.exists():
             shutil.copy2(src, frontend_dir / fname)
+    # Sync per-match files so the browser can lazy-load matches/<id>.json.
+    src_matches = out_dir / "matches"
+    if src_matches.is_dir():
+        dst_matches = frontend_dir / "matches"
+        if dst_matches.exists():
+            shutil.rmtree(dst_matches)
+        shutil.copytree(src_matches, dst_matches)
     print(f"\nFrontend assets synced → {frontend_dir}")
 
 

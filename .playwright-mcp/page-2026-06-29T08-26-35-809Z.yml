@@ -1,0 +1,925 @@
+- main [ref=e3]:
+  - generic [ref=e4]:
+    - heading "World Cup 2026" [level=1] [ref=e5]
+    - paragraph [ref=e6]: Your complete guide to the 48-team tournament — scenarios, fixtures, and insights in one place.
+  - navigation "Main navigation" [ref=e7]:
+    - button "Possibilities" [ref=e8] [cursor=pointer]
+    - button "Fixtures" [ref=e9] [cursor=pointer]
+    - button "Insights" [ref=e10] [cursor=pointer]
+    - button "Lineups" [ref=e11] [cursor=pointer]
+    - button "Ratings" [ref=e12] [cursor=pointer]
+  - generic [ref=e5949]:
+    - generic [ref=e5950]:
+      - heading "11 June 2026" [level=2] [ref=e5951]
+      - generic [ref=e5953]:
+        - button "🇲🇽 Mexico A 2 – 0 South Africa 🇿🇦" [expanded] [active] [ref=e5954] [cursor=pointer]:
+          - generic [ref=e5955]:
+            - generic [ref=e5956]: 🇲🇽
+            - generic [ref=e5957]: Mexico
+          - generic [ref=e5958]:
+            - generic [ref=e5959]: A
+            - generic [ref=e5960]: 2 – 0
+          - generic [ref=e5961]:
+            - generic [ref=e5962]: South Africa
+            - generic [ref=e5963]: 🇿🇦
+        - generic [ref=e5965]:
+          - term [ref=e5966]: Kickoff
+          - definition [ref=e5967]: Thu 11 Jun, 12:00 GMT-7
+          - term [ref=e5968]: Group
+          - definition [ref=e5969]: A
+          - term [ref=e5970]: Stage
+          - definition [ref=e5971]: group
+          - term [ref=e5972]: Result
+          - definition [ref=e5973]: Mexico 2 – 0 South Africa
+    - generic [ref=e5974]:
+      - heading "12 June 2026" [level=2] [ref=e5975]
+      - generic [ref=e5976]:
+        - button "🇰🇷 South Korea A 2 – 1 Czech Republic 🇨🇿" [ref=e5978] [cursor=pointer]:
+          - generic [ref=e5979]:
+            - generic [ref=e5980]: 🇰🇷
+            - generic [ref=e5981]: South Korea
+          - generic [ref=e5982]:
+            - generic [ref=e5983]: A
+            - generic [ref=e5984]: 2 – 1
+          - generic [ref=e5985]:
+            - generic [ref=e5986]: Czech Republic
+            - generic [ref=e5987]: 🇨🇿
+        - button "🇨🇦 Canada B 1 – 1 Bosnia and Herzegovina 🇧🇦" [ref=e5989] [cursor=pointer]:
+          - generic [ref=e5990]:
+            - generic [ref=e5991]: 🇨🇦
+            - generic [ref=e5992]: Canada
+          - generic [ref=e5993]:
+            - generic [ref=e5994]: B
+            - generic [ref=e5995]: 1 – 1
+          - generic [ref=e5996]:
+            - generic [ref=e5997]: Bosnia and Herzegovina
+            - generic [ref=e5998]: 🇧🇦
+    - generic [ref=e5999]:
+      - heading "13 June 2026" [level=2] [ref=e6000]
+      - generic [ref=e6001]:
+        - button "🇺🇸 United States D 4 – 1 Paraguay 🇵🇾" [ref=e6003] [cursor=pointer]:
+          - generic [ref=e6004]:
+            - generic [ref=e6005]: 🇺🇸
+            - generic [ref=e6006]: United States
+          - generic [ref=e6007]:
+            - generic [ref=e6008]: D
+            - generic [ref=e6009]: 4 – 1
+          - generic [ref=e6010]:
+            - generic [ref=e6011]: Paraguay
+            - generic [ref=e6012]: 🇵🇾
+        - button "🇶🇦 Qatar B 1 – 1 Switzerland 🇨🇭" [ref=e6014] [cursor=pointer]:
+          - generic [ref=e6015]:
+            - generic [ref=e6016]: 🇶🇦
+            - generic [ref=e6017]: Qatar
+          - generic [ref=e6018]:
+            - generic [ref=e6019]: B
+            - generic [ref=e6020]: 1 – 1
+          - generic [ref=e6021]:
+            - generic [ref=e6022]: Switzerland
+            - generic [ref=e6023]: 🇨🇭
+        - button "🇧🇷 Brazil C 1 – 1 Morocco 🇲🇦" [ref=e6025] [cursor=pointer]:
+          - generic [ref=e6026]:
+            - generic [ref=e6027]: 🇧🇷
+            - generic [ref=e6028]: Brazil
+          - generic [ref=e6029]:
+            - generic [ref=e6030]: C
+            - generic [ref=e6031]: 1 – 1
+          - generic [ref=e6032]:
+            - generic [ref=e6033]: Morocco
+            - generic [ref=e6034]: 🇲🇦
+    - generic [ref=e6035]:
+      - heading "14 June 2026" [level=2] [ref=e6036]
+      - generic [ref=e6037]:
+        - button "🇭🇹 Haiti C 0 – 1 Scotland 🏴󠁧󠁢󠁳󠁣󠁴󠁿" [ref=e6039] [cursor=pointer]:
+          - generic [ref=e6040]:
+            - generic [ref=e6041]: 🇭🇹
+            - generic [ref=e6042]: Haiti
+          - generic [ref=e6043]:
+            - generic [ref=e6044]: C
+            - generic [ref=e6045]: 0 – 1
+          - generic [ref=e6046]:
+            - generic [ref=e6047]: Scotland
+            - generic [ref=e6048]: 🏴󠁧󠁢󠁳󠁣󠁴󠁿
+        - button "🇦🇺 Australia D 2 – 0 Turkey 🇹🇷" [ref=e6050] [cursor=pointer]:
+          - generic [ref=e6051]:
+            - generic [ref=e6052]: 🇦🇺
+            - generic [ref=e6053]: Australia
+          - generic [ref=e6054]:
+            - generic [ref=e6055]: D
+            - generic [ref=e6056]: 2 – 0
+          - generic [ref=e6057]:
+            - generic [ref=e6058]: Turkey
+            - generic [ref=e6059]: 🇹🇷
+        - button "🇩🇪 Germany E 7 – 1 Curaçao 🇨🇼" [ref=e6061] [cursor=pointer]:
+          - generic [ref=e6062]:
+            - generic [ref=e6063]: 🇩🇪
+            - generic [ref=e6064]: Germany
+          - generic [ref=e6065]:
+            - generic [ref=e6066]: E
+            - generic [ref=e6067]: 7 – 1
+          - generic [ref=e6068]:
+            - generic [ref=e6069]: Curaçao
+            - generic [ref=e6070]: 🇨🇼
+        - button "🇳🇱 Netherlands F 2 – 2 Japan 🇯🇵" [ref=e6072] [cursor=pointer]:
+          - generic [ref=e6073]:
+            - generic [ref=e6074]: 🇳🇱
+            - generic [ref=e6075]: Netherlands
+          - generic [ref=e6076]:
+            - generic [ref=e6077]: F
+            - generic [ref=e6078]: 2 – 2
+          - generic [ref=e6079]:
+            - generic [ref=e6080]: Japan
+            - generic [ref=e6081]: 🇯🇵
+        - button "🇨🇮 Ivory Coast E 1 – 0 Ecuador 🇪🇨" [ref=e6083] [cursor=pointer]:
+          - generic [ref=e6084]:
+            - generic [ref=e6085]: 🇨🇮
+            - generic [ref=e6086]: Ivory Coast
+          - generic [ref=e6087]:
+            - generic [ref=e6088]: E
+            - generic [ref=e6089]: 1 – 0
+          - generic [ref=e6090]:
+            - generic [ref=e6091]: Ecuador
+            - generic [ref=e6092]: 🇪🇨
+    - generic [ref=e6093]:
+      - heading "15 June 2026" [level=2] [ref=e6094]
+      - generic [ref=e6095]:
+        - button "🇸🇪 Sweden F 5 – 1 Tunisia 🇹🇳" [ref=e6097] [cursor=pointer]:
+          - generic [ref=e6098]:
+            - generic [ref=e6099]: 🇸🇪
+            - generic [ref=e6100]: Sweden
+          - generic [ref=e6101]:
+            - generic [ref=e6102]: F
+            - generic [ref=e6103]: 5 – 1
+          - generic [ref=e6104]:
+            - generic [ref=e6105]: Tunisia
+            - generic [ref=e6106]: 🇹🇳
+        - button "🇪🇸 Spain H 0 – 0 Cape Verde 🇨🇻" [ref=e6108] [cursor=pointer]:
+          - generic [ref=e6109]:
+            - generic [ref=e6110]: 🇪🇸
+            - generic [ref=e6111]: Spain
+          - generic [ref=e6112]:
+            - generic [ref=e6113]: H
+            - generic [ref=e6114]: 0 – 0
+          - generic [ref=e6115]:
+            - generic [ref=e6116]: Cape Verde
+            - generic [ref=e6117]: 🇨🇻
+        - button "🇧🇪 Belgium G 1 – 1 Egypt 🇪🇬" [ref=e6119] [cursor=pointer]:
+          - generic [ref=e6120]:
+            - generic [ref=e6121]: 🇧🇪
+            - generic [ref=e6122]: Belgium
+          - generic [ref=e6123]:
+            - generic [ref=e6124]: G
+            - generic [ref=e6125]: 1 – 1
+          - generic [ref=e6126]:
+            - generic [ref=e6127]: Egypt
+            - generic [ref=e6128]: 🇪🇬
+        - button "🇸🇦 Saudi Arabia H 1 – 1 Uruguay 🇺🇾" [ref=e6130] [cursor=pointer]:
+          - generic [ref=e6131]:
+            - generic [ref=e6132]: 🇸🇦
+            - generic [ref=e6133]: Saudi Arabia
+          - generic [ref=e6134]:
+            - generic [ref=e6135]: H
+            - generic [ref=e6136]: 1 – 1
+          - generic [ref=e6137]:
+            - generic [ref=e6138]: Uruguay
+            - generic [ref=e6139]: 🇺🇾
+    - generic [ref=e6140]:
+      - heading "16 June 2026" [level=2] [ref=e6141]
+      - generic [ref=e6142]:
+        - button "🇮🇷 Iran G 2 – 2 New Zealand 🇳🇿" [ref=e6144] [cursor=pointer]:
+          - generic [ref=e6145]:
+            - generic [ref=e6146]: 🇮🇷
+            - generic [ref=e6147]: Iran
+          - generic [ref=e6148]:
+            - generic [ref=e6149]: G
+            - generic [ref=e6150]: 2 – 2
+          - generic [ref=e6151]:
+            - generic [ref=e6152]: New Zealand
+            - generic [ref=e6153]: 🇳🇿
+        - button "🇫🇷 France I 3 – 1 Senegal 🇸🇳" [ref=e6155] [cursor=pointer]:
+          - generic [ref=e6156]:
+            - generic [ref=e6157]: 🇫🇷
+            - generic [ref=e6158]: France
+          - generic [ref=e6159]:
+            - generic [ref=e6160]: I
+            - generic [ref=e6161]: 3 – 1
+          - generic [ref=e6162]:
+            - generic [ref=e6163]: Senegal
+            - generic [ref=e6164]: 🇸🇳
+        - button "🇮🇶 Iraq I 1 – 4 Norway 🇳🇴" [ref=e6166] [cursor=pointer]:
+          - generic [ref=e6167]:
+            - generic [ref=e6168]: 🇮🇶
+            - generic [ref=e6169]: Iraq
+          - generic [ref=e6170]:
+            - generic [ref=e6171]: I
+            - generic [ref=e6172]: 1 – 4
+          - generic [ref=e6173]:
+            - generic [ref=e6174]: Norway
+            - generic [ref=e6175]: 🇳🇴
+    - generic [ref=e6176]:
+      - heading "17 June 2026" [level=2] [ref=e6177]
+      - generic [ref=e6178]:
+        - button "🇦🇷 Argentina J 3 – 0 Algeria 🇩🇿" [ref=e6180] [cursor=pointer]:
+          - generic [ref=e6181]:
+            - generic [ref=e6182]: 🇦🇷
+            - generic [ref=e6183]: Argentina
+          - generic [ref=e6184]:
+            - generic [ref=e6185]: J
+            - generic [ref=e6186]: 3 – 0
+          - generic [ref=e6187]:
+            - generic [ref=e6188]: Algeria
+            - generic [ref=e6189]: 🇩🇿
+        - button "🇦🇹 Austria J 3 – 1 Jordan 🇯🇴" [ref=e6191] [cursor=pointer]:
+          - generic [ref=e6192]:
+            - generic [ref=e6193]: 🇦🇹
+            - generic [ref=e6194]: Austria
+          - generic [ref=e6195]:
+            - generic [ref=e6196]: J
+            - generic [ref=e6197]: 3 – 1
+          - generic [ref=e6198]:
+            - generic [ref=e6199]: Jordan
+            - generic [ref=e6200]: 🇯🇴
+        - button "🇵🇹 Portugal K 1 – 1 DR Congo 🇨🇩" [ref=e6202] [cursor=pointer]:
+          - generic [ref=e6203]:
+            - generic [ref=e6204]: 🇵🇹
+            - generic [ref=e6205]: Portugal
+          - generic [ref=e6206]:
+            - generic [ref=e6207]: K
+            - generic [ref=e6208]: 1 – 1
+          - generic [ref=e6209]:
+            - generic [ref=e6210]: DR Congo
+            - generic [ref=e6211]: 🇨🇩
+        - button "🏴󠁧󠁢󠁥󠁮󠁧󠁿 England L 4 – 2 Croatia 🇭🇷" [ref=e6213] [cursor=pointer]:
+          - generic [ref=e6214]:
+            - generic [ref=e6215]: 🏴󠁧󠁢󠁥󠁮󠁧󠁿
+            - generic [ref=e6216]: England
+          - generic [ref=e6217]:
+            - generic [ref=e6218]: L
+            - generic [ref=e6219]: 4 – 2
+          - generic [ref=e6220]:
+            - generic [ref=e6221]: Croatia
+            - generic [ref=e6222]: 🇭🇷
+        - button "🇬🇭 Ghana L 1 – 0 Panama 🇵🇦" [ref=e6224] [cursor=pointer]:
+          - generic [ref=e6225]:
+            - generic [ref=e6226]: 🇬🇭
+            - generic [ref=e6227]: Ghana
+          - generic [ref=e6228]:
+            - generic [ref=e6229]: L
+            - generic [ref=e6230]: 1 – 0
+          - generic [ref=e6231]:
+            - generic [ref=e6232]: Panama
+            - generic [ref=e6233]: 🇵🇦
+    - generic [ref=e6234]:
+      - heading "18 June 2026" [level=2] [ref=e6235]
+      - generic [ref=e6236]:
+        - button "🇺🇿 Uzbekistan K 1 – 3 Colombia 🇨🇴" [ref=e6238] [cursor=pointer]:
+          - generic [ref=e6239]:
+            - generic [ref=e6240]: 🇺🇿
+            - generic [ref=e6241]: Uzbekistan
+          - generic [ref=e6242]:
+            - generic [ref=e6243]: K
+            - generic [ref=e6244]: 1 – 3
+          - generic [ref=e6245]:
+            - generic [ref=e6246]: Colombia
+            - generic [ref=e6247]: 🇨🇴
+        - button "🇨🇿 Czech Republic A 1 – 1 South Africa 🇿🇦" [ref=e6249] [cursor=pointer]:
+          - generic [ref=e6250]:
+            - generic [ref=e6251]: 🇨🇿
+            - generic [ref=e6252]: Czech Republic
+          - generic [ref=e6253]:
+            - generic [ref=e6254]: A
+            - generic [ref=e6255]: 1 – 1
+          - generic [ref=e6256]:
+            - generic [ref=e6257]: South Africa
+            - generic [ref=e6258]: 🇿🇦
+        - button "🇨🇭 Switzerland B 4 – 1 Bosnia and Herzegovina 🇧🇦" [ref=e6260] [cursor=pointer]:
+          - generic [ref=e6261]:
+            - generic [ref=e6262]: 🇨🇭
+            - generic [ref=e6263]: Switzerland
+          - generic [ref=e6264]:
+            - generic [ref=e6265]: B
+            - generic [ref=e6266]: 4 – 1
+          - generic [ref=e6267]:
+            - generic [ref=e6268]: Bosnia and Herzegovina
+            - generic [ref=e6269]: 🇧🇦
+        - button "🇨🇦 Canada B 6 – 0 Qatar 🇶🇦" [ref=e6271] [cursor=pointer]:
+          - generic [ref=e6272]:
+            - generic [ref=e6273]: 🇨🇦
+            - generic [ref=e6274]: Canada
+          - generic [ref=e6275]:
+            - generic [ref=e6276]: B
+            - generic [ref=e6277]: 6 – 0
+          - generic [ref=e6278]:
+            - generic [ref=e6279]: Qatar
+            - generic [ref=e6280]: 🇶🇦
+    - generic [ref=e6281]:
+      - heading "19 June 2026" [level=2] [ref=e6282]
+      - generic [ref=e6283]:
+        - button "🇲🇽 Mexico A 1 – 0 South Korea 🇰🇷" [ref=e6285] [cursor=pointer]:
+          - generic [ref=e6286]:
+            - generic [ref=e6287]: 🇲🇽
+            - generic [ref=e6288]: Mexico
+          - generic [ref=e6289]:
+            - generic [ref=e6290]: A
+            - generic [ref=e6291]: 1 – 0
+          - generic [ref=e6292]:
+            - generic [ref=e6293]: South Korea
+            - generic [ref=e6294]: 🇰🇷
+        - button "🇺🇸 United States D 2 – 0 Australia 🇦🇺" [ref=e6296] [cursor=pointer]:
+          - generic [ref=e6297]:
+            - generic [ref=e6298]: 🇺🇸
+            - generic [ref=e6299]: United States
+          - generic [ref=e6300]:
+            - generic [ref=e6301]: D
+            - generic [ref=e6302]: 2 – 0
+          - generic [ref=e6303]:
+            - generic [ref=e6304]: Australia
+            - generic [ref=e6305]: 🇦🇺
+        - button "🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland C 0 – 1 Morocco 🇲🇦" [ref=e6307] [cursor=pointer]:
+          - generic [ref=e6308]:
+            - generic [ref=e6309]: 🏴󠁧󠁢󠁳󠁣󠁴󠁿
+            - generic [ref=e6310]: Scotland
+          - generic [ref=e6311]:
+            - generic [ref=e6312]: C
+            - generic [ref=e6313]: 0 – 1
+          - generic [ref=e6314]:
+            - generic [ref=e6315]: Morocco
+            - generic [ref=e6316]: 🇲🇦
+    - generic [ref=e6317]:
+      - heading "20 June 2026" [level=2] [ref=e6318]
+      - generic [ref=e6319]:
+        - button "🇧🇷 Brazil C 3 – 0 Haiti 🇭🇹" [ref=e6321] [cursor=pointer]:
+          - generic [ref=e6322]:
+            - generic [ref=e6323]: 🇧🇷
+            - generic [ref=e6324]: Brazil
+          - generic [ref=e6325]:
+            - generic [ref=e6326]: C
+            - generic [ref=e6327]: 3 – 0
+          - generic [ref=e6328]:
+            - generic [ref=e6329]: Haiti
+            - generic [ref=e6330]: 🇭🇹
+        - button "🇹🇷 Turkey D 0 – 1 Paraguay 🇵🇾" [ref=e6332] [cursor=pointer]:
+          - generic [ref=e6333]:
+            - generic [ref=e6334]: 🇹🇷
+            - generic [ref=e6335]: Turkey
+          - generic [ref=e6336]:
+            - generic [ref=e6337]: D
+            - generic [ref=e6338]: 0 – 1
+          - generic [ref=e6339]:
+            - generic [ref=e6340]: Paraguay
+            - generic [ref=e6341]: 🇵🇾
+        - button "🇳🇱 Netherlands F 5 – 1 Sweden 🇸🇪" [ref=e6343] [cursor=pointer]:
+          - generic [ref=e6344]:
+            - generic [ref=e6345]: 🇳🇱
+            - generic [ref=e6346]: Netherlands
+          - generic [ref=e6347]:
+            - generic [ref=e6348]: F
+            - generic [ref=e6349]: 5 – 1
+          - generic [ref=e6350]:
+            - generic [ref=e6351]: Sweden
+            - generic [ref=e6352]: 🇸🇪
+        - button "🇩🇪 Germany E 2 – 1 Ivory Coast 🇨🇮" [ref=e6354] [cursor=pointer]:
+          - generic [ref=e6355]:
+            - generic [ref=e6356]: 🇩🇪
+            - generic [ref=e6357]: Germany
+          - generic [ref=e6358]:
+            - generic [ref=e6359]: E
+            - generic [ref=e6360]: 2 – 1
+          - generic [ref=e6361]:
+            - generic [ref=e6362]: Ivory Coast
+            - generic [ref=e6363]: 🇨🇮
+    - generic [ref=e6364]:
+      - heading "21 June 2026" [level=2] [ref=e6365]
+      - generic [ref=e6366]:
+        - button "🇪🇨 Ecuador E 0 – 0 Curaçao 🇨🇼" [ref=e6368] [cursor=pointer]:
+          - generic [ref=e6369]:
+            - generic [ref=e6370]: 🇪🇨
+            - generic [ref=e6371]: Ecuador
+          - generic [ref=e6372]:
+            - generic [ref=e6373]: E
+            - generic [ref=e6374]: 0 – 0
+          - generic [ref=e6375]:
+            - generic [ref=e6376]: Curaçao
+            - generic [ref=e6377]: 🇨🇼
+        - button "🇹🇳 Tunisia F 0 – 4 Japan 🇯🇵" [ref=e6379] [cursor=pointer]:
+          - generic [ref=e6380]:
+            - generic [ref=e6381]: 🇹🇳
+            - generic [ref=e6382]: Tunisia
+          - generic [ref=e6383]:
+            - generic [ref=e6384]: F
+            - generic [ref=e6385]: 0 – 4
+          - generic [ref=e6386]:
+            - generic [ref=e6387]: Japan
+            - generic [ref=e6388]: 🇯🇵
+        - button "🇪🇸 Spain H 4 – 0 Saudi Arabia 🇸🇦" [ref=e6390] [cursor=pointer]:
+          - generic [ref=e6391]:
+            - generic [ref=e6392]: 🇪🇸
+            - generic [ref=e6393]: Spain
+          - generic [ref=e6394]:
+            - generic [ref=e6395]: H
+            - generic [ref=e6396]: 4 – 0
+          - generic [ref=e6397]:
+            - generic [ref=e6398]: Saudi Arabia
+            - generic [ref=e6399]: 🇸🇦
+        - button "🇧🇪 Belgium G 0 – 0 Iran 🇮🇷" [ref=e6401] [cursor=pointer]:
+          - generic [ref=e6402]:
+            - generic [ref=e6403]: 🇧🇪
+            - generic [ref=e6404]: Belgium
+          - generic [ref=e6405]:
+            - generic [ref=e6406]: G
+            - generic [ref=e6407]: 0 – 0
+          - generic [ref=e6408]:
+            - generic [ref=e6409]: Iran
+            - generic [ref=e6410]: 🇮🇷
+        - button "🇺🇾 Uruguay H 2 – 2 Cape Verde 🇨🇻" [ref=e6412] [cursor=pointer]:
+          - generic [ref=e6413]:
+            - generic [ref=e6414]: 🇺🇾
+            - generic [ref=e6415]: Uruguay
+          - generic [ref=e6416]:
+            - generic [ref=e6417]: H
+            - generic [ref=e6418]: 2 – 2
+          - generic [ref=e6419]:
+            - generic [ref=e6420]: Cape Verde
+            - generic [ref=e6421]: 🇨🇻
+    - generic [ref=e6422]:
+      - heading "22 June 2026" [level=2] [ref=e6423]
+      - generic [ref=e6424]:
+        - button "🇳🇿 New Zealand G 1 – 3 Egypt 🇪🇬" [ref=e6426] [cursor=pointer]:
+          - generic [ref=e6427]:
+            - generic [ref=e6428]: 🇳🇿
+            - generic [ref=e6429]: New Zealand
+          - generic [ref=e6430]:
+            - generic [ref=e6431]: G
+            - generic [ref=e6432]: 1 – 3
+          - generic [ref=e6433]:
+            - generic [ref=e6434]: Egypt
+            - generic [ref=e6435]: 🇪🇬
+        - button "🇦🇷 Argentina J 2 – 0 Austria 🇦🇹" [ref=e6437] [cursor=pointer]:
+          - generic [ref=e6438]:
+            - generic [ref=e6439]: 🇦🇷
+            - generic [ref=e6440]: Argentina
+          - generic [ref=e6441]:
+            - generic [ref=e6442]: J
+            - generic [ref=e6443]: 2 – 0
+          - generic [ref=e6444]:
+            - generic [ref=e6445]: Austria
+            - generic [ref=e6446]: 🇦🇹
+        - button "🇫🇷 France I 3 – 0 Iraq 🇮🇶" [ref=e6448] [cursor=pointer]:
+          - generic [ref=e6449]:
+            - generic [ref=e6450]: 🇫🇷
+            - generic [ref=e6451]: France
+          - generic [ref=e6452]:
+            - generic [ref=e6453]: I
+            - generic [ref=e6454]: 3 – 0
+          - generic [ref=e6455]:
+            - generic [ref=e6456]: Iraq
+            - generic [ref=e6457]: 🇮🇶
+    - generic [ref=e6458]:
+      - heading "23 June 2026" [level=2] [ref=e6459]
+      - generic [ref=e6460]:
+        - button "🇳🇴 Norway I 3 – 2 Senegal 🇸🇳" [ref=e6462] [cursor=pointer]:
+          - generic [ref=e6463]:
+            - generic [ref=e6464]: 🇳🇴
+            - generic [ref=e6465]: Norway
+          - generic [ref=e6466]:
+            - generic [ref=e6467]: I
+            - generic [ref=e6468]: 3 – 2
+          - generic [ref=e6469]:
+            - generic [ref=e6470]: Senegal
+            - generic [ref=e6471]: 🇸🇳
+        - button "🇯🇴 Jordan J 1 – 2 Algeria 🇩🇿" [ref=e6473] [cursor=pointer]:
+          - generic [ref=e6474]:
+            - generic [ref=e6475]: 🇯🇴
+            - generic [ref=e6476]: Jordan
+          - generic [ref=e6477]:
+            - generic [ref=e6478]: J
+            - generic [ref=e6479]: 1 – 2
+          - generic [ref=e6480]:
+            - generic [ref=e6481]: Algeria
+            - generic [ref=e6482]: 🇩🇿
+        - button "🇵🇹 Portugal K 5 – 0 Uzbekistan 🇺🇿" [ref=e6484] [cursor=pointer]:
+          - generic [ref=e6485]:
+            - generic [ref=e6486]: 🇵🇹
+            - generic [ref=e6487]: Portugal
+          - generic [ref=e6488]:
+            - generic [ref=e6489]: K
+            - generic [ref=e6490]: 5 – 0
+          - generic [ref=e6491]:
+            - generic [ref=e6492]: Uzbekistan
+            - generic [ref=e6493]: 🇺🇿
+        - button "🏴󠁧󠁢󠁥󠁮󠁧󠁿 England L 0 – 0 Ghana 🇬🇭" [ref=e6495] [cursor=pointer]:
+          - generic [ref=e6496]:
+            - generic [ref=e6497]: 🏴󠁧󠁢󠁥󠁮󠁧󠁿
+            - generic [ref=e6498]: England
+          - generic [ref=e6499]:
+            - generic [ref=e6500]: L
+            - generic [ref=e6501]: 0 – 0
+          - generic [ref=e6502]:
+            - generic [ref=e6503]: Ghana
+            - generic [ref=e6504]: 🇬🇭
+        - button "🇵🇦 Panama L 0 – 1 Croatia 🇭🇷" [ref=e6506] [cursor=pointer]:
+          - generic [ref=e6507]:
+            - generic [ref=e6508]: 🇵🇦
+            - generic [ref=e6509]: Panama
+          - generic [ref=e6510]:
+            - generic [ref=e6511]: L
+            - generic [ref=e6512]: 0 – 1
+          - generic [ref=e6513]:
+            - generic [ref=e6514]: Croatia
+            - generic [ref=e6515]: 🇭🇷
+    - generic [ref=e6516]:
+      - heading "24 June 2026" [level=2] [ref=e6517]
+      - generic [ref=e6518]:
+        - button "🇨🇴 Colombia K 1 – 0 DR Congo 🇨🇩" [ref=e6520] [cursor=pointer]:
+          - generic [ref=e6521]:
+            - generic [ref=e6522]: 🇨🇴
+            - generic [ref=e6523]: Colombia
+          - generic [ref=e6524]:
+            - generic [ref=e6525]: K
+            - generic [ref=e6526]: 1 – 0
+          - generic [ref=e6527]:
+            - generic [ref=e6528]: DR Congo
+            - generic [ref=e6529]: 🇨🇩
+        - button "🇨🇭 Switzerland B 2 – 1 Canada 🇨🇦" [ref=e6531] [cursor=pointer]:
+          - generic [ref=e6532]:
+            - generic [ref=e6533]: 🇨🇭
+            - generic [ref=e6534]: Switzerland
+          - generic [ref=e6535]:
+            - generic [ref=e6536]: B
+            - generic [ref=e6537]: 2 – 1
+          - generic [ref=e6538]:
+            - generic [ref=e6539]: Canada
+            - generic [ref=e6540]: 🇨🇦
+        - button "🇧🇦 Bosnia and Herzegovina B 3 – 1 Qatar 🇶🇦" [ref=e6542] [cursor=pointer]:
+          - generic [ref=e6543]:
+            - generic [ref=e6544]: 🇧🇦
+            - generic [ref=e6545]: Bosnia and Herzegovina
+          - generic [ref=e6546]:
+            - generic [ref=e6547]: B
+            - generic [ref=e6548]: 3 – 1
+          - generic [ref=e6549]:
+            - generic [ref=e6550]: Qatar
+            - generic [ref=e6551]: 🇶🇦
+        - button "🇲🇦 Morocco C 4 – 2 Haiti 🇭🇹" [ref=e6553] [cursor=pointer]:
+          - generic [ref=e6554]:
+            - generic [ref=e6555]: 🇲🇦
+            - generic [ref=e6556]: Morocco
+          - generic [ref=e6557]:
+            - generic [ref=e6558]: C
+            - generic [ref=e6559]: 4 – 2
+          - generic [ref=e6560]:
+            - generic [ref=e6561]: Haiti
+            - generic [ref=e6562]: 🇭🇹
+        - button "🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland C 0 – 3 Brazil 🇧🇷" [ref=e6564] [cursor=pointer]:
+          - generic [ref=e6565]:
+            - generic [ref=e6566]: 🏴󠁧󠁢󠁳󠁣󠁴󠁿
+            - generic [ref=e6567]: Scotland
+          - generic [ref=e6568]:
+            - generic [ref=e6569]: C
+            - generic [ref=e6570]: 0 – 3
+          - generic [ref=e6571]:
+            - generic [ref=e6572]: Brazil
+            - generic [ref=e6573]: 🇧🇷
+    - generic [ref=e6574]:
+      - heading "25 June 2026" [level=2] [ref=e6575]
+      - generic [ref=e6576]:
+        - button "🇨🇿 Czech Republic A 0 – 3 Mexico 🇲🇽" [ref=e6578] [cursor=pointer]:
+          - generic [ref=e6579]:
+            - generic [ref=e6580]: 🇨🇿
+            - generic [ref=e6581]: Czech Republic
+          - generic [ref=e6582]:
+            - generic [ref=e6583]: A
+            - generic [ref=e6584]: 0 – 3
+          - generic [ref=e6585]:
+            - generic [ref=e6586]: Mexico
+            - generic [ref=e6587]: 🇲🇽
+        - button "🇿🇦 South Africa A 1 – 0 South Korea 🇰🇷" [ref=e6589] [cursor=pointer]:
+          - generic [ref=e6590]:
+            - generic [ref=e6591]: 🇿🇦
+            - generic [ref=e6592]: South Africa
+          - generic [ref=e6593]:
+            - generic [ref=e6594]: A
+            - generic [ref=e6595]: 1 – 0
+          - generic [ref=e6596]:
+            - generic [ref=e6597]: South Korea
+            - generic [ref=e6598]: 🇰🇷
+        - button "🇪🇨 Ecuador E 2 – 1 Germany 🇩🇪" [ref=e6600] [cursor=pointer]:
+          - generic [ref=e6601]:
+            - generic [ref=e6602]: 🇪🇨
+            - generic [ref=e6603]: Ecuador
+          - generic [ref=e6604]:
+            - generic [ref=e6605]: E
+            - generic [ref=e6606]: 2 – 1
+          - generic [ref=e6607]:
+            - generic [ref=e6608]: Germany
+            - generic [ref=e6609]: 🇩🇪
+        - button "🇨🇼 Curaçao E 0 – 2 Ivory Coast 🇨🇮" [ref=e6611] [cursor=pointer]:
+          - generic [ref=e6612]:
+            - generic [ref=e6613]: 🇨🇼
+            - generic [ref=e6614]: Curaçao
+          - generic [ref=e6615]:
+            - generic [ref=e6616]: E
+            - generic [ref=e6617]: 0 – 2
+          - generic [ref=e6618]:
+            - generic [ref=e6619]: Ivory Coast
+            - generic [ref=e6620]: 🇨🇮
+        - button "🇹🇳 Tunisia F 1 – 3 Netherlands 🇳🇱" [ref=e6622] [cursor=pointer]:
+          - generic [ref=e6623]:
+            - generic [ref=e6624]: 🇹🇳
+            - generic [ref=e6625]: Tunisia
+          - generic [ref=e6626]:
+            - generic [ref=e6627]: F
+            - generic [ref=e6628]: 1 – 3
+          - generic [ref=e6629]:
+            - generic [ref=e6630]: Netherlands
+            - generic [ref=e6631]: 🇳🇱
+        - button "🇯🇵 Japan F 1 – 1 Sweden 🇸🇪" [ref=e6633] [cursor=pointer]:
+          - generic [ref=e6634]:
+            - generic [ref=e6635]: 🇯🇵
+            - generic [ref=e6636]: Japan
+          - generic [ref=e6637]:
+            - generic [ref=e6638]: F
+            - generic [ref=e6639]: 1 – 1
+          - generic [ref=e6640]:
+            - generic [ref=e6641]: Sweden
+            - generic [ref=e6642]: 🇸🇪
+    - generic [ref=e6643]:
+      - heading "26 June 2026" [level=2] [ref=e6644]
+      - generic [ref=e6645]:
+        - button "🇹🇷 Turkey D 3 – 2 United States 🇺🇸" [ref=e6647] [cursor=pointer]:
+          - generic [ref=e6648]:
+            - generic [ref=e6649]: 🇹🇷
+            - generic [ref=e6650]: Turkey
+          - generic [ref=e6651]:
+            - generic [ref=e6652]: D
+            - generic [ref=e6653]: 3 – 2
+          - generic [ref=e6654]:
+            - generic [ref=e6655]: United States
+            - generic [ref=e6656]: 🇺🇸
+        - button "🇵🇾 Paraguay D 0 – 0 Australia 🇦🇺" [ref=e6658] [cursor=pointer]:
+          - generic [ref=e6659]:
+            - generic [ref=e6660]: 🇵🇾
+            - generic [ref=e6661]: Paraguay
+          - generic [ref=e6662]:
+            - generic [ref=e6663]: D
+            - generic [ref=e6664]: 0 – 0
+          - generic [ref=e6665]:
+            - generic [ref=e6666]: Australia
+            - generic [ref=e6667]: 🇦🇺
+        - button "🇳🇴 Norway I 1 – 4 France 🇫🇷" [ref=e6669] [cursor=pointer]:
+          - generic [ref=e6670]:
+            - generic [ref=e6671]: 🇳🇴
+            - generic [ref=e6672]: Norway
+          - generic [ref=e6673]:
+            - generic [ref=e6674]: I
+            - generic [ref=e6675]: 1 – 4
+          - generic [ref=e6676]:
+            - generic [ref=e6677]: France
+            - generic [ref=e6678]: 🇫🇷
+        - button "🇸🇳 Senegal I 5 – 0 Iraq 🇮🇶" [ref=e6680] [cursor=pointer]:
+          - generic [ref=e6681]:
+            - generic [ref=e6682]: 🇸🇳
+            - generic [ref=e6683]: Senegal
+          - generic [ref=e6684]:
+            - generic [ref=e6685]: I
+            - generic [ref=e6686]: 5 – 0
+          - generic [ref=e6687]:
+            - generic [ref=e6688]: Iraq
+            - generic [ref=e6689]: 🇮🇶
+    - generic [ref=e6690]:
+      - heading "27 June 2026" [level=2] [ref=e6691]
+      - generic [ref=e6692]:
+        - button "🇺🇾 Uruguay H 0 – 1 Spain 🇪🇸" [ref=e6694] [cursor=pointer]:
+          - generic [ref=e6695]:
+            - generic [ref=e6696]: 🇺🇾
+            - generic [ref=e6697]: Uruguay
+          - generic [ref=e6698]:
+            - generic [ref=e6699]: H
+            - generic [ref=e6700]: 0 – 1
+          - generic [ref=e6701]:
+            - generic [ref=e6702]: Spain
+            - generic [ref=e6703]: 🇪🇸
+        - button "🇨🇻 Cape Verde H 0 – 0 Saudi Arabia 🇸🇦" [ref=e6705] [cursor=pointer]:
+          - generic [ref=e6706]:
+            - generic [ref=e6707]: 🇨🇻
+            - generic [ref=e6708]: Cape Verde
+          - generic [ref=e6709]:
+            - generic [ref=e6710]: H
+            - generic [ref=e6711]: 0 – 0
+          - generic [ref=e6712]:
+            - generic [ref=e6713]: Saudi Arabia
+            - generic [ref=e6714]: 🇸🇦
+        - button "🇳🇿 New Zealand G 1 – 5 Belgium 🇧🇪" [ref=e6716] [cursor=pointer]:
+          - generic [ref=e6717]:
+            - generic [ref=e6718]: 🇳🇿
+            - generic [ref=e6719]: New Zealand
+          - generic [ref=e6720]:
+            - generic [ref=e6721]: G
+            - generic [ref=e6722]: 1 – 5
+          - generic [ref=e6723]:
+            - generic [ref=e6724]: Belgium
+            - generic [ref=e6725]: 🇧🇪
+        - button "🇪🇬 Egypt G 1 – 1 Iran 🇮🇷" [ref=e6727] [cursor=pointer]:
+          - generic [ref=e6728]:
+            - generic [ref=e6729]: 🇪🇬
+            - generic [ref=e6730]: Egypt
+          - generic [ref=e6731]:
+            - generic [ref=e6732]: G
+            - generic [ref=e6733]: 1 – 1
+          - generic [ref=e6734]:
+            - generic [ref=e6735]: Iran
+            - generic [ref=e6736]: 🇮🇷
+        - button "🇵🇦 Panama L 0 – 2 England 🏴󠁧󠁢󠁥󠁮󠁧󠁿" [ref=e6738] [cursor=pointer]:
+          - generic [ref=e6739]:
+            - generic [ref=e6740]: 🇵🇦
+            - generic [ref=e6741]: Panama
+          - generic [ref=e6742]:
+            - generic [ref=e6743]: L
+            - generic [ref=e6744]: 0 – 2
+          - generic [ref=e6745]:
+            - generic [ref=e6746]: England
+            - generic [ref=e6747]: 🏴󠁧󠁢󠁥󠁮󠁧󠁿
+        - button "🇭🇷 Croatia L 2 – 1 Ghana 🇬🇭" [ref=e6749] [cursor=pointer]:
+          - generic [ref=e6750]:
+            - generic [ref=e6751]: 🇭🇷
+            - generic [ref=e6752]: Croatia
+          - generic [ref=e6753]:
+            - generic [ref=e6754]: L
+            - generic [ref=e6755]: 2 – 1
+          - generic [ref=e6756]:
+            - generic [ref=e6757]: Ghana
+            - generic [ref=e6758]: 🇬🇭
+        - button "🇨🇴 Colombia K 0 – 0 Portugal 🇵🇹" [ref=e6760] [cursor=pointer]:
+          - generic [ref=e6761]:
+            - generic [ref=e6762]: 🇨🇴
+            - generic [ref=e6763]: Colombia
+          - generic [ref=e6764]:
+            - generic [ref=e6765]: K
+            - generic [ref=e6766]: 0 – 0
+          - generic [ref=e6767]:
+            - generic [ref=e6768]: Portugal
+            - generic [ref=e6769]: 🇵🇹
+        - button "🇨🇩 DR Congo K 3 – 1 Uzbekistan 🇺🇿" [ref=e6771] [cursor=pointer]:
+          - generic [ref=e6772]:
+            - generic [ref=e6773]: 🇨🇩
+            - generic [ref=e6774]: DR Congo
+          - generic [ref=e6775]:
+            - generic [ref=e6776]: K
+            - generic [ref=e6777]: 3 – 1
+          - generic [ref=e6778]:
+            - generic [ref=e6779]: Uzbekistan
+            - generic [ref=e6780]: 🇺🇿
+    - generic [ref=e6781]:
+      - heading "28 June 2026" [level=2] [ref=e6782]
+      - generic [ref=e6783]:
+        - button "🇯🇴 Jordan J 1 – 3 Argentina 🇦🇷" [ref=e6785] [cursor=pointer]:
+          - generic [ref=e6786]:
+            - generic [ref=e6787]: 🇯🇴
+            - generic [ref=e6788]: Jordan
+          - generic [ref=e6789]:
+            - generic [ref=e6790]: J
+            - generic [ref=e6791]: 1 – 3
+          - generic [ref=e6792]:
+            - generic [ref=e6793]: Argentina
+            - generic [ref=e6794]: 🇦🇷
+        - button "🇩🇿 Algeria J 3 – 3 Austria 🇦🇹" [ref=e6796] [cursor=pointer]:
+          - generic [ref=e6797]:
+            - generic [ref=e6798]: 🇩🇿
+            - generic [ref=e6799]: Algeria
+          - generic [ref=e6800]:
+            - generic [ref=e6801]: J
+            - generic [ref=e6802]: 3 – 3
+          - generic [ref=e6803]:
+            - generic [ref=e6804]: Austria
+            - generic [ref=e6805]: 🇦🇹
+    - generic [ref=e6806]:
+      - heading "Round of 32" [level=2] [ref=e6807]
+      - generic [ref=e6808]:
+        - button "🇿🇦 South Africa 0 – 1 Canada 🇨🇦" [ref=e6810] [cursor=pointer]:
+          - generic [ref=e6811]:
+            - generic [ref=e6812]: 🇿🇦
+            - generic [ref=e6813]: South Africa
+          - generic [ref=e6815]: 0 – 1
+          - generic [ref=e6816]:
+            - generic [ref=e6817]: Canada
+            - generic [ref=e6818]: 🇨🇦
+        - button "🇧🇷 Brazil 10:00 Japan 🇯🇵" [ref=e6820] [cursor=pointer]:
+          - generic [ref=e6821]:
+            - generic [ref=e6822]: 🇧🇷
+            - generic [ref=e6823]: Brazil
+          - generic [ref=e6825]: 10:00
+          - generic [ref=e6826]:
+            - generic [ref=e6827]: Japan
+            - generic [ref=e6828]: 🇯🇵
+        - button "🇩🇪 Germany 13:30 Paraguay 🇵🇾" [ref=e6830] [cursor=pointer]:
+          - generic [ref=e6831]:
+            - generic [ref=e6832]: 🇩🇪
+            - generic [ref=e6833]: Germany
+          - generic [ref=e6835]: 13:30
+          - generic [ref=e6836]:
+            - generic [ref=e6837]: Paraguay
+            - generic [ref=e6838]: 🇵🇾
+        - button "🇳🇱 Netherlands 18:00 Morocco 🇲🇦" [ref=e6840] [cursor=pointer]:
+          - generic [ref=e6841]:
+            - generic [ref=e6842]: 🇳🇱
+            - generic [ref=e6843]: Netherlands
+          - generic [ref=e6845]: 18:00
+          - generic [ref=e6846]:
+            - generic [ref=e6847]: Morocco
+            - generic [ref=e6848]: 🇲🇦
+        - button "🇨🇮 Ivory Coast 10:00 Norway 🇳🇴" [ref=e6850] [cursor=pointer]:
+          - generic [ref=e6851]:
+            - generic [ref=e6852]: 🇨🇮
+            - generic [ref=e6853]: Ivory Coast
+          - generic [ref=e6855]: 10:00
+          - generic [ref=e6856]:
+            - generic [ref=e6857]: Norway
+            - generic [ref=e6858]: 🇳🇴
+        - button "🇫🇷 France 14:00 Sweden 🇸🇪" [ref=e6860] [cursor=pointer]:
+          - generic [ref=e6861]:
+            - generic [ref=e6862]: 🇫🇷
+            - generic [ref=e6863]: France
+          - generic [ref=e6865]: 14:00
+          - generic [ref=e6866]:
+            - generic [ref=e6867]: Sweden
+            - generic [ref=e6868]: 🇸🇪
+        - button "🇲🇽 Mexico 18:00 Ecuador 🇪🇨" [ref=e6870] [cursor=pointer]:
+          - generic [ref=e6871]:
+            - generic [ref=e6872]: 🇲🇽
+            - generic [ref=e6873]: Mexico
+          - generic [ref=e6875]: 18:00
+          - generic [ref=e6876]:
+            - generic [ref=e6877]: Ecuador
+            - generic [ref=e6878]: 🇪🇨
+        - button "🏴󠁧󠁢󠁥󠁮󠁧󠁿 England 09:00 DR Congo 🇨🇩" [ref=e6880] [cursor=pointer]:
+          - generic [ref=e6881]:
+            - generic [ref=e6882]: 🏴󠁧󠁢󠁥󠁮󠁧󠁿
+            - generic [ref=e6883]: England
+          - generic [ref=e6885]: 09:00
+          - generic [ref=e6886]:
+            - generic [ref=e6887]: DR Congo
+            - generic [ref=e6888]: 🇨🇩
+        - button "🇧🇪 Belgium 13:00 Senegal 🇸🇳" [ref=e6890] [cursor=pointer]:
+          - generic [ref=e6891]:
+            - generic [ref=e6892]: 🇧🇪
+            - generic [ref=e6893]: Belgium
+          - generic [ref=e6895]: 13:00
+          - generic [ref=e6896]:
+            - generic [ref=e6897]: Senegal
+            - generic [ref=e6898]: 🇸🇳
+        - button "🇺🇸 United States 17:00 Bosnia and Herzegovina 🇧🇦" [ref=e6900] [cursor=pointer]:
+          - generic [ref=e6901]:
+            - generic [ref=e6902]: 🇺🇸
+            - generic [ref=e6903]: United States
+          - generic [ref=e6905]: 17:00
+          - generic [ref=e6906]:
+            - generic [ref=e6907]: Bosnia and Herzegovina
+            - generic [ref=e6908]: 🇧🇦
+        - button "🇪🇸 Spain 12:00 Austria 🇦🇹" [ref=e6910] [cursor=pointer]:
+          - generic [ref=e6911]:
+            - generic [ref=e6912]: 🇪🇸
+            - generic [ref=e6913]: Spain
+          - generic [ref=e6915]: 12:00
+          - generic [ref=e6916]:
+            - generic [ref=e6917]: Austria
+            - generic [ref=e6918]: 🇦🇹
+        - button "🇵🇹 Portugal 16:00 Croatia 🇭🇷" [ref=e6920] [cursor=pointer]:
+          - generic [ref=e6921]:
+            - generic [ref=e6922]: 🇵🇹
+            - generic [ref=e6923]: Portugal
+          - generic [ref=e6925]: 16:00
+          - generic [ref=e6926]:
+            - generic [ref=e6927]: Croatia
+            - generic [ref=e6928]: 🇭🇷
+        - button "🇨🇭 Switzerland 20:00 Algeria 🇩🇿" [ref=e6930] [cursor=pointer]:
+          - generic [ref=e6931]:
+            - generic [ref=e6932]: 🇨🇭
+            - generic [ref=e6933]: Switzerland
+          - generic [ref=e6935]: 20:00
+          - generic [ref=e6936]:
+            - generic [ref=e6937]: Algeria
+            - generic [ref=e6938]: 🇩🇿
+        - button "🇦🇺 Australia 11:00 Egypt 🇪🇬" [ref=e6940] [cursor=pointer]:
+          - generic [ref=e6941]:
+            - generic [ref=e6942]: 🇦🇺
+            - generic [ref=e6943]: Australia
+          - generic [ref=e6945]: 11:00
+          - generic [ref=e6946]:
+            - generic [ref=e6947]: Egypt
+            - generic [ref=e6948]: 🇪🇬
+        - button "🇦🇷 Argentina 15:00 Cape Verde 🇨🇻" [ref=e6950] [cursor=pointer]:
+          - generic [ref=e6951]:
+            - generic [ref=e6952]: 🇦🇷
+            - generic [ref=e6953]: Argentina
+          - generic [ref=e6955]: 15:00
+          - generic [ref=e6956]:
+            - generic [ref=e6957]: Cape Verde
+            - generic [ref=e6958]: 🇨🇻
+        - button "🇨🇴 Colombia 18:30 Ghana 🇬🇭" [ref=e6960] [cursor=pointer]:
+          - generic [ref=e6961]:
+            - generic [ref=e6962]: 🇨🇴
+            - generic [ref=e6963]: Colombia
+          - generic [ref=e6965]: 18:30
+          - generic [ref=e6966]:
+            - generic [ref=e6967]: Ghana
+            - generic [ref=e6968]: 🇬🇭

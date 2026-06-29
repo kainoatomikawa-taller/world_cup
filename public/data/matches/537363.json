@@ -1,0 +1,17 @@
+{
+  "match_id": "537363",
+  "kickoff": "2026-06-15T19:00:00Z",
+  "stage": "group",
+  "group_id": "G",
+  "home_team_id": "belgium",
+  "home_team": "Belgium",
+  "home_code": "BEL",
+  "home_flag": "🇧🇪",
+  "home_goals": 1.0,
+  "away_team_id": "egypt",
+  "away_team": "Egypt",
+  "away_code": "EGY",
+  "away_flag": "🇪🇬",
+  "away_goals": 1.0,
+  "played": 1
+}

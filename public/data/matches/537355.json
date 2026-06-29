@@ -1,0 +1,17 @@
+{
+  "match_id": "537355",
+  "kickoff": "2026-06-25T20:00:00Z",
+  "stage": "group",
+  "group_id": "E",
+  "home_team_id": "ecuador",
+  "home_team": "Ecuador",
+  "home_code": "ECU",
+  "home_flag": "🇪🇨",
+  "home_goals": 2.0,
+  "away_team_id": "germany",
+  "away_team": "Germany",
+  "away_code": "GER",
+  "away_flag": "🇩🇪",
+  "away_goals": 1.0,
+  "played": 1
+}

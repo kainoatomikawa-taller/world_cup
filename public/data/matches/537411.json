@@ -1,0 +1,17 @@
+{
+  "match_id": "537411",
+  "kickoff": "2026-06-23T20:00:00Z",
+  "stage": "group",
+  "group_id": "L",
+  "home_team_id": "england",
+  "home_team": "England",
+  "home_code": "ENG",
+  "home_flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+  "home_goals": 0.0,
+  "away_team_id": "ghana",
+  "away_team": "Ghana",
+  "away_code": "GHA",
+  "away_flag": "🇬🇭",
+  "away_goals": 0.0,
+  "played": 1
+}

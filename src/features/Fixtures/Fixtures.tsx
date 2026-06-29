@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { useFixtures, type StaticFixture } from '../../data/useFixtures';
+import { useMatchDetail } from '../../data/useMatchDetail';
 
 const STAGE_ORDER: Record<string, number> = {
   group: 0,
@@ -68,36 +70,107 @@ function groupByDateOrStage(fixtures: StaticFixture[]): FixtureGroup[] {
   return Array.from(map.values());
 }
 
-function FixtureRow({ fixture: f }: { fixture: StaticFixture }) {
-  const played = f.played === 1;
+// ---------------------------------------------------------------------------
+// Match detail panel — lazy-loaded on row click
+// ---------------------------------------------------------------------------
+
+function MatchDetailPanel({ matchId }: { matchId: string }) {
+  const { detail, loading, error } = useMatchDetail(matchId);
+
+  if (loading) return <div className="match-detail match-detail--loading">Loading…</div>;
+  if (error) return <div className="match-detail match-detail--error">Could not load detail.</div>;
+  if (!detail) return null;
+
   return (
-    <div className={`fixture-row${played ? ' fixture-row--played' : ''}`}>
-      <span className="fixture-team fixture-team--home">
-        <span className="fixture-team__flag">{f.home_flag}</span>
-        <span className="fixture-team__name">{f.home_team}</span>
-      </span>
-
-      <span className="fixture-center tnum">
-        {f.group_id && (
-          <span className="group-badge fixture-group-badge">{f.group_id}</span>
+    <div className="match-detail">
+      <dl className="match-detail__grid">
+        <dt>Kickoff</dt>
+        <dd>
+          {new Date(detail.kickoff).toLocaleString('en-GB', {
+            weekday: 'short',
+            day: 'numeric',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZoneName: 'short',
+          })}
+        </dd>
+        {detail.group_id && (
+          <>
+            <dt>Group</dt>
+            <dd>{detail.group_id}</dd>
+          </>
         )}
-        <span className="fixture-score">
-          {played
-            ? `${f.home_goals ?? 0} – ${f.away_goals ?? 0}`
-            : formatKickoff(f.kickoff)}
-        </span>
-      </span>
-
-      <span className="fixture-team fixture-team--away">
-        <span className="fixture-team__name">{f.away_team}</span>
-        <span className="fixture-team__flag">{f.away_flag}</span>
-      </span>
+        <dt>Stage</dt>
+        <dd>{KNOCKOUT_LABEL[detail.stage] ?? detail.stage}</dd>
+        {detail.played === 1 && (
+          <>
+            <dt>Result</dt>
+            <dd className="tnum">
+              {detail.home_team} {detail.home_goals ?? 0} – {detail.away_goals ?? 0} {detail.away_team}
+            </dd>
+          </>
+        )}
+      </dl>
     </div>
   );
 }
 
+// ---------------------------------------------------------------------------
+// Fixture row — clickable, expands detail panel
+// ---------------------------------------------------------------------------
+
+function FixtureRow({
+  fixture: f,
+  selected,
+  onToggle,
+}: {
+  fixture: StaticFixture;
+  selected: boolean;
+  onToggle: () => void;
+}) {
+  const played = f.played === 1;
+  return (
+    <div className={`fixture-row-wrap${selected ? ' fixture-row-wrap--open' : ''}`}>
+      <button
+        className={`fixture-row fixture-row--btn${played ? ' fixture-row--played' : ''}`}
+        onClick={onToggle}
+        aria-expanded={selected}
+      >
+        <span className="fixture-team fixture-team--home">
+          <span className="fixture-team__flag">{f.home_flag}</span>
+          <span className="fixture-team__name">{f.home_team}</span>
+        </span>
+
+        <span className="fixture-center tnum">
+          {f.group_id && (
+            <span className="group-badge fixture-group-badge">{f.group_id}</span>
+          )}
+          <span className="fixture-score">
+            {played
+              ? `${f.home_goals ?? 0} – ${f.away_goals ?? 0}`
+              : formatKickoff(f.kickoff)}
+          </span>
+        </span>
+
+        <span className="fixture-team fixture-team--away">
+          <span className="fixture-team__name">{f.away_team}</span>
+          <span className="fixture-team__flag">{f.away_flag}</span>
+        </span>
+      </button>
+
+      {selected && <MatchDetailPanel matchId={f.match_id} />}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Fixtures screen
+// ---------------------------------------------------------------------------
+
 export function Fixtures() {
   const { fixtures, loading, error } = useFixtures();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   if (loading) {
     return <p className="screen-intro">Loading fixtures…</p>;
@@ -114,11 +187,11 @@ export function Fixtures() {
   const groups = groupByDateOrStage(fixtures);
 
   if (groups.length === 0) {
-    return (
-      <p className="screen-intro">
-        No fixtures available yet.
-      </p>
-    );
+    return <p className="screen-intro">No fixtures available yet.</p>;
+  }
+
+  function toggle(id: string) {
+    setSelectedId((prev) => (prev === id ? null : id));
   }
 
   return (
@@ -128,7 +201,12 @@ export function Fixtures() {
           <h2 className="fixture-group__label">{group.label}</h2>
           <div className="card fixture-list">
             {group.items.map((f) => (
-              <FixtureRow key={f.match_id} fixture={f} />
+              <FixtureRow
+                key={f.match_id}
+                fixture={f}
+                selected={selectedId === f.match_id}
+                onToggle={() => toggle(f.match_id)}
+              />
             ))}
           </div>
         </section>

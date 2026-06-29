@@ -1,0 +1,17 @@
+{
+  "match_id": "537369",
+  "kickoff": "2026-06-15T16:00:00Z",
+  "stage": "group",
+  "group_id": "H",
+  "home_team_id": "spain",
+  "home_team": "Spain",
+  "home_code": "ESP",
+  "home_flag": "🇪🇸",
+  "home_goals": 0.0,
+  "away_team_id": "cape-verde",
+  "away_team": "Cape Verde",
+  "away_code": "CPV",
+  "away_flag": "🇨🇻",
+  "away_goals": 0.0,
+  "played": 1
+}

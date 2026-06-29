@@ -1,0 +1,17 @@
+{
+  "match_id": "537400",
+  "kickoff": "2026-06-23T03:00:00Z",
+  "stage": "group",
+  "group_id": "J",
+  "home_team_id": "jordan",
+  "home_team": "Jordan",
+  "home_code": "JOR",
+  "home_flag": "🇯🇴",
+  "home_goals": 1.0,
+  "away_team_id": "algeria",
+  "away_team": "Algeria",
+  "away_code": "ALG",
+  "away_flag": "🇩🇿",
+  "away_goals": 2.0,
+  "played": 1
+}

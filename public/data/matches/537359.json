@@ -1,0 +1,17 @@
+{
+  "match_id": "537359",
+  "kickoff": "2026-06-20T17:00:00Z",
+  "stage": "group",
+  "group_id": "F",
+  "home_team_id": "netherlands",
+  "home_team": "Netherlands",
+  "home_code": "NED",
+  "home_flag": "🇳🇱",
+  "home_goals": 5.0,
+  "away_team_id": "sweden",
+  "away_team": "Sweden",
+  "away_code": "SWE",
+  "away_flag": "🇸🇪",
+  "away_goals": 1.0,
+  "played": 1
+}

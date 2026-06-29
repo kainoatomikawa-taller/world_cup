@@ -1,0 +1,17 @@
+{
+  "match_id": "537335",
+  "kickoff": "2026-06-18T19:00:00Z",
+  "stage": "group",
+  "group_id": "B",
+  "home_team_id": "switzerland",
+  "home_team": "Switzerland",
+  "home_code": "SUI",
+  "home_flag": "🇨🇭",
+  "home_goals": 4.0,
+  "away_team_id": "bosnia-and-herzegovina",
+  "away_team": "Bosnia and Herzegovina",
+  "away_code": "BIH",
+  "away_flag": "🇧🇦",
+  "away_goals": 1.0,
+  "played": 1
+}

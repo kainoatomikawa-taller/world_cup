@@ -1,0 +1,17 @@
+{
+  "match_id": "537371",
+  "kickoff": "2026-06-21T16:00:00Z",
+  "stage": "group",
+  "group_id": "H",
+  "home_team_id": "spain",
+  "home_team": "Spain",
+  "home_code": "ESP",
+  "home_flag": "🇪🇸",
+  "home_goals": 4.0,
+  "away_team_id": "saudi-arabia",
+  "away_team": "Saudi Arabia",
+  "away_code": "KSA",
+  "away_flag": "🇸🇦",
+  "away_goals": 0.0,
+  "played": 1
+}

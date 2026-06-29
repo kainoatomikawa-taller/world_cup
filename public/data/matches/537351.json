@@ -1,0 +1,17 @@
+{
+  "match_id": "537351",
+  "kickoff": "2026-06-14T17:00:00Z",
+  "stage": "group",
+  "group_id": "E",
+  "home_team_id": "germany",
+  "home_team": "Germany",
+  "home_code": "GER",
+  "home_flag": "🇩🇪",
+  "home_goals": 7.0,
+  "away_team_id": "curacao",
+  "away_team": "Curaçao",
+  "away_code": "CUW",
+  "away_flag": "🇨🇼",
+  "away_goals": 1.0,
+  "played": 1
+}

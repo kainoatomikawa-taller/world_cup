@@ -1,0 +1,17 @@
+{
+  "match_id": "537405",
+  "kickoff": "2026-06-23T17:00:00Z",
+  "stage": "group",
+  "group_id": "K",
+  "home_team_id": "portugal",
+  "home_team": "Portugal",
+  "home_code": "POR",
+  "home_flag": "🇵🇹",
+  "home_goals": 5.0,
+  "away_team_id": "uzbekistan",
+  "away_team": "Uzbekistan",
+  "away_code": "UZB",
+  "away_flag": "🇺🇿",
+  "away_goals": 0.0,
+  "played": 1
+}

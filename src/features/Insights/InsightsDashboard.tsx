@@ -1,50 +1,6 @@
-import { useEffect, useState } from 'react';
-
-// ---------------------------------------------------------------------------
-// Types matching the JSON produced by scripts/export_dashboard.py
-// ---------------------------------------------------------------------------
-
-interface Fixture {
-  match_id: string;
-  kickoff: string;
-  stage: string;
-  group_id: string | null;
-  home_team: string;
-  home_code: string;
-  home_flag: string;
-  away_team: string;
-  away_code: string;
-  away_flag: string;
-}
-
-interface Standing {
-  group_id: string;
-  position: number | null;
-  team: string;
-  code: string;
-  flag: string;
-  played: number;
-  won: number;
-  drawn: number;
-  lost: number;
-  goals_for: number;
-  goals_against: number;
-  goal_diff: number;
-  points: number;
-}
-
-interface Scorer {
-  rank: number;
-  player_name: string;
-  team: string;
-  team_code: string;
-  team_flag: string;
-  goals: number;
-  assists: number;
-  penalties: number;
-}
-
-type LoadState<T> = { status: 'loading' } | { status: 'ok'; data: T } | { status: 'error' };
+import { useFixtures, type StaticFixture } from '../../data/useFixtures';
+import { useStandings, type StaticStanding } from '../../data/useStandings';
+import { useScorers, type StaticScorer } from '../../data/useScorers';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -68,20 +24,6 @@ function formatKickoff(iso: string): { date: string; time: string } {
   };
 }
 
-function useJson<T>(path: string): LoadState<T> {
-  const [state, setState] = useState<LoadState<T>>({ status: 'loading' });
-  useEffect(() => {
-    fetch(path)
-      .then((r) => {
-        if (!r.ok) throw new Error(`${r.status}`);
-        return r.json() as Promise<T>;
-      })
-      .then((data) => setState({ status: 'ok', data }))
-      .catch(() => setState({ status: 'error' }));
-  }, [path]);
-  return state;
-}
-
 // ---------------------------------------------------------------------------
 // Section wrapper
 // ---------------------------------------------------------------------------
@@ -95,17 +37,30 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
+function Skeleton() {
+  return <div className="insights-skeleton" aria-busy="true" />;
+}
+
+function PanelError({ message }: { message: string }) {
+  return <p className="insights-error">Could not load data: {message}</p>;
+}
+
 // ---------------------------------------------------------------------------
 // Upcoming Fixtures panel
 // ---------------------------------------------------------------------------
 
-function FixturesPanel({ fixtures }: { fixtures: Fixture[] }) {
-  // Group by calendar date
-  const byDate = fixtures.reduce<Record<string, Fixture[]>>((acc, f) => {
+function FixturesPanel({ fixtures }: { fixtures: StaticFixture[] }) {
+  const upcoming = fixtures.filter((f) => !f.played).slice(0, 10);
+
+  const byDate = upcoming.reduce<Record<string, StaticFixture[]>>((acc, f) => {
     const { date } = formatKickoff(f.kickoff);
     (acc[date] ??= []).push(f);
     return acc;
   }, {});
+
+  if (upcoming.length === 0) {
+    return <p className="screen-intro">No upcoming fixtures.</p>;
+  }
 
   return (
     <div className="insights-fixtures">
@@ -141,7 +96,7 @@ function FixturesPanel({ fixtures }: { fixtures: Fixture[] }) {
 // Group Standings panel
 // ---------------------------------------------------------------------------
 
-function GroupCard({ groupId, rows }: { groupId: string; rows: Standing[] }) {
+function GroupCard({ groupId, rows }: { groupId: string; rows: StaticStanding[] }) {
   const sorted = [...rows].sort((a, b) => {
     if (a.position != null && b.position != null) return a.position - b.position;
     return b.points - a.points;
@@ -188,8 +143,8 @@ function GroupCard({ groupId, rows }: { groupId: string; rows: Standing[] }) {
   );
 }
 
-function StandingsPanel({ standings }: { standings: Standing[] }) {
-  const byGroup = standings.reduce<Record<string, Standing[]>>((acc, row) => {
+function StandingsPanel({ standings }: { standings: StaticStanding[] }) {
+  const byGroup = standings.reduce<Record<string, StaticStanding[]>>((acc, row) => {
     (acc[row.group_id] ??= []).push(row);
     return acc;
   }, {});
@@ -209,7 +164,7 @@ function StandingsPanel({ standings }: { standings: Standing[] }) {
 // Top Scorers panel
 // ---------------------------------------------------------------------------
 
-function ScorersPanel({ scorers }: { scorers: Scorer[] }) {
+function ScorersPanel({ scorers }: { scorers: StaticScorer[] }) {
   return (
     <div className="card">
       <table className="insights-scorers-table tnum">
@@ -243,25 +198,13 @@ function ScorersPanel({ scorers }: { scorers: Scorer[] }) {
 }
 
 // ---------------------------------------------------------------------------
-// Loading / error placeholders
-// ---------------------------------------------------------------------------
-
-function Skeleton() {
-  return <div className="insights-skeleton" aria-busy="true" />;
-}
-
-function PanelError() {
-  return <p className="insights-error">Could not load data. Run <code>npm run export:data</code> to generate the data files.</p>;
-}
-
-// ---------------------------------------------------------------------------
 // Main dashboard
 // ---------------------------------------------------------------------------
 
 export function InsightsDashboard() {
-  const fixtures = useJson<Fixture[]>('/data/fixtures.json');
-  const standings = useJson<Standing[]>('/data/standings.json');
-  const scorers = useJson<Scorer[]>('/data/scorers.json');
+  const { fixtures, loading: fLoading, error: fError } = useFixtures();
+  const { standings, loading: sLoading, error: sError } = useStandings();
+  const { scorers, loading: scLoading, error: scError } = useScorers();
 
   return (
     <div className="insights-dashboard">
@@ -271,21 +214,21 @@ export function InsightsDashboard() {
       </p>
 
       <Section title="Upcoming Fixtures">
-        {fixtures.status === 'loading' && <Skeleton />}
-        {fixtures.status === 'error' && <PanelError />}
-        {fixtures.status === 'ok' && <FixturesPanel fixtures={fixtures.data} />}
+        {fLoading && <Skeleton />}
+        {fError && <PanelError message={fError} />}
+        {!fLoading && !fError && <FixturesPanel fixtures={fixtures} />}
       </Section>
 
       <Section title="Group Standings">
-        {standings.status === 'loading' && <Skeleton />}
-        {standings.status === 'error' && <PanelError />}
-        {standings.status === 'ok' && <StandingsPanel standings={standings.data} />}
+        {sLoading && <Skeleton />}
+        {sError && <PanelError message={sError} />}
+        {!sLoading && !sError && <StandingsPanel standings={standings} />}
       </Section>
 
       <Section title="Top Scorers">
-        {scorers.status === 'loading' && <Skeleton />}
-        {scorers.status === 'error' && <PanelError />}
-        {scorers.status === 'ok' && <ScorersPanel scorers={scorers.data} />}
+        {scLoading && <Skeleton />}
+        {scError && <PanelError message={scError} />}
+        {!scLoading && !scError && <ScorersPanel scorers={scorers} />}
       </Section>
     </div>
   );

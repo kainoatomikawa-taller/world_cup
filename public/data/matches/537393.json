@@ -1,0 +1,17 @@
+{
+  "match_id": "537393",
+  "kickoff": "2026-06-22T21:00:00Z",
+  "stage": "group",
+  "group_id": "I",
+  "home_team_id": "france",
+  "home_team": "France",
+  "home_code": "FRA",
+  "home_flag": "🇫🇷",
+  "home_goals": 3.0,
+  "away_team_id": "iraq",
+  "away_team": "Iraq",
+  "away_code": "IRQ",
+  "away_flag": "🇮🇶",
+  "away_goals": 0.0,
+  "played": 1
+}

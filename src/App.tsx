@@ -7,6 +7,7 @@ import { InsightsDashboard } from './features/Insights/InsightsDashboard';
 import { AppNav, type AppTab } from './features/shared/AppNav';
 import { StageNav, type StageKey } from './features/shared/StageNav';
 import { PlaceholderTab } from './features/shared/PlaceholderTab';
+import { PlayerStats } from './features/Ratings/PlayerStats';
 import { useTournamentStore } from './store/tournamentStore';
 import { TEAMS } from './data/schedule2026';
 import { fetchLiveMatches } from './data/api';
@@ -73,12 +74,7 @@ export default function App() {
         />
       )}
 
-      {topTab === 'ratings' && (
-        <PlaceholderTab
-          title="Ratings"
-          description="Player and team performance ratings updated after every matchday."
-        />
-      )}
+      {topTab === 'ratings' && <PlayerStats />}
     </main>
   );
 }

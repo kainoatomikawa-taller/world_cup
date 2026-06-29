@@ -1,0 +1,17 @@
+{
+  "match_id": "537361",
+  "kickoff": "2026-06-25T23:00:00Z",
+  "stage": "group",
+  "group_id": "F",
+  "home_team_id": "tunisia",
+  "home_team": "Tunisia",
+  "home_code": "TUN",
+  "home_flag": "🇹🇳",
+  "home_goals": 1.0,
+  "away_team_id": "netherlands",
+  "away_team": "Netherlands",
+  "away_code": "NED",
+  "away_flag": "🇳🇱",
+  "away_goals": 3.0,
+  "played": 1
+}

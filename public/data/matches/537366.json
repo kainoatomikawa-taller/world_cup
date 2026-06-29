@@ -1,0 +1,17 @@
+{
+  "match_id": "537366",
+  "kickoff": "2026-06-22T01:00:00Z",
+  "stage": "group",
+  "group_id": "G",
+  "home_team_id": "new-zealand",
+  "home_team": "New Zealand",
+  "home_code": "NZL",
+  "home_flag": "🇳🇿",
+  "home_goals": 1.0,
+  "away_team_id": "egypt",
+  "away_team": "Egypt",
+  "away_code": "EGY",
+  "away_flag": "🇪🇬",
+  "away_goals": 3.0,
+  "played": 1
+}

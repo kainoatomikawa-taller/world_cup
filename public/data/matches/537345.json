@@ -1,0 +1,17 @@
+{
+  "match_id": "537345",
+  "kickoff": "2026-06-13T01:00:00Z",
+  "stage": "group",
+  "group_id": "D",
+  "home_team_id": "united-states",
+  "home_team": "United States",
+  "home_code": "USA",
+  "home_flag": "🇺🇸",
+  "home_goals": 4.0,
+  "away_team_id": "paraguay",
+  "away_team": "Paraguay",
+  "away_code": "PAR",
+  "away_flag": "🇵🇾",
+  "away_goals": 1.0,
+  "played": 1
+}

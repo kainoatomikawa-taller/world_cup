@@ -1,0 +1,17 @@
+{
+  "match_id": "537352",
+  "kickoff": "2026-06-14T23:00:00Z",
+  "stage": "group",
+  "group_id": "E",
+  "home_team_id": "ivory-coast",
+  "home_team": "Ivory Coast",
+  "home_code": "CIV",
+  "home_flag": "🇨🇮",
+  "home_goals": 1.0,
+  "away_team_id": "ecuador",
+  "away_team": "Ecuador",
+  "away_code": "ECU",
+  "away_flag": "🇪🇨",
+  "away_goals": 0.0,
+  "played": 1
+}

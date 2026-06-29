@@ -1,0 +1,17 @@
+{
+  "match_id": "537372",
+  "kickoff": "2026-06-21T22:00:00Z",
+  "stage": "group",
+  "group_id": "H",
+  "home_team_id": "uruguay",
+  "home_team": "Uruguay",
+  "home_code": "URU",
+  "home_flag": "🇺🇾",
+  "home_goals": 2.0,
+  "away_team_id": "cape-verde",
+  "away_team": "Cape Verde",
+  "away_code": "CPV",
+  "away_flag": "🇨🇻",
+  "away_goals": 2.0,
+  "played": 1
+}

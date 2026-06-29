@@ -1,0 +1,17 @@
+{
+  "match_id": "537391",
+  "kickoff": "2026-06-16T19:00:00Z",
+  "stage": "group",
+  "group_id": "I",
+  "home_team_id": "france",
+  "home_team": "France",
+  "home_code": "FRA",
+  "home_flag": "🇫🇷",
+  "home_goals": 3.0,
+  "away_team_id": "senegal",
+  "away_team": "Senegal",
+  "away_code": "SEN",
+  "away_flag": "🇸🇳",
+  "away_goals": 1.0,
+  "played": 1
+}

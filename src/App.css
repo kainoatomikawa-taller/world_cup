@@ -1053,6 +1053,129 @@
   padding: 1px 5px;
 }
 
+/* ---------- Fixture expandable rows ---------- */
+
+.fixture-row-wrap {
+  border-bottom: 1px solid var(--border);
+}
+
+.fixture-row-wrap:last-child {
+  border-bottom: 0;
+}
+
+.fixture-row--btn {
+  width: 100%;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  border-bottom: 0;
+}
+
+.fixture-row--btn:hover {
+  background: var(--blue-tint);
+}
+
+/* ---------- Match detail panel ---------- */
+
+.match-detail {
+  padding: 10px 14px 12px;
+  background: var(--blue-tint);
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.match-detail--loading,
+.match-detail--error {
+  color: var(--muted);
+}
+
+.match-detail__grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  margin: 0;
+}
+
+.match-detail__grid dt {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.match-detail__grid dd {
+  margin: 0;
+  font-weight: 500;
+}
+
+/* ---------- Player stats screen ---------- */
+
+.player-stats-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sort-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sort-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--muted);
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.sort-btn:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.sort-btn--active {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+
+.player-stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.player-stats-table th,
+.player-stats-table td {
+  padding: 8px 10px;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+}
+
+.player-stats-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.player-stats-table th {
+  font-weight: 600;
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pst-col-player {
+  text-align: left !important;
+  font-weight: 600;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 640px) {
   .app-shell {

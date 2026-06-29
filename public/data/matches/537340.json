@@ -1,0 +1,17 @@
+{
+  "match_id": "537340",
+  "kickoff": "2026-06-14T01:00:00Z",
+  "stage": "group",
+  "group_id": "C",
+  "home_team_id": "haiti",
+  "home_team": "Haiti",
+  "home_code": "HAI",
+  "home_flag": "🇭🇹",
+  "home_goals": 0.0,
+  "away_team_id": "scotland",
+  "away_team": "Scotland",
+  "away_code": "SCO",
+  "away_flag": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+  "away_goals": 1.0,
+  "played": 1
+}

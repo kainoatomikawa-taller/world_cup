@@ -1,0 +1,17 @@
+{
+  "match_id": "537337",
+  "kickoff": "2026-06-24T19:00:00Z",
+  "stage": "group",
+  "group_id": "B",
+  "home_team_id": "switzerland",
+  "home_team": "Switzerland",
+  "home_code": "SUI",
+  "home_flag": "🇨🇭",
+  "home_goals": 2.0,
+  "away_team_id": "canada",
+  "away_team": "Canada",
+  "away_code": "CAN",
+  "away_flag": "🇨🇦",
+  "away_goals": 1.0,
+  "played": 1
+}

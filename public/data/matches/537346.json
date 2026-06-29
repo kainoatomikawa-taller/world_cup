@@ -1,0 +1,17 @@
+{
+  "match_id": "537346",
+  "kickoff": "2026-06-14T04:00:00Z",
+  "stage": "group",
+  "group_id": "D",
+  "home_team_id": "australia",
+  "home_team": "Australia",
+  "home_code": "AUS",
+  "home_flag": "🇦🇺",
+  "home_goals": 2.0,
+  "away_team_id": "turkey",
+  "away_team": "Turkey",
+  "away_code": "TUR",
+  "away_flag": "🇹🇷",
+  "away_goals": 0.0,
+  "played": 1
+}

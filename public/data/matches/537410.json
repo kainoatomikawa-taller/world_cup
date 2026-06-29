@@ -1,0 +1,17 @@
+{
+  "match_id": "537410",
+  "kickoff": "2026-06-17T23:00:00Z",
+  "stage": "group",
+  "group_id": "L",
+  "home_team_id": "ghana",
+  "home_team": "Ghana",
+  "home_code": "GHA",
+  "home_flag": "🇬🇭",
+  "home_goals": 1.0,
+  "away_team_id": "panama",
+  "away_team": "Panama",
+  "away_code": "PAN",
+  "away_flag": "🇵🇦",
+  "away_goals": 0.0,
+  "played": 1
+}

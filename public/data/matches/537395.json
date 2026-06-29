@@ -1,0 +1,17 @@
+{
+  "match_id": "537395",
+  "kickoff": "2026-06-26T19:00:00Z",
+  "stage": "group",
+  "group_id": "I",
+  "home_team_id": "norway",
+  "home_team": "Norway",
+  "home_code": "NOR",
+  "home_flag": "🇳🇴",
+  "home_goals": 1.0,
+  "away_team_id": "france",
+  "away_team": "France",
+  "away_code": "FRA",
+  "away_flag": "🇫🇷",
+  "away_goals": 4.0,
+  "played": 1
+}

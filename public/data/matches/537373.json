@@ -1,0 +1,17 @@
+{
+  "match_id": "537373",
+  "kickoff": "2026-06-27T00:00:00Z",
+  "stage": "group",
+  "group_id": "H",
+  "home_team_id": "uruguay",
+  "home_team": "Uruguay",
+  "home_code": "URU",
+  "home_flag": "🇺🇾",
+  "home_goals": 0.0,
+  "away_team_id": "spain",
+  "away_team": "Spain",
+  "away_code": "ESP",
+  "away_flag": "🇪🇸",
+  "away_goals": 1.0,
+  "played": 1
+}

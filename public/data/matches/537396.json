@@ -1,0 +1,17 @@
+{
+  "match_id": "537396",
+  "kickoff": "2026-06-26T19:00:00Z",
+  "stage": "group",
+  "group_id": "I",
+  "home_team_id": "senegal",
+  "home_team": "Senegal",
+  "home_code": "SEN",
+  "home_flag": "🇸🇳",
+  "home_goals": 5.0,
+  "away_team_id": "iraq",
+  "away_team": "Iraq",
+  "away_code": "IRQ",
+  "away_flag": "🇮🇶",
+  "away_goals": 0.0,
+  "played": 1
+}

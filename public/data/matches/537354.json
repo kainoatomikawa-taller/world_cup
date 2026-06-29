@@ -1,0 +1,17 @@
+{
+  "match_id": "537354",
+  "kickoff": "2026-06-21T00:00:00Z",
+  "stage": "group",
+  "group_id": "E",
+  "home_team_id": "ecuador",
+  "home_team": "Ecuador",
+  "home_code": "ECU",
+  "home_flag": "🇪🇨",
+  "home_goals": 0.0,
+  "away_team_id": "curacao",
+  "away_team": "Curaçao",
+  "away_code": "CUW",
+  "away_flag": "🇨🇼",
+  "away_goals": 0.0,
+  "played": 1
+}
