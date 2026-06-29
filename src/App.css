@@ -1064,6 +1064,87 @@
   padding: 1px 5px;
 }
 
+/* ---------- Match Insights Tab ---------- */
+
+.mit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mit-card {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.mit-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mit-source {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.mit-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+
+.mit-badge--tactical {
+  color: var(--blue);
+  background: var(--blue-tint);
+  border-color: rgba(37, 99, 235, 0.2);
+}
+
+.mit-badge--stats {
+  color: var(--green);
+  background: var(--green-tint);
+  border-color: rgba(22, 196, 127, 0.2);
+}
+
+.mit-badge--player {
+  color: #b45309;
+  background: var(--gold-tint);
+  border-color: rgba(245, 179, 1, 0.25);
+}
+
+.mit-badge--news {
+  color: var(--muted);
+  background: rgba(100, 116, 139, 0.1);
+  border-color: var(--border);
+}
+
+.mit-card-title {
+  font-family: var(--font-head);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.mit-card:hover .mit-card-title {
+  color: var(--blue);
+}
+
+.mit-card-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
 /* ---------- Match-day browser ---------- */
 
 .matchday-browser {

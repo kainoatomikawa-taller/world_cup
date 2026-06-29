@@ -3,6 +3,7 @@ import { useTournamentStore } from '../../store/tournamentStore';
 import { useMatchDetail } from '../../data/useMatchDetail';
 import { LineupsTab } from './LineupsTab';
 import { GameStatsTab } from './GameStatsTab';
+import { InsightsTab } from './InsightsTab';
 
 type MatchTab = 'lineups' | 'gameStats' | 'insights';
 
@@ -103,11 +104,7 @@ export function MatchDetail() {
               <GameStatsTab detail={detail} />
             )}
             {activeTab === 'insights' && (
-              <div className="placeholder-screen">
-                <p className="placeholder-desc">
-                  Insights are not yet available for this match.
-                </p>
-              </div>
+              <InsightsTab detail={detail} />
             )}
           </div>
         </>
