@@ -1,16 +1,7 @@
 import { useState, useEffect } from 'react';
+import type { StaticScorer } from './staticTypes';
 
-// Shape produced by scripts/export_json.py → top_scorers() in query.py.
-export interface StaticScorer {
-  rank: number;
-  player_name: string;
-  team: string;
-  team_code: string;
-  team_flag: string;
-  goals: number;
-  assists: number;
-  penalties: number;
-}
+export type { StaticScorer };
 
 export interface UseScorersResult {
   scorers: StaticScorer[];

@@ -1,8 +1,9 @@
-// Map the external football-data.org API response into our domain types.
-// This is the only file that knows the upstream shape — everything else in the
+// Map external data sources into our domain types.
+// This is the only file that knows upstream shapes — everything else in the
 // app depends only on our own Match/Team types.
-import type { Match, GroupId } from '../domain/types';
+import type { Match, GroupId, Stage } from '../domain/types';
 import { TEAMS } from './schedule2026';
+import type { StaticFixture } from './staticTypes';
 
 // ---- Internal upstream types (football-data.org v4) ----
 // Non-exported so no other file can take a dependency on the upstream schema.
@@ -120,4 +121,21 @@ export function toMatches(raw: unknown): Match[] {
   }
 
   return result;
+}
+
+// ---- Static JSON path (public/data/fixtures.json) ----
+
+export function staticFixtureToMatch(f: StaticFixture): Match {
+  const played = f.played === 1;
+  return {
+    id: f.match_id,
+    stage: f.stage as Stage,
+    groupId: f.group_id ? (f.group_id as GroupId) : undefined,
+    homeId: f.home_team_id,
+    awayId: f.away_team_id,
+    homeGoals: played && f.home_goals != null ? f.home_goals : undefined,
+    awayGoals: played && f.away_goals != null ? f.away_goals : undefined,
+    kickoff: f.kickoff,
+    played,
+  };
 }

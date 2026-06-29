@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import type { StaticFixture } from './useFixtures';
+import type { StaticMatchDetail } from './staticTypes';
 
-// Each matches/<id>.json file has the same shape as an entry in fixtures.json.
-export type StaticMatchDetail = StaticFixture;
+export type { StaticMatchDetail };
 
 export interface UseMatchDetailResult {
   detail: StaticMatchDetail | null;

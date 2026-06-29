@@ -1,15 +1,7 @@
 import { useState, useEffect } from 'react';
+import type { StaticPlayerRating } from './staticTypes';
 
-// Shape produced by scripts/export_json.py → all_player_ratings() in query.py.
-// This file is empty until ingest_stats.py populates the player_ratings table.
-export interface StaticPlayerRating {
-  player_id: string;
-  team: string;
-  team_code: string;
-  match_id: string;
-  source: string;
-  rating: number;
-}
+export type { StaticPlayerRating };
 
 export interface UsePlayerRatingsResult {
   playerRatings: StaticPlayerRating[];

@@ -1,24 +1,7 @@
 import { useState, useEffect } from 'react';
+import type { StaticFixture } from './staticTypes';
 
-// Shape produced by scripts/export_json.py → all_fixtures() in query.py.
-// SQLite doesn't have a boolean type, so `played` is 0 or 1.
-export interface StaticFixture {
-  match_id: string;
-  kickoff: string;
-  stage: string;
-  group_id: string | null;
-  home_team_id: string;
-  home_team: string;
-  home_code: string;
-  home_flag: string;
-  home_goals: number | null;
-  away_team_id: string;
-  away_team: string;
-  away_code: string;
-  away_flag: string;
-  away_goals: number | null;
-  played: number;
-}
+export type { StaticFixture };
 
 export interface UseFixturesResult {
   fixtures: StaticFixture[];

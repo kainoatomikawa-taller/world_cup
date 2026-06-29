@@ -10,15 +10,29 @@ import { PlaceholderTab } from './features/shared/PlaceholderTab';
 import { PlayerStats } from './features/Ratings/PlayerStats';
 import { useTournamentStore } from './store/tournamentStore';
 import { TEAMS } from './data/schedule2026';
-import { fetchLiveMatches } from './data/api';
+import { fetchManifest, fetchStaticMatches } from './data/api';
 import './App.css';
 
-type FetchStatus = 'loading' | 'live' | 'offline';
+type FetchStatus = 'loading' | 'ready' | 'offline';
+
+function formatLastUpdated(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: 'UTC',
+    timeZoneName: 'short',
+  });
+}
 
 export default function App() {
   const [topTab, setTopTab] = useState<AppTab>('possibilities');
   const [stage, setStage] = useState<StageKey>('groups');
   const [fetchStatus, setFetchStatus] = useState<FetchStatus>('loading');
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   const initialize = useTournamentStore((s) => s.initialize);
   const setMatches = useTournamentStore((s) => s.setMatches);
@@ -26,10 +40,14 @@ export default function App() {
   useEffect(() => {
     initialize(TEAMS, []);
 
-    fetchLiveMatches()
+    fetchManifest()
+      .then((manifest) => {
+        setLastUpdated(manifest.generated_at);
+        return fetchStaticMatches();
+      })
       .then((matches) => {
         setMatches(matches);
-        setFetchStatus('live');
+        setFetchStatus('ready');
       })
       .catch(() => {
         setFetchStatus('offline');
@@ -51,10 +69,13 @@ export default function App() {
       {topTab === 'possibilities' && (
         <>
           <p className={`live-status live-status--${fetchStatus}`}>
-            {fetchStatus === 'loading' && 'Fetching live scores…'}
-            {fetchStatus === 'live' && '● Live scores loaded'}
+            {fetchStatus === 'loading' && 'Loading data…'}
+            {fetchStatus === 'ready' &&
+              (lastUpdated
+                ? `Updated ${formatLastUpdated(lastUpdated)}`
+                : 'Data loaded')}
             {fetchStatus === 'offline' &&
-              'Scores unavailable — drag to set standings manually'}
+              'Data unavailable — drag to set standings manually'}
           </p>
           <StageNav current={stage} onChange={setStage} />
           {stage === 'groups' && <GroupStage />}

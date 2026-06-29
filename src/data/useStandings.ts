@@ -1,21 +1,7 @@
 import { useState, useEffect } from 'react';
+import type { StaticStanding } from './staticTypes';
 
-// Shape produced by scripts/export_json.py → competition_table() in query.py.
-export interface StaticStanding {
-  group_id: string;
-  position: number | null;
-  team: string;
-  code: string;
-  flag: string;
-  played: number;
-  won: number;
-  drawn: number;
-  lost: number;
-  goals_for: number;
-  goals_against: number;
-  goal_diff: number;
-  points: number;
-}
+export type { StaticStanding };
 
 export interface UseStandingsResult {
   standings: StaticStanding[];
