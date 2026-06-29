@@ -151,10 +151,12 @@ function FixtureRow({
   fixture: f,
   onOpen,
   standingsMap,
+  standingsByCode,
 }: {
   fixture: StaticFixture;
   onOpen: () => void;
   standingsMap: Map<string, StaticStanding>;
+  standingsByCode: Map<string, StaticStanding>;
 }) {
   const [expanded, setExpanded] = useState(false);
   const played = f.played === 1;
@@ -167,16 +169,23 @@ function FixtureRow({
 
   const homeStanding = f.group_id
     ? standingsMap.get(`${f.home_code}:${f.group_id}`)
-    : undefined;
+    : standingsByCode.get(f.home_code ?? '');
   const awayStanding = f.group_id
     ? standingsMap.get(`${f.away_code}:${f.group_id}`)
-    : undefined;
+    : standingsByCode.get(f.away_code ?? '');
 
   const mainContent = (
     <>
       <span className={`fixture-team fixture-team--home${homeTbd ? ' fixture-team--tbd' : ''}`}>
         {!homeTbd && <span className="fixture-team__flag">{f.home_flag}</span>}
-        <span className="fixture-team__name">{homeTbd ? 'TBD' : f.home_team}</span>
+        <span className="fixture-team__info">
+          <span className="fixture-team__name">{homeTbd ? 'TBD' : f.home_team}</span>
+          {homeStanding && !homeTbd && (
+            <span className="fixture-team__record">
+              {homeStanding.won}-{homeStanding.lost}-{homeStanding.drawn}
+            </span>
+          )}
+        </span>
       </span>
 
       <span className="fixture-center tnum">
@@ -189,7 +198,14 @@ function FixtureRow({
       </span>
 
       <span className={`fixture-team fixture-team--away${awayTbd ? ' fixture-team--tbd' : ''}`}>
-        <span className="fixture-team__name">{awayTbd ? 'TBD' : f.away_team}</span>
+        <span className="fixture-team__info">
+          <span className="fixture-team__name">{awayTbd ? 'TBD' : f.away_team}</span>
+          {awayStanding && !awayTbd && (
+            <span className="fixture-team__record">
+              {awayStanding.won}-{awayStanding.lost}-{awayStanding.drawn}
+            </span>
+          )}
+        </span>
         {!awayTbd && <span className="fixture-team__flag">{f.away_flag}</span>}
       </span>
     </>
@@ -297,11 +313,13 @@ function FullSchedule({
   onBack,
   onOpen,
   standingsMap,
+  standingsByCode,
 }: {
   fixtures: StaticFixture[];
   onBack: () => void;
   onOpen: (matchId: string) => void;
   standingsMap: Map<string, StaticStanding>;
+  standingsByCode: Map<string, StaticStanding>;
 }) {
   const groups = useMemo(() => groupForSchedule(fixtures), [fixtures]);
 
@@ -322,6 +340,7 @@ function FullSchedule({
                   fixture={f}
                   onOpen={() => onOpen(f.match_id)}
                   standingsMap={standingsMap}
+                  standingsByCode={standingsByCode}
                 />
               ))}
             </div>
@@ -353,6 +372,16 @@ export function Fixtures() {
     const map = new Map<string, StaticStanding>();
     for (const s of standings) {
       map.set(`${s.code}:${s.group_id}`, s);
+    }
+    return map;
+  }, [standings]);
+
+  // Fallback lookup by code alone — used for knockout fixtures where group_id is null
+  const standingsByCode = useMemo(() => {
+    const map = new Map<string, StaticStanding>();
+    for (const s of standings) {
+      const existing = map.get(s.code);
+      if (!existing || s.points > existing.points) map.set(s.code, s);
     }
     return map;
   }, [standings]);
@@ -421,6 +450,7 @@ export function Fixtures() {
         onBack={() => setView('browser')}
         onOpen={openMatchDetail}
         standingsMap={standingsMap}
+        standingsByCode={standingsByCode}
       />
     );
   }
@@ -469,6 +499,7 @@ export function Fixtures() {
             fixture={f}
             onOpen={() => openMatchDetail(f.match_id)}
             standingsMap={standingsMap}
+            standingsByCode={standingsByCode}
           />
         ))}
       </div>

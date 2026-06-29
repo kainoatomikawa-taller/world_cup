@@ -48,11 +48,23 @@ export function useThirdPlaceData(): ThirdPlaceData {
   );
 
   // Reconcile thirdPlaceRanking whenever the set of 3rd-place candidates changes.
-  // - Keep teams still in 3rd in their existing order.
-  // - Append newly-3rd teams at their default-ranked position.
-  // - Drop teams that are no longer 3rd.
+  // - When all groups are complete the ranking is fully determined by real
+  //   results — snap directly to canonical order so stale localStorage can't
+  //   keep a wrong team in the qualifying zone.
+  // - Otherwise: keep teams still in 3rd in their existing order, append
+  //   newly-3rd teams at their default-ranked position, drop teams no longer 3rd.
   useEffect(() => {
-    const currentIds = new Set(defaultEntries.map((e) => e.teamId));
+    const canonical = defaultEntries.map((e) => e.teamId);
+
+    if (allGroupsComplete) {
+      const changed =
+        canonical.length !== thirdPlaceRanking.length ||
+        canonical.some((id, i) => id !== thirdPlaceRanking[i]);
+      if (changed) rankThirdPlace(canonical);
+      return;
+    }
+
+    const currentIds = new Set(canonical);
     const existingOrder = thirdPlaceRanking.filter((id) => currentIds.has(id));
     const existingSet = new Set(existingOrder);
     // New teams not yet in the user's ranking, inserted in default order.
@@ -76,7 +88,7 @@ export function useThirdPlaceData(): ThirdPlaceData {
       merged.length !== thirdPlaceRanking.length ||
       merged.some((id, i) => id !== thirdPlaceRanking[i]);
     if (changed) rankThirdPlace(merged);
-  }, [defaultEntries, thirdPlaceRanking, rankThirdPlace]);
+  }, [defaultEntries, allGroupsComplete, thirdPlaceRanking, rankThirdPlace]);
 
   // Build rankedEntries in the user's chosen order.
   const entryById = useMemo(

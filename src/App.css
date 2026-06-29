@@ -763,6 +763,35 @@
 }
 
 /* ---------- Bracket ---------- */
+.bracket-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+
+.bracket-reset-btn {
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-4);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: var(--radius-xs);
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.14s, color 0.14s;
+  white-space: nowrap;
+  margin-top: 6px;
+}
+
+.bracket-reset-btn:hover {
+  border-color: rgba(255, 45, 120, 0.45);
+  color: var(--accent-pink);
+}
+
 .bracket-scroll {
   overflow: auto;
   max-height: 82vh;
@@ -1109,9 +1138,32 @@
   line-height: 1;
 }
 
+.fixture-team__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.fixture-team--home .fixture-team__info {
+  align-items: flex-end;
+}
+
+.fixture-team--away .fixture-team__info {
+  align-items: flex-start;
+}
+
 .fixture-team__name {
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fixture-team__record {
+  font-size: var(--type-xs);
+  font-weight: 500;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
   white-space: nowrap;
 }
 
@@ -1203,6 +1255,98 @@
   border-radius: 1.5px;
   flex-shrink: 0;
   transform: rotate(45deg);
+}
+
+/* Match Day section — gold accent variant */
+.insights-section--matchday {
+  padding: var(--space-5);
+  background: var(--bg-700);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--accent-gold);
+  gap: 20px;
+}
+
+.insights-matchday-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.insights-matchday-badge {
+  font-family: var(--font-display);
+  font-size: var(--type-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bg-800);
+  background: var(--accent-gold);
+  padding: 2px 7px;
+  border-radius: var(--radius-xs);
+  flex-shrink: 0;
+}
+
+/* Gold diamond pip for match-day title */
+.insights-section-title--gold::before {
+  background: var(--accent-gold);
+}
+
+.insights-matchday-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.insights-matchday-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: var(--bg-800);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--type-sm);
+  color: var(--text-primary);
+  max-width: 480px;
+}
+
+.insights-matchday-chip--played .insights-matchday-chip__score {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.insights-matchday-chip__team {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  font-weight: 600;
+}
+
+.insights-matchday-chip__team--away {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.insights-matchday-chip__flag {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.insights-matchday-chip__score {
+  font-family: var(--font-display);
+  font-size: var(--type-base);
+  font-weight: 600;
+  color: var(--accent-gold);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  min-width: 60px;
+  text-align: center;
+}
+
+.insights-matchday-empty {
+  font-size: var(--type-sm);
+  color: var(--text-muted);
+  font-style: italic;
 }
 
 /* Fixtures */

@@ -22,5 +22,5 @@ export async function fetchStaticMatches(contentHash: string | null): Promise<Ma
   const res = await fetch(url);
   if (!res.ok) throw new Error(`fetchStaticMatches failed: ${res.status}`);
   const fixtures = (await res.json()) as StaticFixture[];
-  return fixtures.filter((f) => f.stage === 'group').map(staticFixtureToMatch);
+  return fixtures.map(staticFixtureToMatch);
 }

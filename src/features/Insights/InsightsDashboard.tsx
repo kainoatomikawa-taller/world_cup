@@ -285,6 +285,91 @@ function ScorersPanel({ scorers }: { scorers: StaticScorer[] }) {
 }
 
 // ---------------------------------------------------------------------------
+// Match Day helpers
+// ---------------------------------------------------------------------------
+
+function getTodayFixtures(fixtures: StaticFixture[]): StaticFixture[] {
+  const today = new Date().toISOString().slice(0, 10);
+  return fixtures.filter((f) => f.kickoff.startsWith(today));
+}
+
+function splitArticlesByMatchDay(
+  articles: StaticArticle[],
+  todayFixtures: StaticFixture[],
+): { featured: StaticArticle[]; rest: StaticArticle[] } {
+  if (todayFixtures.length === 0) return { featured: [], rest: articles };
+  const teamIds = new Set(
+    todayFixtures.flatMap((f) => [f.home_team_id, f.away_team_id]),
+  );
+  const featured = articles.filter((a) => a.teams.some((t) => teamIds.has(t)));
+  const featuredIds = new Set(featured.map((a) => a.id));
+  const rest = articles.filter((a) => !featuredIds.has(a.id));
+  return { featured, rest };
+}
+
+// ---------------------------------------------------------------------------
+// Match Day section
+// ---------------------------------------------------------------------------
+
+function MatchDaySection({
+  fixtures,
+  articles,
+}: {
+  fixtures: StaticFixture[];
+  articles: StaticArticle[];
+}) {
+  return (
+    <section className="insights-section insights-section--matchday">
+      <div className="insights-matchday-header">
+        <span className="insights-matchday-badge">Today</span>
+        <h2 className="insights-section-title insights-section-title--gold">
+          Match Day
+        </h2>
+      </div>
+
+      <div className="insights-matchday-chips">
+        {fixtures.map((f) => {
+          const { time } = formatKickoff(f.kickoff);
+          const played = f.played === 1;
+          return (
+            <div
+              key={f.match_id}
+              className={`insights-matchday-chip${played ? ' insights-matchday-chip--played' : ''}`}
+            >
+              <span className="insights-matchday-chip__team">
+                <span className="insights-matchday-chip__flag">{f.home_flag}</span>
+                {f.home_team}
+              </span>
+              <span className="insights-matchday-chip__score">
+                {played
+                  ? `${f.home_goals ?? 0} – ${f.away_goals ?? 0}`
+                  : time}
+              </span>
+              <span className="insights-matchday-chip__team insights-matchday-chip__team--away">
+                {f.away_team}
+                <span className="insights-matchday-chip__flag">{f.away_flag}</span>
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {articles.length > 0 ? (
+        <div className="news-feed">
+          {articles.map((a) => (
+            <NewsCard key={a.id} article={a} />
+          ))}
+        </div>
+      ) : (
+        <p className="insights-matchday-empty">
+          No match coverage yet — check back closer to kick-off.
+        </p>
+      )}
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main dashboard
 // ---------------------------------------------------------------------------
 
@@ -294,12 +379,34 @@ export function InsightsDashboard() {
   const { standings, loading: sLoading, error: sError } = useStandings();
   const { scorers, loading: scLoading, error: scError } = useScorers();
 
+  const todayFixtures =
+    !fLoading && !fError ? getTodayFixtures(fixtures) : [];
+
+  const { featured: matchDayArticles, rest: latestArticles } =
+    !nLoading && !nError && todayFixtures.length > 0
+      ? splitArticlesByMatchDay(articles, todayFixtures)
+      : { featured: [], rest: articles };
+
+  const showMatchDay = todayFixtures.length > 0;
+
   return (
     <div className="insights-dashboard">
+      {showMatchDay && (
+        <>
+          {nLoading && <Skeleton />}
+          {!nLoading && !nError && (
+            <MatchDaySection
+              fixtures={todayFixtures}
+              articles={matchDayArticles}
+            />
+          )}
+        </>
+      )}
+
       <Section title="Latest News">
         {nLoading && <Skeleton />}
         {nError && <PanelError message={nError} />}
-        {!nLoading && !nError && <NewsPanel articles={articles} />}
+        {!nLoading && !nError && <NewsPanel articles={latestArticles} />}
       </Section>
 
       <Section title="Upcoming Fixtures">

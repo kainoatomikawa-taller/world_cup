@@ -23,6 +23,8 @@ interface TournamentStore extends TournamentState {
   setPick: (matchId: number, teamId: string) => void;
   /** Remove a winner pick (e.g. user clicks the current winner to deselect). */
   clearPick: (matchId: number) => void;
+  /** Remove all bracket picks. */
+  clearAllPicks: () => void;
 
   // --- navigation ---
   view: 'tab' | 'matchDetail';
@@ -83,6 +85,8 @@ export const useTournamentStore = create<TournamentStore>()(
           delete next[matchId];
           return { bracketPicks: next };
         }),
+
+      clearAllPicks: () => set({ bracketPicks: {} }),
 
       openMatchDetail: (matchId) =>
         set({ view: 'matchDetail', selectedMatchId: matchId }),

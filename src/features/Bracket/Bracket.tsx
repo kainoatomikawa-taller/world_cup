@@ -4,6 +4,7 @@
 import { getChampion, getRunnerUp, getThirdPlace } from '../../domain/knockout';
 import { useBracketData } from './useBracketData';
 import { BracketMatch } from './BracketMatch';
+import { useTournamentStore } from '../../store/tournamentStore';
 
 // Height of one R32 slot. Later rounds have proportionally taller slots so each
 // card sits vertically centred over the pair of feeders below it.
@@ -22,7 +23,8 @@ const ROUNDS: { label: string; matchIds: number[] }[] = [
 ];
 
 export function Bracket() {
-  const { bracket, teams, setPick, clearPick } = useBracketData();
+  const { bracket, teams, setPick, clearPick, hasUserPicks } = useBracketData();
+  const clearAllPicks = useTournamentStore((s) => s.clearAllPicks);
   const champion = getChampion(bracket);
   const champTeam = champion ? teams[champion] : undefined;
   const runnerUp = getRunnerUp(bracket);
@@ -42,11 +44,20 @@ export function Bracket() {
 
   return (
     <section>
-      <h2 style={{ marginBottom: 4 }}>Knockout Bracket</h2>
-      <p className="screen-intro">
-        Click a team to pick the winner. Click the selected team again to undo.
-        The bracket re-seeds automatically when you adjust group or third-place rankings.
-      </p>
+      <div className="bracket-header">
+        <div>
+          <h2 style={{ marginBottom: 4 }}>Knockout Bracket</h2>
+          <p className="screen-intro">
+            Click a team to pick the winner. Click the selected team again to undo.
+            The bracket re-seeds automatically when you adjust group or third-place rankings.
+          </p>
+        </div>
+        {hasUserPicks && (
+          <button className="bracket-reset-btn" onClick={clearAllPicks}>
+            Reset picks
+          </button>
+        )}
+      </div>
 
       {/* Champion banner */}
       {champTeam && (
