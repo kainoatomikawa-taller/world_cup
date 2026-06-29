@@ -12,6 +12,14 @@ const STAGE_ORDER: Record<string, number> = {
   final: 6,
 };
 
+const KNOCKOUT_LABEL: Record<string, string> = {
+  round32: 'Round of 32',
+  round16: 'Round of 16',
+  quarter: 'Quarter-finals',
+  semi: 'Semi-finals',
+  thirdPlacePlayoff: 'Third-Place Play-off',
+  final: 'Final',
+};
 
 function formatDateLabel(dateStr: string): string {
   const [year, month, day] = dateStr.split('-').map(Number);
@@ -32,7 +40,7 @@ function formatKickoff(isoStr: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Match-day grouping
+// Match-day grouping (browser view)
 // ---------------------------------------------------------------------------
 
 interface MatchDay {
@@ -71,9 +79,47 @@ function defaultDayIndex(days: MatchDay[]): number {
 }
 
 // ---------------------------------------------------------------------------
-// Fixture row
-// Played matches are buttons that navigate to the match detail page.
-// Upcoming/TBD matches are static rows — not interactive.
+// Full-schedule grouping
+// Group-stage matches bucket by calendar date; knockout by stage name.
+// ---------------------------------------------------------------------------
+
+interface ScheduleGroup {
+  key: string;
+  label: string;
+  items: StaticFixture[];
+}
+
+function groupForSchedule(fixtures: StaticFixture[]): ScheduleGroup[] {
+  const sorted = [...fixtures].sort((a, b) => {
+    const stageDiff = (STAGE_ORDER[a.stage] ?? 99) - (STAGE_ORDER[b.stage] ?? 99);
+    if (stageDiff !== 0) return stageDiff;
+    return a.kickoff.localeCompare(b.kickoff);
+  });
+  const map = new Map<string, ScheduleGroup>();
+  for (const f of sorted) {
+    let key: string;
+    let label: string;
+    if (f.stage === 'group') {
+      const date = f.kickoff.slice(0, 10);
+      key = `date:${date}`;
+      label = formatDateLabel(date);
+    } else {
+      key = `stage:${f.stage}`;
+      label = KNOCKOUT_LABEL[f.stage] ?? f.stage;
+    }
+    if (!map.has(key)) {
+      map.set(key, { key, label, items: [] });
+    }
+    map.get(key)!.items.push(f);
+  }
+  return Array.from(map.values());
+}
+
+// ---------------------------------------------------------------------------
+// Fixture row — shared between browser and full schedule.
+// Played matches → clickable button → openMatchDetail.
+// Upcoming/TBD → static row, not interactive.
+// Teams with empty name strings are shown as "TBD".
 // ---------------------------------------------------------------------------
 
 function FixtureRow({
@@ -84,12 +130,15 @@ function FixtureRow({
   onOpen: () => void;
 }) {
   const played = f.played === 1;
+  const homeTbd = !f.home_team;
+  const awayTbd = !f.away_team;
+  const anyTbd = homeTbd || awayTbd;
 
   const inner = (
     <>
-      <span className="fixture-team fixture-team--home">
-        <span className="fixture-team__flag">{f.home_flag}</span>
-        <span className="fixture-team__name">{f.home_team}</span>
+      <span className={`fixture-team fixture-team--home${homeTbd ? ' fixture-team--tbd' : ''}`}>
+        {!homeTbd && <span className="fixture-team__flag">{f.home_flag}</span>}
+        <span className="fixture-team__name">{homeTbd ? 'TBD' : f.home_team}</span>
       </span>
 
       <span className="fixture-center tnum">
@@ -103,9 +152,9 @@ function FixtureRow({
         </span>
       </span>
 
-      <span className="fixture-team fixture-team--away">
-        <span className="fixture-team__name">{f.away_team}</span>
-        <span className="fixture-team__flag">{f.away_flag}</span>
+      <span className={`fixture-team fixture-team--away${awayTbd ? ' fixture-team--tbd' : ''}`}>
+        <span className="fixture-team__name">{awayTbd ? 'TBD' : f.away_team}</span>
+        {!awayTbd && <span className="fixture-team__flag">{f.away_flag}</span>}
       </span>
 
       <span className="fixture-row__chevron" aria-hidden="true">
@@ -124,7 +173,7 @@ function FixtureRow({
           {inner}
         </button>
       ) : (
-        <div className="fixture-row fixture-row--upcoming">
+        <div className={`fixture-row${anyTbd ? ' fixture-row--tbd' : ' fixture-row--upcoming'}`}>
           {inner}
         </div>
       )}
@@ -133,12 +182,54 @@ function FixtureRow({
 }
 
 // ---------------------------------------------------------------------------
-// Fixtures screen — match-day browser
+// Full-schedule screen
+// ---------------------------------------------------------------------------
+
+function FullSchedule({
+  fixtures,
+  onBack,
+  onOpen,
+}: {
+  fixtures: StaticFixture[];
+  onBack: () => void;
+  onOpen: (matchId: string) => void;
+}) {
+  const groups = useMemo(() => groupForSchedule(fixtures), [fixtures]);
+
+  return (
+    <div className="full-schedule">
+      <button className="schedule-back-btn" onClick={onBack}>
+        ← Match-day view
+      </button>
+
+      <div className="full-schedule__sections">
+        {groups.map((group) => (
+          <section key={group.key} className="schedule-section">
+            <h2 className="fixture-group__label">{group.label}</h2>
+            <div className="card fixture-list">
+              {group.items.map((f) => (
+                <FixtureRow
+                  key={f.match_id}
+                  fixture={f}
+                  onOpen={() => onOpen(f.match_id)}
+                />
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Fixtures tab — match-day browser with link to full schedule
 // ---------------------------------------------------------------------------
 
 export function Fixtures() {
   const { fixtures, loading, error } = useFixtures();
   const openMatchDetail = useTournamentStore((s) => s.openMatchDetail);
+  const [view, setView] = useState<'browser' | 'schedule'>('browser');
   const [dayIndex, setDayIndex] = useState(0);
   const initialized = useRef(false);
   const touchStartX = useRef<number | null>(null);
@@ -160,15 +251,16 @@ export function Fixtures() {
     [matchDays.length],
   );
 
-  // Keyboard navigation
+  // Keyboard navigation — only active in browser view
   useEffect(() => {
+    if (view !== 'browser') return;
     function handleKey(e: KeyboardEvent) {
       if (e.key === 'ArrowLeft') goPrev();
       else if (e.key === 'ArrowRight') goNext();
     }
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [goPrev, goNext]);
+  }, [view, goPrev, goNext]);
 
   function handleTouchStart(e: React.TouchEvent) {
     touchStartX.current = e.touches[0].clientX;
@@ -200,6 +292,16 @@ export function Fixtures() {
 
   if (matchDays.length === 0) {
     return <p className="screen-intro">No fixtures available yet.</p>;
+  }
+
+  if (view === 'schedule') {
+    return (
+      <FullSchedule
+        fixtures={fixtures}
+        onBack={() => setView('browser')}
+        onOpen={openMatchDetail}
+      />
+    );
   }
 
   const current = matchDays[dayIndex];
@@ -247,6 +349,15 @@ export function Fixtures() {
             onOpen={() => openMatchDetail(f.match_id)}
           />
         ))}
+      </div>
+
+      <div className="matchday-schedule-link">
+        <button
+          className="matchday-schedule-link__btn"
+          onClick={() => setView('schedule')}
+        >
+          View full schedule ›
+        </button>
       </div>
     </div>
   );

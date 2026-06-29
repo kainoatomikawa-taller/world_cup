@@ -1141,6 +1141,76 @@
   /* no extra styles needed — inherits .card + .fixture-list */
 }
 
+.matchday-schedule-link {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+}
+
+.matchday-schedule-link__btn {
+  background: none;
+  border: none;
+  color: var(--blue);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 7px 16px;
+  border-radius: var(--radius-xs);
+  transition: background 0.14s var(--ease);
+}
+
+.matchday-schedule-link__btn:hover {
+  background: var(--blue-tint);
+}
+
+/* ---------- Full-schedule screen ---------- */
+
+.full-schedule {
+  max-width: 700px;
+}
+
+.schedule-back-btn {
+  background: none;
+  border: none;
+  color: var(--blue);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.14s var(--ease);
+}
+
+.schedule-back-btn:hover {
+  color: var(--text);
+}
+
+.full-schedule__sections {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.schedule-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fixture-team--tbd {
+  color: var(--faint);
+  font-style: italic;
+}
+
+.fixture-row--tbd .fixture-score {
+  color: var(--faint);
+}
+
 /* ---------- Fixture expandable rows ---------- */
 
 .fixture-row-wrap {
