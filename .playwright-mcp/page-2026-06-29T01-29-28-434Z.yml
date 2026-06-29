@@ -1,0 +1,13 @@
+- main [ref=e3]:
+  - generic [ref=e4]:
+    - heading "World Cup 2026" [level=1] [ref=e5]
+    - paragraph [ref=e6]: Your complete guide to the 48-team tournament — scenarios, fixtures, and insights in one place.
+  - navigation "Main navigation" [ref=e7]:
+    - button "Possibilities" [ref=e8] [cursor=pointer]
+    - button "Fixtures" [ref=e9] [cursor=pointer]
+    - button "Insights" [active] [ref=e10] [cursor=pointer]
+    - button "Lineups" [ref=e11] [cursor=pointer]
+    - button "Ratings" [ref=e12] [cursor=pointer]
+  - generic [ref=e795]:
+    - heading "Insights" [level=2] [ref=e796]
+    - paragraph [ref=e797]: Stats, trends, and analysis from across the tournament — form guides, scoring patterns, and more.

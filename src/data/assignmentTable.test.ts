@@ -69,4 +69,10 @@ describe('assignThirdPlace', () => {
   it('throws when not given exactly 8 groups', () => {
     expect(() => assignThirdPlace(['A', 'B', 'C'])).toThrow();
   });
+
+  it('matches FIFA table for the 2026 live qualifying combination', () => {
+    const result = assignThirdPlace(['B', 'D', 'E', 'F', 'I', 'J', 'K', 'L']);
+    expect(result[74]).toBe('D'); // Germany (E winner) vs Paraguay (D 3rd)
+    expect(result[81]).toBe('B'); // USA (D winner) vs Bosnia and Herzegovina (B 3rd)
+  });
 });

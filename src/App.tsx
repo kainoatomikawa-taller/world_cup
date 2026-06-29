@@ -15,7 +15,7 @@ type FetchStatus = 'loading' | 'live' | 'offline';
 
 export default function App() {
   const [topTab, setTopTab] = useState<AppTab>('possibilities');
-  const [stage, setStage] = useState<StageKey>('fixtures');
+  const [stage, setStage] = useState<StageKey>('groups');
   const [fetchStatus, setFetchStatus] = useState<FetchStatus>('loading');
 
   const initialize = useTournamentStore((s) => s.initialize);
@@ -55,19 +55,13 @@ export default function App() {
               'Scores unavailable — drag to set standings manually'}
           </p>
           <StageNav current={stage} onChange={setStage} />
-          {stage === 'fixtures' && <Fixtures />}
           {stage === 'groups' && <GroupStage />}
           {stage === 'thirdPlace' && <ThirdPlace />}
           {stage === 'bracket' && <Bracket />}
         </>
       )}
 
-      {topTab === 'fixtures' && (
-        <PlaceholderTab
-          title="Fixtures"
-          description="Full schedule and results for all 104 matches across the group and knockout stages."
-        />
-      )}
+      {topTab === 'fixtures' && <Fixtures />}
 
       {topTab === 'insights' && (
         <PlaceholderTab
