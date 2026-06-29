@@ -1,0 +1,22 @@
+- main [ref=e3]:
+  - generic [ref=e4]:
+    - heading "World Cup 2026" [level=1] [ref=e5]
+    - paragraph [ref=e6]: Your complete guide to the 48-team tournament — scenarios, fixtures, and insights in one place.
+  - generic [ref=e822]:
+    - button "← Back" [ref=e823] [cursor=pointer]
+    - generic [ref=e824]:
+      - generic [ref=e825]: Group Stage · Group G
+      - generic [ref=e826]:
+        - generic [ref=e827]:
+          - generic [ref=e828]: 🇪🇬
+          - generic [ref=e829]: Egypt
+        - generic [ref=e830]: 1 – 1
+        - generic [ref=e831]:
+          - generic [ref=e832]: Iran
+          - generic [ref=e833]: 🇮🇷
+      - generic [ref=e834]: 27 June 2026 at 03:00 UTC
+    - navigation [ref=e835]:
+      - button "Lineups" [ref=e836] [cursor=pointer]
+      - button "Game Stats" [active] [ref=e837] [cursor=pointer]
+      - button "Insights" [ref=e838] [cursor=pointer]
+    - paragraph [ref=e843]: Match statistics are not yet available for this match.

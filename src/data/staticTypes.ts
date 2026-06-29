@@ -50,11 +50,29 @@ export interface StaticFixture {
   played: number;
 }
 
+export interface StaticTeamMatchStats {
+  possession: number | null;
+  shots: number | null;
+  shots_on_target: number | null;
+  passes: number | null;
+  pass_completion_pct: number | null;
+  corners: number | null;
+  free_kicks: number | null;
+  yellow_cards: number | null;
+  red_cards: number | null;
+}
+
+export interface StaticMatchStats {
+  home: StaticTeamMatchStats;
+  away: StaticTeamMatchStats;
+}
+
 export type StaticMatchDetail = StaticFixture & {
   lineups?: {
     home: StaticMatchLineup;
     away: StaticMatchLineup;
   };
+  stats?: StaticMatchStats;
 };
 
 // ---- standings.json ----

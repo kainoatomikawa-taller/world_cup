@@ -14,6 +14,30 @@
   "away_flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
   "away_goals": 2.0,
   "played": 1,
+  "stats": {
+    "home": {
+      "possession": 38,
+      "shots": 6,
+      "shots_on_target": 1,
+      "passes": 312,
+      "pass_completion_pct": 68,
+      "corners": 2,
+      "free_kicks": 12,
+      "yellow_cards": 2,
+      "red_cards": 0
+    },
+    "away": {
+      "possession": 62,
+      "shots": 18,
+      "shots_on_target": 6,
+      "passes": 621,
+      "pass_completion_pct": 89,
+      "corners": 8,
+      "free_kicks": 8,
+      "yellow_cards": 1,
+      "red_cards": 0
+    }
+  },
   "lineups": {
     "home": {
       "team_id": "panama",

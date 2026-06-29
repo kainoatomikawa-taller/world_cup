@@ -1,0 +1,67 @@
+- main [ref=e3]:
+  - generic [ref=e4]:
+    - heading "World Cup 2026" [level=1] [ref=e5]
+    - paragraph [ref=e6]: Your complete guide to the 48-team tournament — scenarios, fixtures, and insights in one place.
+  - generic [ref=e524]:
+    - button "← Back" [ref=e525] [cursor=pointer]
+    - generic [ref=e526]:
+      - generic [ref=e527]: Group Stage · Group L
+      - generic [ref=e528]:
+        - generic [ref=e529]:
+          - generic [ref=e530]: 🇵🇦
+          - generic [ref=e531]: Panama
+        - generic [ref=e532]: 0 – 2
+        - generic [ref=e533]:
+          - generic [ref=e534]: England
+          - generic [ref=e535]: 🏴󠁧󠁢󠁥󠁮󠁧󠁿
+      - generic [ref=e536]: 27 June 2026 at 21:00 UTC
+    - navigation [ref=e537]:
+      - button "Lineups" [ref=e538] [cursor=pointer]
+      - button "Game Stats" [active] [ref=e539] [cursor=pointer]
+      - button "Insights" [ref=e540] [cursor=pointer]
+    - generic [ref=e707]:
+      - generic [ref=e708]:
+        - generic [ref=e709]:
+          - generic [ref=e710]: 🇵🇦
+          - text: Panama
+        - generic [ref=e711]: vs
+        - generic [ref=e712]:
+          - text: England
+          - generic [ref=e713]: 🏴󠁧󠁢󠁥󠁮󠁧󠁿
+      - generic [ref=e714]:
+        - generic [ref=e716]:
+          - generic [ref=e717]: 38%
+          - generic [ref=e718]: Possession
+          - generic [ref=e719]: 62%
+        - generic [ref=e724]:
+          - generic [ref=e725]: "6"
+          - generic [ref=e726]: Shots
+          - generic [ref=e727]: "18"
+        - generic [ref=e732]:
+          - generic [ref=e733]: "1"
+          - generic [ref=e734]: Shots on Target
+          - generic [ref=e735]: "6"
+        - generic [ref=e740]:
+          - generic [ref=e741]: "312"
+          - generic [ref=e742]: Passes
+          - generic [ref=e743]: "621"
+        - generic [ref=e748]:
+          - generic [ref=e749]: 68%
+          - generic [ref=e750]: Pass Completion
+          - generic [ref=e751]: 89%
+        - generic [ref=e756]:
+          - generic [ref=e757]: "2"
+          - generic [ref=e758]: Corners
+          - generic [ref=e759]: "8"
+        - generic [ref=e764]:
+          - generic [ref=e765]: "12"
+          - generic [ref=e766]: Free Kicks
+          - generic [ref=e767]: "8"
+        - generic [ref=e772]:
+          - generic [ref=e773]: "2"
+          - generic [ref=e774]: Yellow Cards
+          - generic [ref=e775]: "1"
+        - generic [ref=e780]:
+          - generic [ref=e781]: "0"
+          - generic [ref=e782]: Red Cards
+          - generic [ref=e783]: "0"

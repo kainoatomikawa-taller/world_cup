@@ -1576,6 +1576,103 @@
   color: #dc2626;
 }
 
+/* ---------- Game Stats tab ---------- */
+
+.gst-panel {
+  max-width: 540px;
+}
+
+.gst-teams-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(120deg, var(--blue-tint), transparent);
+}
+
+.gst-team-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.gst-team-name--home { color: var(--blue); }
+.gst-team-name--away { color: var(--green); }
+
+.gst-team-flag { font-size: 16px; }
+
+.gst-teams-divider {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--faint);
+}
+
+.gst-list { padding: 0; }
+
+.gst-row {
+  padding: 10px 16px 9px;
+  border-bottom: 1px solid var(--border);
+}
+
+.gst-row:last-child { border-bottom: 0; }
+
+.gst-row-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 7px;
+}
+
+.gst-val {
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  min-width: 44px;
+}
+
+.gst-val--home { color: var(--blue); text-align: left; }
+.gst-val--away { color: var(--green); text-align: right; }
+
+.gst-val--yellow { color: #d97706; }
+.gst-val--red    { color: #dc2626; }
+
+.gst-stat-label {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.gst-bar-wrap {
+  display: flex;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.05);
+}
+
+.gst-bar {
+  height: 100%;
+  flex-shrink: 0;
+  transition: width 0.35s var(--ease);
+}
+
+.gst-bar--home { background: var(--blue); }
+.gst-bar--away { background: var(--green); }
+
+.gst-bar-wrap--missing .gst-bar--home,
+.gst-bar-wrap--missing .gst-bar--away {
+  background: var(--faint);
+  opacity: 0.35;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 640px) {
   .app-shell {
