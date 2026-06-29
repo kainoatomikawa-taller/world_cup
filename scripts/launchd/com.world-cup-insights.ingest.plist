@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  launchd agent for world-cup-insights data ingestion.
+
+  SETUP (one-time):
+    1. Replace REPO_ROOT below with the absolute path to this repository.
+    2. Copy (or symlink) to ~/Library/LaunchAgents/:
+         cp scripts/launchd/com.world-cup-insights.ingest.plist \
+            ~/Library/LaunchAgents/
+    3. Load the agent:
+         launchctl load ~/Library/LaunchAgents/com.world-cup-insights.ingest.plist
+    4. Verify it is registered:
+         launchctl list | grep world-cup
+
+  ADJUST SCHEDULE:
+    Edit the StartCalendarInterval entries below (Hour/Minute in LOCAL time),
+    then reload:
+      launchctl unload ~/Library/LaunchAgents/com.world-cup-insights.ingest.plist
+      launchctl load   ~/Library/LaunchAgents/com.world-cup-insights.ingest.plist
+
+  UNINSTALL:
+    launchctl unload ~/Library/LaunchAgents/com.world-cup-insights.ingest.plist
+    rm ~/Library/LaunchAgents/com.world-cup-insights.ingest.plist
+
+  LOGS:
+    Wrapper output → REPO_ROOT/logs/ingest.log
+    launchd stderr  → REPO_ROOT/logs/launchd_ingest.log (errors before the
+                      wrapper starts, e.g. missing binary)
+-->
+<plist version="1.0">
+<dict>
+
+  <key>Label</key>
+  <string>com.world-cup-insights.ingest</string>
+
+  <!-- ── Replace REPO_ROOT with the absolute path to this repository ──────── -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>REPO_ROOT/scripts/run_ingest.sh</string>
+  </array>
+
+  <!--
+    Schedule: twice daily.
+    Times below are LOCAL machine time — adjust to taste.
+    During a live tournament, 07:00 and 19:00 local time keeps the store
+    fresh before morning users and after the day's matches.
+  -->
+  <key>StartCalendarInterval</key>
+  <array>
+    <dict>
+      <key>Hour</key>   <integer>7</integer>
+      <key>Minute</key> <integer>0</integer>
+    </dict>
+    <dict>
+      <key>Hour</key>   <integer>19</integer>
+      <key>Minute</key> <integer>0</integer>
+    </dict>
+  </array>
+
+  <!-- Catch launchd-level errors (e.g. script not found) -->
+  <key>StandardOutPath</key>
+  <string>REPO_ROOT/logs/launchd_ingest.log</string>
+  <key>StandardErrorPath</key>
+  <string>REPO_ROOT/logs/launchd_ingest.log</string>
+
+  <!-- Do not run immediately at load time -->
+  <key>RunAtLoad</key>
+  <false/>
+
+</dict>
+</plist>
