@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { groupFixtures } from './fixtures';
+import { groupFixtures, groupMatchDays, selectDefaultMatchDay } from './fixtures';
 import type { Match } from './types';
 
 const base = (id: string, overrides: Partial<Match> = {}): Match => ({
@@ -105,5 +105,98 @@ describe('groupFixtures', () => {
     expect(m.played).toBe(true);
     expect(m.homeGoals).toBe(2);
     expect(m.awayGoals).toBe(1);
+  });
+});
+
+describe('groupMatchDays', () => {
+  it('returns empty array for no matches', () => {
+    expect(groupMatchDays([])).toEqual([]);
+  });
+
+  it('groups matches on the same UTC date into one match day', () => {
+    const matches = [
+      base('m1', { kickoff: '2026-06-11T18:00:00Z' }),
+      base('m2', { kickoff: '2026-06-11T21:00:00Z' }),
+    ];
+    const days = groupMatchDays(matches);
+    expect(days).toHaveLength(1);
+    expect(days[0].date).toBe('2026-06-11');
+    expect(days[0].matches).toHaveLength(2);
+  });
+
+  it('produces one match day per distinct UTC date', () => {
+    const matches = [
+      base('m1', { kickoff: '2026-06-11T20:00:00Z' }),
+      base('m2', { kickoff: '2026-06-12T20:00:00Z' }),
+    ];
+    const days = groupMatchDays(matches);
+    expect(days).toHaveLength(2);
+    expect(days[0].date).toBe('2026-06-11');
+    expect(days[1].date).toBe('2026-06-12');
+  });
+
+  it('sorts match days in ascending date order regardless of input order', () => {
+    const matches = [
+      base('m2', { kickoff: '2026-06-13T20:00:00Z' }),
+      base('m1', { kickoff: '2026-06-11T20:00:00Z' }),
+    ];
+    const days = groupMatchDays(matches);
+    expect(days[0].date).toBe('2026-06-11');
+    expect(days[1].date).toBe('2026-06-13');
+  });
+
+  it('buckets knockout matches by date, not by stage', () => {
+    const matches = [
+      base('r1', { stage: 'round32', groupId: undefined, kickoff: '2026-07-01T18:00:00Z' }),
+      base('f1', { stage: 'final',   groupId: undefined, kickoff: '2026-07-01T21:00:00Z' }),
+    ];
+    const days = groupMatchDays(matches);
+    expect(days).toHaveLength(1);
+    expect(days[0].matches).toHaveLength(2);
+  });
+
+  it('attaches a formatted label to each match day', () => {
+    const days = groupMatchDays([base('m1', { kickoff: '2026-06-11T20:00:00Z' })]);
+    expect(days[0].label).toBe('11 June 2026');
+  });
+});
+
+describe('selectDefaultMatchDay', () => {
+  it('returns undefined for an empty list', () => {
+    expect(selectDefaultMatchDay([])).toBeUndefined();
+  });
+
+  it("returns today's match day when fixtures exist on the current date", () => {
+    const days = groupMatchDays([base('m1', { kickoff: '2026-06-15T20:00:00Z' })]);
+    const result = selectDefaultMatchDay(days, new Date('2026-06-15T10:00:00Z'));
+    expect(result?.date).toBe('2026-06-15');
+  });
+
+  it('falls back to the next future match day when today has no fixtures', () => {
+    const days = groupMatchDays([
+      base('m1', { kickoff: '2026-06-12T20:00:00Z' }),
+      base('m2', { kickoff: '2026-06-14T20:00:00Z' }),
+    ]);
+    // today is between the two match days
+    const result = selectDefaultMatchDay(days, new Date('2026-06-13T10:00:00Z'));
+    expect(result?.date).toBe('2026-06-14');
+  });
+
+  it("falls back to the final's match day when no future fixtures remain", () => {
+    const days = groupMatchDays([
+      base('m1', { kickoff: '2026-06-11T20:00:00Z' }),
+      base('f1', { stage: 'final', groupId: undefined, kickoff: '2026-07-19T20:00:00Z' }),
+    ]);
+    const result = selectDefaultMatchDay(days, new Date('2026-08-01T10:00:00Z'));
+    expect(result?.date).toBe('2026-07-19');
+  });
+
+  it('falls back to the last match day when no future fixtures and no final', () => {
+    const days = groupMatchDays([
+      base('m1', { kickoff: '2026-06-11T20:00:00Z' }),
+      base('m2', { kickoff: '2026-06-12T20:00:00Z' }),
+    ]);
+    const result = selectDefaultMatchDay(days, new Date('2026-08-01T10:00:00Z'));
+    expect(result?.date).toBe('2026-06-12');
   });
 });

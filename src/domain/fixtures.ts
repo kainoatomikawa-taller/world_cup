@@ -1,5 +1,11 @@
 import type { Match, Stage } from './types';
 
+export interface MatchDay {
+  date: string;     // YYYY-MM-DD (UTC)
+  label: string;    // e.g. "11 June 2026"
+  matches: Match[];
+}
+
 export interface FixtureGroup {
   /** Formatted date (group stage) or round name (knockout). */
   label: string;
@@ -70,4 +76,52 @@ export function groupFixtures(matches: Match[]): FixtureGroup[] {
   }
 
   return Array.from(groupMap.values());
+}
+
+/**
+ * Groups all matches into calendar-date buckets (UTC), sorted chronologically.
+ * Every stage (group and knockout) is bucketed by date, not stage name.
+ */
+export function groupMatchDays(matches: Match[]): MatchDay[] {
+  const sorted = [...matches].sort((a, b) => a.kickoff.localeCompare(b.kickoff));
+  const dayMap = new Map<string, MatchDay>();
+
+  for (const match of sorted) {
+    const date = match.kickoff.slice(0, 10);
+    if (!dayMap.has(date)) {
+      dayMap.set(date, { date, label: formatDateLabel(date), matches: [] });
+    }
+    dayMap.get(date)!.matches.push(match);
+  }
+
+  return Array.from(dayMap.values());
+}
+
+/**
+ * Selects the default match day to display:
+ *   1. Today's match day when fixtures exist on the current date.
+ *   2. The next future match day with fixtures.
+ *   3. The final's match day when no future fixtures remain.
+ *
+ * Accepts an optional `today` Date to keep the function pure and testable.
+ */
+export function selectDefaultMatchDay(
+  matchDays: MatchDay[],
+  today: Date = new Date(),
+): MatchDay | undefined {
+  if (matchDays.length === 0) return undefined;
+
+  const todayStr = today.toISOString().slice(0, 10);
+
+  const todayDay = matchDays.find((d) => d.date === todayStr);
+  if (todayDay) return todayDay;
+
+  const nextDay = matchDays.find((d) => d.date > todayStr);
+  if (nextDay) return nextDay;
+
+  // Fall back to the match day containing the final; last day if no final found.
+  return (
+    matchDays.findLast((d) => d.matches.some((m) => m.stage === 'final')) ??
+    matchDays[matchDays.length - 1]
+  );
 }
