@@ -470,7 +470,10 @@ def recent_news(
     *,
     limit: int = 50,
 ) -> pd.DataFrame:
-    """Return news articles ordered by recency (most recent first).
+    """Return news articles ordered by priority then recency.
+
+    Primary sort: priority DESC (four-signal rank computed by rank_news.py).
+    Tiebreaker: published_at DESC so equally-ranked articles are still fresh.
 
     Includes rows where competition_id matches OR is NULL (articles ingested
     before the competition row existed are kept rather than excluded).
@@ -501,7 +504,7 @@ def recent_news(
             n.priority
         FROM  news n
         WHERE (n.competition_id = :competition_id OR n.competition_id IS NULL)
-        ORDER BY n.published_at DESC
+        ORDER BY n.priority DESC, n.published_at DESC
         LIMIT :limit
     """
     with _read_conn(db_path) as conn:

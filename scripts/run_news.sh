@@ -73,6 +73,16 @@ else
     failures=$((failures + 1))
 fi
 
+# Rank clusters after clustering so priority scores are written before export.
+# shellcheck disable=SC2086
+if "$PYTHON" "$REPO_ROOT/scripts/rank_news.py" $DRY_RUN_FLAG >> "$LOG_FILE" 2>&1; then
+    log "rank_news.py: OK"
+else
+    rc=$?
+    log "rank_news.py: FAILED (exit $rc)"
+    failures=$((failures + 1))
+fi
+
 if "$PYTHON" "$REPO_ROOT/scripts/export_json.py" >> "$LOG_FILE" 2>&1; then
     log "export_json.py: OK"
 else

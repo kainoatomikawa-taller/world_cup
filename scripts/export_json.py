@@ -236,7 +236,7 @@ def export(
 
     # ── 8 ── news ─────────────────────────────────────────────────────────
     print("[8/8] Exporting news …")
-    _NEWS_TOP_N = 100  # Phase 1: most-recent N articles, recency-ordered
+    _NEWS_TOP_N = 100  # top-N articles ordered by priority DESC, published_at DESC
     raw_news = _to_records(recent_news(db_path, competition_id, limit=_NEWS_TOP_N))
     for _article in raw_news:
         for _col in ("teams", "entities"):

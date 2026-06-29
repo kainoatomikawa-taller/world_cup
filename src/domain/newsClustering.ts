@@ -58,8 +58,8 @@ export function selectClusterRepresentative(cluster: StaticArticle[]): StaticArt
  * - Articles with a cluster_id are grouped; only the best representative
  *   from each group is kept.
  * - Articles with cluster_id === null are passed through unchanged.
- * - Output is sorted by published_at DESC (most recent first), with cluster
- *   representatives dated by the representative's own published_at.
+ * - Output is sorted by priority DESC (Python-computed rank), then
+ *   published_at DESC as a tiebreaker within the same priority tier.
  */
 export function collapseNewsClusters(articles: StaticArticle[]): StaticArticle[] {
   const clusters = new Map<string, StaticArticle[]>();
@@ -80,7 +80,9 @@ export function collapseNewsClusters(articles: StaticArticle[]): StaticArticle[]
     representatives.push(selectClusterRepresentative(group));
   }
 
-  return [...representatives, ...solo].sort(
-    (a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime()
-  );
+  return [...representatives, ...solo].sort((a, b) => {
+    const pDiff = b.priority - a.priority;
+    if (pDiff !== 0) return pDiff;
+    return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
+  });
 }
