@@ -1,10 +1,10 @@
-// Simple navigation between the four screens of the experience.
-export type StageKey = 'groups' | 'thirdPlace' | 'bracket';
+export type StageKey = 'possibilities' | 'fixtures' | 'insights' | 'stats';
 
 const STAGES: { key: StageKey; label: string }[] = [
-  { key: 'groups', label: 'Group stage' },
-  { key: 'thirdPlace', label: 'Third place' },
-  { key: 'bracket', label: 'Knockout' },
+  { key: 'possibilities', label: 'Possibilities' },
+  { key: 'fixtures', label: 'Fixtures' },
+  { key: 'insights', label: 'Insights' },
+  { key: 'stats', label: 'Stats' },
 ];
 
 export function StageNav({

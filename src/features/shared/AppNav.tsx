@@ -1,11 +1,10 @@
-export type AppTab = 'possibilities' | 'fixtures' | 'insights' | 'lineups' | 'ratings';
+export type AppTab = 'possibilities' | 'fixtures' | 'insights' | 'stats';
 
 const TABS: { key: AppTab; label: string }[] = [
   { key: 'possibilities', label: 'Possibilities' },
   { key: 'fixtures', label: 'Fixtures' },
   { key: 'insights', label: 'Insights' },
-  { key: 'lineups', label: 'Lineups' },
-  { key: 'ratings', label: 'Ratings' },
+  { key: 'stats', label: 'Stats' },
 ];
 
 export function AppNav({

@@ -4,9 +4,7 @@ import { GroupStage } from './features/GroupStage/GroupStage';
 import { ThirdPlace } from './features/ThirdPlace/ThirdPlace';
 import { Bracket } from './features/Bracket/Bracket';
 import { InsightsDashboard } from './features/Insights/InsightsDashboard';
-import { AppNav, type AppTab } from './features/shared/AppNav';
 import { StageNav, type StageKey } from './features/shared/StageNav';
-import { PlaceholderTab } from './features/shared/PlaceholderTab';
 import { PlayerStats } from './features/Ratings/PlayerStats';
 import { useTournamentStore } from './store/tournamentStore';
 import { TEAMS } from './data/schedule2026';
@@ -31,8 +29,9 @@ function formatLastUpdated(iso: string): string {
 
 export default function App() {
   const { contentHash, lastUpdated, manifestReady } = useDataContext();
-  const [topTab, setTopTab] = useState<AppTab>('possibilities');
-  const [stage, setStage] = useState<StageKey>('groups');
+  const [topTab, setTopTab] = useState<StageKey>('possibilities');
+  type PossibilitiesView = 'groups' | 'thirdPlace' | 'bracket';
+  const [stage, setStage] = useState<PossibilitiesView>('groups');
   const [fetchStatus, setFetchStatus] = useState<FetchStatus>('loading');
 
   const initialize = useTournamentStore((s) => s.initialize);
@@ -64,7 +63,7 @@ export default function App() {
         </p>
       </header>
 
-      <AppNav current={topTab} onChange={setTopTab} />
+      <StageNav current={topTab} onChange={setTopTab} />
 
       {topTab === 'possibilities' && (
         <>
@@ -77,7 +76,24 @@ export default function App() {
             {fetchStatus === 'offline' &&
               'Data unavailable — drag to set standings manually'}
           </p>
-          <StageNav current={stage} onChange={setStage} />
+          <nav className="stage-nav">
+            {(
+              [
+                { key: 'groups', label: 'Group stage' },
+                { key: 'thirdPlace', label: 'Third place' },
+                { key: 'bracket', label: 'Knockout' },
+              ] as { key: PossibilitiesView; label: string }[]
+            ).map((s) => (
+              <button
+                key={s.key}
+                className="stage-tab"
+                onClick={() => setStage(s.key)}
+                aria-current={stage === s.key}
+              >
+                {s.label}
+              </button>
+            ))}
+          </nav>
           {stage === 'groups' && <GroupStage />}
           {stage === 'thirdPlace' && <ThirdPlace />}
           {stage === 'bracket' && <Bracket />}
@@ -88,14 +104,7 @@ export default function App() {
 
       {topTab === 'insights' && <InsightsDashboard />}
 
-      {topTab === 'lineups' && (
-        <PlaceholderTab
-          title="Lineups"
-          description="Starting XIs, formations, and squad depth for every competing nation."
-        />
-      )}
-
-      {topTab === 'ratings' && <PlayerStats />}
+      {topTab === 'stats' && <PlayerStats />}
     </main>
   );
 }
