@@ -411,7 +411,8 @@ def all_fixtures(
             at.code         AS away_code,
             at.flag         AS away_flag,
             m.away_goals,
-            m.played
+            m.played,
+            m.venue
         FROM  matches m
         JOIN  teams   ht ON ht.id = m.home_team_id
         JOIN  teams   at ON at.id = m.away_team_id

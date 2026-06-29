@@ -440,6 +440,8 @@ def _ingest_matches(
         home_goals: int | None = ft.get("home") if played and ft.get("home") is not None else None
         away_goals: int | None = ft.get("away") if played and ft.get("away") is not None else None
 
+        venue: str | None = m.get("venue") or None
+
         rows.append((
             str(m["id"]),       # id (PK)
             COMPETITION_ID,
@@ -453,6 +455,7 @@ def _ingest_matches(
             int(played),
             str(m["id"]),       # source_id
             fetched_at,
+            venue,
         ))
 
     if dry_run:
@@ -472,8 +475,8 @@ def _ingest_matches(
         """
         INSERT INTO matches
             (id, competition_id, stage, group_id, home_team_id, away_team_id,
-             home_goals, away_goals, kickoff, played, source_id, fetched_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             home_goals, away_goals, kickoff, played, source_id, fetched_at, venue)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
             stage        = excluded.stage,
             group_id     = excluded.group_id,
@@ -481,7 +484,8 @@ def _ingest_matches(
             away_goals   = excluded.away_goals,
             kickoff      = excluded.kickoff,
             played       = excluded.played,
-            fetched_at   = excluded.fetched_at
+            fetched_at   = excluded.fetched_at,
+            venue        = excluded.venue
         """,
         rows,
     )

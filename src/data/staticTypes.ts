@@ -48,6 +48,7 @@ export interface StaticFixture {
   away_flag: string;
   away_goals: number | null;
   played: number;
+  venue?: string | null;
 }
 
 export interface StaticTeamMatchStats {

@@ -21,6 +21,7 @@ interface FdMatch {
   status: string;  // 'SCHEDULED' | 'IN_PLAY' | 'PAUSED' | 'FINISHED' | ...
   stage: string;   // 'GROUP_STAGE' | 'LAST_32' | 'LAST_16' | 'QUARTER_FINALS' | ...
   group: string | null; // 'GROUP_A' … 'GROUP_L' | null
+  venue?: string | null;
   homeTeam: FdTeam;
   awayTeam: FdTeam;
   score: {
@@ -117,6 +118,7 @@ export function toMatches(raw: unknown): Match[] {
       awayGoals: played && away != null ? away : undefined,
       kickoff: m.utcDate,
       played,
+      ...(m.venue ? { venue: m.venue } : {}),
     });
   }
 
@@ -137,5 +139,6 @@ export function staticFixtureToMatch(f: StaticFixture): Match {
     awayGoals: played && f.away_goals != null ? f.away_goals : undefined,
     kickoff: f.kickoff,
     played,
+    ...(f.venue ? { venue: f.venue } : {}),
   };
 }

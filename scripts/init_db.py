@@ -20,12 +20,26 @@ DEFAULT_DB = REPO_ROOT / "db" / "world_cup.db"
 SCHEMA_SQL = Path(__file__).resolve().parent / "schema.sql"
 
 
+def _apply_migrations(conn: sqlite3.Connection) -> None:
+    """Add columns that were introduced after initial schema creation.
+
+    SQLite's CREATE TABLE IF NOT EXISTS never modifies existing tables, so each
+    new column needs an explicit ALTER TABLE that is guarded against re-runs.
+    """
+    existing = {row[1] for row in conn.execute("PRAGMA table_info(matches)")}
+    if "venue" not in existing:
+        conn.execute("ALTER TABLE matches ADD COLUMN venue TEXT")
+        conn.commit()
+        print("  Migrated: added matches.venue column")
+
+
 def init(db_path: Path) -> None:
     db_path.parent.mkdir(parents=True, exist_ok=True)
     schema = SCHEMA_SQL.read_text(encoding="utf-8")
 
     with sqlite3.connect(db_path) as conn:
         conn.executescript(schema)
+        _apply_migrations(conn)
 
     print(f"Schema applied → {db_path}")
     _report(db_path)

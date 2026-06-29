@@ -31,6 +31,7 @@ export interface Match {
   awayGoals?: number;
   kickoff: string;       // ISO date string
   played: boolean;
+  venue?: string;        // stadium name; absent when not provided by upstream
   // Enrichment — absent until the enrichment layer populates them.
   lineups?: { home: Lineup; away: Lineup };
   stats?: MatchStats;

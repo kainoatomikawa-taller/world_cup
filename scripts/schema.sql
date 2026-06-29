@@ -59,7 +59,8 @@ CREATE TABLE IF NOT EXISTS matches (
     kickoff         TEXT    NOT NULL,             -- ISO 8601 datetime
     played          INTEGER NOT NULL DEFAULT 0,   -- 0|1 boolean
     source_id       TEXT,                         -- raw upstream id (for re-sync)
-    fetched_at      TEXT                          -- ISO 8601 datetime of last API pull
+    fetched_at      TEXT,                         -- ISO 8601 datetime of last API pull
+    venue           TEXT                          -- stadium name from upstream API; NULL if not provided
 );
 
 CREATE INDEX IF NOT EXISTS idx_matches_competition

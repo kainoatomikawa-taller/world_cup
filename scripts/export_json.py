@@ -40,7 +40,7 @@ from query import (
 )
 
 # Bump when the shape of any exported file changes.
-SCHEMA_VERSION = "1"
+SCHEMA_VERSION = "2"
 
 DEFAULT_OUT: Path = REPO_ROOT / "export"
 DEFAULT_FRONTEND: Path = REPO_ROOT / "public" / "data"
