@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useFixtures, type StaticFixture } from '../../data/useFixtures';
+import { useStandings, type StaticStanding } from '../../data/useStandings';
 import { useTournamentStore } from '../../store/tournamentStore';
+import { stageLabel } from '../../domain/teamRecord';
+import { resolveCity } from '../../domain/venueCity';
+import type { Stage, GroupId } from '../../domain/types';
 
 const STAGE_ORDER: Record<string, number> = {
   group: 0,
@@ -37,6 +41,28 @@ function formatKickoff(isoStr: string): string {
     hour: '2-digit',
     minute: '2-digit',
   });
+}
+
+function formatFullKickoff(isoStr: string): string {
+  const d = new Date(isoStr);
+  const date = d.toLocaleDateString('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+  const time = d.toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  return `${date} · ${time}`;
+}
+
+function ordinal(n: number): string {
+  if (n === 1) return '1st';
+  if (n === 2) return '2nd';
+  if (n === 3) return '3rd';
+  return `${n}th`;
 }
 
 // ---------------------------------------------------------------------------
@@ -116,25 +142,37 @@ function groupForSchedule(fixtures: StaticFixture[]): ScheduleGroup[] {
 }
 
 // ---------------------------------------------------------------------------
-// Fixture row — shared between browser and full schedule.
-// Played matches → clickable button → openMatchDetail.
-// Upcoming/TBD → static row, not interactive.
-// Teams with empty name strings are shown as "TBD".
+// Fixture card — compact row with expandable detail strip.
+// Played matches → main area is a clickable button → openMatchDetail.
+// Expand toggle (▾/▴) reveals venue+city, full kickoff, and W-D-L records.
 // ---------------------------------------------------------------------------
 
 function FixtureRow({
   fixture: f,
   onOpen,
+  standingsMap,
 }: {
   fixture: StaticFixture;
   onOpen: () => void;
+  standingsMap: Map<string, StaticStanding>;
 }) {
+  const [expanded, setExpanded] = useState(false);
   const played = f.played === 1;
   const homeTbd = !f.home_team;
   const awayTbd = !f.away_team;
   const anyTbd = homeTbd || awayTbd;
 
-  const inner = (
+  const chip = stageLabel(f.stage as Stage, f.group_id as GroupId | undefined);
+  const city = resolveCity(f.venue ?? undefined);
+
+  const homeStanding = f.group_id
+    ? standingsMap.get(`${f.home_code}:${f.group_id}`)
+    : undefined;
+  const awayStanding = f.group_id
+    ? standingsMap.get(`${f.away_code}:${f.group_id}`)
+    : undefined;
+
+  const mainContent = (
     <>
       <span className={`fixture-team fixture-team--home${homeTbd ? ' fixture-team--tbd' : ''}`}>
         {!homeTbd && <span className="fixture-team__flag">{f.home_flag}</span>}
@@ -142,9 +180,7 @@ function FixtureRow({
       </span>
 
       <span className="fixture-center tnum">
-        {f.group_id && (
-          <span className="group-badge fixture-group-badge">{f.group_id}</span>
-        )}
+        <span className="fixture-chip">{chip}</span>
         <span className="fixture-score">
           {played
             ? `${f.home_goals ?? 0} – ${f.away_goals ?? 0}`
@@ -156,25 +192,96 @@ function FixtureRow({
         <span className="fixture-team__name">{awayTbd ? 'TBD' : f.away_team}</span>
         {!awayTbd && <span className="fixture-team__flag">{f.away_flag}</span>}
       </span>
-
-      <span className="fixture-row__chevron" aria-hidden="true">
-        {played ? '›' : ''}
-      </span>
     </>
   );
 
   return (
     <div className="fixture-row-wrap">
-      {played ? (
+      <div className="fixture-row-inner">
+        {played ? (
+          <button
+            className="fixture-row fixture-row--btn fixture-row--played"
+            onClick={onOpen}
+          >
+            {mainContent}
+          </button>
+        ) : (
+          <div className={`fixture-row${anyTbd ? ' fixture-row--tbd' : ' fixture-row--upcoming'}`}>
+            {mainContent}
+          </div>
+        )}
         <button
-          className="fixture-row fixture-row--btn fixture-row--played"
-          onClick={onOpen}
+          className={`fixture-expand-btn${expanded ? ' fixture-expand-btn--open' : ''}`}
+          onClick={() => setExpanded((v) => !v)}
+          aria-label={expanded ? 'Collapse match details' : 'Show match details'}
+          aria-expanded={expanded}
         >
-          {inner}
+          ▾
         </button>
-      ) : (
-        <div className={`fixture-row${anyTbd ? ' fixture-row--tbd' : ' fixture-row--upcoming'}`}>
-          {inner}
+      </div>
+
+      {expanded && (
+        <div className="fixture-detail">
+          <div className="fixture-detail__venue">
+            {f.venue ? (
+              <>
+                <span className="fixture-detail__venue-name">{f.venue}</span>
+                {city && (
+                  <span className="fixture-detail__city"> · {city}</span>
+                )}
+              </>
+            ) : (
+              <span className="fixture-detail__placeholder">Venue TBD</span>
+            )}
+          </div>
+
+          <div className="fixture-detail__kickoff">
+            {formatFullKickoff(f.kickoff)}
+          </div>
+
+          {(homeStanding || awayStanding) && (
+            <div className="fixture-detail__records">
+              <span className="fixture-detail__record fixture-detail__record--home">
+                {!homeTbd && (
+                  <span className="fixture-team__flag">{f.home_flag}</span>
+                )}
+                {homeStanding ? (
+                  <>
+                    <span>
+                      W{homeStanding.won} D{homeStanding.drawn} L{homeStanding.lost}
+                    </span>
+                    {homeStanding.position != null && (
+                      <span className="fixture-detail__pos">
+                        {ordinal(homeStanding.position)}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <span>—</span>
+                )}
+              </span>
+
+              <span className="fixture-detail__record fixture-detail__record--away">
+                {awayStanding ? (
+                  <>
+                    {awayStanding.position != null && (
+                      <span className="fixture-detail__pos">
+                        {ordinal(awayStanding.position)}
+                      </span>
+                    )}
+                    <span>
+                      W{awayStanding.won} D{awayStanding.drawn} L{awayStanding.lost}
+                    </span>
+                  </>
+                ) : (
+                  <span>—</span>
+                )}
+                {!awayTbd && (
+                  <span className="fixture-team__flag">{f.away_flag}</span>
+                )}
+              </span>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -189,10 +296,12 @@ function FullSchedule({
   fixtures,
   onBack,
   onOpen,
+  standingsMap,
 }: {
   fixtures: StaticFixture[];
   onBack: () => void;
   onOpen: (matchId: string) => void;
+  standingsMap: Map<string, StaticStanding>;
 }) {
   const groups = useMemo(() => groupForSchedule(fixtures), [fixtures]);
 
@@ -212,6 +321,7 @@ function FullSchedule({
                   key={f.match_id}
                   fixture={f}
                   onOpen={() => onOpen(f.match_id)}
+                  standingsMap={standingsMap}
                 />
               ))}
             </div>
@@ -228,6 +338,7 @@ function FullSchedule({
 
 export function Fixtures() {
   const { fixtures, loading, error } = useFixtures();
+  const { standings } = useStandings();
   const openMatchDetail = useTournamentStore((s) => s.openMatchDetail);
   const [view, setView] = useState<'browser' | 'schedule'>('browser');
   const [dayIndex, setDayIndex] = useState(0);
@@ -236,6 +347,15 @@ export function Fixtures() {
   const touchStartY = useRef<number | null>(null);
 
   const matchDays = useMemo(() => groupIntoMatchDays(fixtures), [fixtures]);
+
+  // Build lookup: "CODE:GROUP_ID" → StaticStanding (for group-stage records)
+  const standingsMap = useMemo(() => {
+    const map = new Map<string, StaticStanding>();
+    for (const s of standings) {
+      map.set(`${s.code}:${s.group_id}`, s);
+    }
+    return map;
+  }, [standings]);
 
   // Set default day once data arrives
   useEffect(() => {
@@ -300,6 +420,7 @@ export function Fixtures() {
         fixtures={fixtures}
         onBack={() => setView('browser')}
         onOpen={openMatchDetail}
+        standingsMap={standingsMap}
       />
     );
   }
@@ -347,6 +468,7 @@ export function Fixtures() {
             key={f.match_id}
             fixture={f}
             onOpen={() => openMatchDetail(f.match_id)}
+            standingsMap={standingsMap}
           />
         ))}
       </div>
