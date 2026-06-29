@@ -5,20 +5,37 @@ ingest_api.py — pull football-data.org data into SQLite.
 Fetches competition info, teams, matches, standings, and scorers for the
 2026 FIFA World Cup and upserts them into the backbone SQLite tables.
 
-Rate limit: the free tier allows 10 req/min.  A 7-second sleep between
-every HTTP call keeps us within that limit (≈ 8.5 req/min headroom).
-Five API calls are made per run; total wall time ≈ 35 s.
+Incremental by default
+-----------------------
+After the first full load, subsequent runs are skipped or narrowed:
+
+* Matches: fetched only for the date window of unplayed fixtures whose
+  kickoff falls within the next 24 hours (dateFrom/dateTo filter).  Runs
+  outside that window skip the matches endpoint entirely.
+* Standings / Scorers: skipped when no matches transitioned to FINISHED
+  in the current run (saves two API calls per routine poll).
+* Team identity: skipped once all 48 teams have verified entries in
+  identity_map.
+
+Pass --force to bypass all incremental checks and reload everything.
+
+Rate limit
+----------
+The free tier allows 10 req/min.  A 7-second inter-request sleep keeps us
+at ≈ 8.5 req/min.  429 responses are retried up to 3 times using the
+upstream X-RequestCounter-Reset header; 403 aborts immediately.
 
 Usage:
     python scripts/ingest_api.py
     python scripts/ingest_api.py --db-path /custom/path/world_cup.db
-    python scripts/ingest_api.py --dry-run   # fetch + summarise, no writes
+    python scripts/ingest_api.py --dry-run    # fetch + summarise, no writes
+    python scripts/ingest_api.py --force      # reload everything unconditionally
 
 Prerequisite:
-    python scripts/init_db.py   # apply schema before first ingest
+    python scripts/setup.py   # or: python scripts/init_db.py
 
 Dependencies (already in scripts/.venv):
-    requests
+    requests  python-dotenv
 """
 
 from __future__ import annotations
@@ -30,7 +47,7 @@ import sys
 import time
 import unicodedata
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -207,7 +224,11 @@ class ApiClient:
         self._session.headers.update({"X-Auth-Token": api_key})
 
     def get(self, path: str, **params: Any) -> dict[str, Any]:
-        """GET an API endpoint; sleep as needed to respect the rate limit."""
+        """GET an API endpoint; sleep as needed to respect the rate limit.
+
+        Retries up to 3 times on 429 using the X-RequestCounter-Reset header.
+        Raises SystemExit on 403 (bad key) or after exhausting all retries.
+        """
         elapsed = time.monotonic() - self._last
         gap = self._delay - elapsed
         if gap > 0:
@@ -218,22 +239,35 @@ class ApiClient:
         qs = f" params={params}" if params else ""
         print(f"  GET {url}{qs}")
 
-        resp = self._session.get(url, params=params or None, timeout=30)
-        self._last = time.monotonic()
-
-        if resp.status_code == 429:
-            retry_after = int(resp.headers.get("X-RequestCounter-Reset", 60))
-            print(f"  [429] upstream rate-limited — sleeping {retry_after}s then retrying")
-            time.sleep(retry_after)
+        max_attempts = 3
+        for attempt in range(1, max_attempts + 1):
             resp = self._session.get(url, params=params or None, timeout=30)
             self._last = time.monotonic()
 
-        if resp.status_code == 403:
-            raise SystemExit("ERROR: API key rejected (403). Check FOOTBALL_API_KEY.")
+            if resp.status_code == 403:
+                raise SystemExit(
+                    "ERROR: API key rejected (HTTP 403). Check FOOTBALL_API_KEY."
+                )
 
-        resp.raise_for_status()
-        data: dict[str, Any] = resp.json()
-        return data
+            if resp.status_code == 429:
+                retry_after = int(resp.headers.get("X-RequestCounter-Reset", 60))
+                if attempt < max_attempts:
+                    print(
+                        f"  [429] rate-limited — waiting {retry_after}s "
+                        f"(attempt {attempt}/{max_attempts})"
+                    )
+                    time.sleep(retry_after)
+                    continue
+                raise SystemExit(
+                    f"ERROR: rate limit exceeded after {max_attempts} attempts. "
+                    "Wait a minute and retry."
+                )
+
+            resp.raise_for_status()
+            data: dict[str, Any] = resp.json()
+            return data
+
+        raise SystemExit("ERROR: unexpected state in retry loop")
 
 
 # ---------------------------------------------------------------------------
@@ -362,8 +396,13 @@ def _ingest_matches(
     conn: sqlite3.Connection,
     data: dict[str, Any],
     dry_run: bool,
-) -> None:
-    """Upsert all matches; rows are keyed on the upstream integer id."""
+) -> int:
+    """Upsert all matches; rows are keyed on the upstream integer id.
+
+    Returns the number of matches that transitioned from unplayed → played
+    during this call, which the orchestrator uses to decide whether standings
+    and scorers need refreshing.
+    """
     matches = data.get("matches", [])
     fetched_at = _now_iso()
     rows: list[tuple[Any, ...]] = []
@@ -418,7 +457,16 @@ def _ingest_matches(
 
     if dry_run:
         print(f"  [dry-run] would upsert {len(rows)} matches ({skipped} skipped)")
-        return
+        return 0
+
+    # Snapshot which matches are currently unplayed so we can report the delta.
+    unplayed_before: set[str] = {
+        row[0]
+        for row in conn.execute(
+            "SELECT id FROM matches WHERE competition_id = ? AND played = 0",
+            (COMPETITION_ID,),
+        ).fetchall()
+    }
 
     conn.executemany(
         """
@@ -438,8 +486,16 @@ def _ingest_matches(
         rows,
     )
     conn.commit()
+
+    newly_played = sum(
+        1 for r in rows if r[9] == 1 and r[0] in unplayed_before
+    )
     played_count = sum(1 for r in rows if r[9])
-    print(f"  {len(rows)} matches upserted ({played_count} played, {skipped} skipped)")
+    print(
+        f"  {len(rows)} matches upserted "
+        f"({played_count} played, {newly_played} newly finished, {skipped} skipped)"
+    )
+    return newly_played
 
 
 def _ingest_standings(
@@ -588,6 +644,65 @@ def _ingest_scorers(
 
 
 # ---------------------------------------------------------------------------
+# Incremental-fetch helpers
+# ---------------------------------------------------------------------------
+
+def _resolve_match_params(
+    conn: sqlite3.Connection,
+    force_full: bool,
+) -> dict[str, str] | None:
+    """Return query params for the matches endpoint, or None to skip the fetch.
+
+    On the first run (no rows in DB) returns the full-season params.
+    On subsequent runs, narrows to the date window of unplayed matches whose
+    kickoff falls within the next 24 hours — the only matches that could have
+    new results. Matches already marked played=1 are never re-fetched unless
+    --force is passed.
+
+    Returns None when all known matches are finalized and nothing in the
+    next 24 hours is unplayed, signalling the caller to skip the API call.
+    """
+    if force_full:
+        return {"season": SEASON}
+
+    total = conn.execute(
+        "SELECT COUNT(*) FROM matches WHERE competition_id = ?",
+        (COMPETITION_ID,),
+    ).fetchone()[0]
+
+    if total == 0:
+        return {"season": SEASON}
+
+    # Window: unplayed matches with kickoff up to 24 h from now.
+    window_end = (datetime.now(timezone.utc) + timedelta(hours=24)).strftime(
+        "%Y-%m-%dT%H:%M:%SZ"
+    )
+    row = conn.execute(
+        """
+        SELECT MIN(DATE(kickoff)), MAX(DATE(kickoff))
+        FROM   matches
+        WHERE  competition_id = ? AND played = 0 AND kickoff <= ?
+        """,
+        (COMPETITION_ID, window_end),
+    ).fetchone()
+
+    if not row or not row[0]:
+        return None  # nothing to refresh
+
+    date_from, date_to = row
+    return {"season": SEASON, "dateFrom": date_from, "dateTo": date_to}
+
+
+def _has_complete_team_identity(conn: sqlite3.Connection) -> bool:
+    """True if identity_map already holds verified football-data entries for all 48 teams."""
+    count = conn.execute(
+        "SELECT COUNT(*) FROM identity_map "
+        "WHERE entity_type = 'team' AND source = 'football-data' AND verified = 1"
+    ).fetchone()[0]
+    return count >= len(_TEAMS)
+
+
+# ---------------------------------------------------------------------------
 # Schema guard
 # ---------------------------------------------------------------------------
 
@@ -612,53 +727,89 @@ def _check_schema(conn: sqlite3.Connection) -> None:
 # Orchestration
 # ---------------------------------------------------------------------------
 
-def run(db_path: Path, dry_run: bool) -> None:
-    """Fetch from football-data.org and upsert into SQLite."""
+def run(db_path: Path, dry_run: bool, force_full: bool = False) -> None:
+    """Fetch from football-data.org and upsert into SQLite.
+
+    Incremental by default: matches are narrowed to the window of unplayed
+    fixtures with kickoff within 24 hours; standings and scorers are skipped
+    when no new results came in during this run. Pass force_full=True (--force)
+    to always fetch everything regardless of what is already in the DB.
+    """
     api_key = load_api_key()
 
     db_path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(db_path)
     conn.execute("PRAGMA foreign_keys = ON")
     conn.execute("PRAGMA journal_mode = WAL")
-    _check_schema(conn)
 
-    client = ApiClient(api_key)
+    try:
+        _check_schema(conn)
+        client = ApiClient(api_key)
 
-    # ── 1 ── Competition metadata ─────────────────────────────────────────
-    print("\n[1/6] Fetching competition metadata …")
-    comp_data = client.get(f"/competitions/{COMPETITION_CODE}")
-    _ingest_competition(conn, comp_data, dry_run)
+        # ── 1 ── Competition metadata ─────────────────────────────────────
+        print("\n[1/6] Fetching competition metadata …")
+        comp_data = client.get(f"/competitions/{COMPETITION_CODE}")
+        _ingest_competition(conn, comp_data, dry_run)
 
-    # ── 2 ── Seed teams (static list, no API call) ────────────────────────
-    print("\n[2/6] Seeding teams from static list …")
-    _seed_teams(conn, dry_run)
+        # ── 2 ── Seed teams (static list, no API call) ────────────────────
+        print("\n[2/6] Seeding teams from static list …")
+        _seed_teams(conn, dry_run)
 
-    # ── 3 ── Team identity mapping ────────────────────────────────────────
-    print("\n[3/6] Fetching teams for identity_map …")
-    teams_data = client.get(f"/competitions/{COMPETITION_CODE}/teams", season=SEASON)
-    _ingest_team_identity(conn, teams_data, dry_run)
+        # ── 3 ── Team identity mapping (skipped when already complete) ─────
+        if not dry_run and not force_full and _has_complete_team_identity(conn):
+            print("\n[3/6] Team identity mapping already complete — skipped")
+        else:
+            print("\n[3/6] Fetching teams for identity_map …")
+            teams_data = client.get(
+                f"/competitions/{COMPETITION_CODE}/teams", season=SEASON
+            )
+            _ingest_team_identity(conn, teams_data, dry_run)
 
-    # ── 4 ── Matches ──────────────────────────────────────────────────────
-    print("\n[4/6] Fetching matches …")
-    matches_data = client.get(f"/competitions/{COMPETITION_CODE}/matches", season=SEASON)
-    _ingest_matches(conn, matches_data, dry_run)
+        # ── 4 ── Matches (incremental: narrow to relevant date window) ─────
+        match_params = _resolve_match_params(conn, force_full)
+        if match_params is None:
+            print("\n[4/6] Matches — all known matches are finalized; skipped")
+            print("       (use --force to override)")
+            newly_played = 0
+        else:
+            window = (
+                f"  window: {match_params.get('dateFrom', 'all')} → "
+                f"{match_params.get('dateTo', 'all')}"
+            )
+            print(f"\n[4/6] Fetching matches … {window}")
+            matches_data = client.get(
+                f"/competitions/{COMPETITION_CODE}/matches", **match_params
+            )
+            newly_played = _ingest_matches(conn, matches_data, dry_run)
 
-    # ── 5 ── Standings ────────────────────────────────────────────────────
-    # Note: the standings endpoint rejects `season` for WC; omit it.
-    print("\n[5/6] Fetching standings …")
-    standings_data = client.get(f"/competitions/{COMPETITION_CODE}/standings")
-    _ingest_standings(conn, standings_data, dry_run)
+        # ── 5 ── Standings (skip when no new results) ─────────────────────
+        # The standings endpoint rejects `season` for WC; omit it.
+        if not force_full and newly_played == 0 and match_params is not None:
+            print("\n[5/6] Standings — no new results; skipped")
+        elif match_params is None and not force_full:
+            print("\n[5/6] Standings — matches were skipped; skipped")
+        else:
+            print("\n[5/6] Fetching standings …")
+            standings_data = client.get(f"/competitions/{COMPETITION_CODE}/standings")
+            _ingest_standings(conn, standings_data, dry_run)
 
-    # ── 6 ── Scorers ──────────────────────────────────────────────────────
-    print("\n[6/6] Fetching top scorers …")
-    scorers_data = client.get(
-        f"/competitions/{COMPETITION_CODE}/scorers",
-        season=SEASON,
-        limit=100,
-    )
-    _ingest_scorers(conn, scorers_data, dry_run)
+        # ── 6 ── Scorers (skip when no new results) ───────────────────────
+        if not force_full and newly_played == 0 and match_params is not None:
+            print("\n[6/6] Scorers — no new results; skipped")
+        elif match_params is None and not force_full:
+            print("\n[6/6] Scorers — matches were skipped; skipped")
+        else:
+            print("\n[6/6] Fetching top scorers …")
+            scorers_data = client.get(
+                f"/competitions/{COMPETITION_CODE}/scorers",
+                season=SEASON,
+                limit=100,
+            )
+            _ingest_scorers(conn, scorers_data, dry_run)
 
-    conn.close()
+    finally:
+        conn.close()
+
     tag = "[dry-run] " if dry_run else ""
     print(f"\n{tag}Ingest complete → {db_path}")
 
@@ -684,8 +835,16 @@ def main() -> None:
         action="store_true",
         help="Fetch from the API and print a summary without writing to the database",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help=(
+            "Bypass incremental logic: fetch all matches for the full season, "
+            "and always refresh standings, scorers, and team identity"
+        ),
+    )
     args = parser.parse_args()
-    run(args.db_path, args.dry_run)
+    run(args.db_path, args.dry_run, force_full=args.force)
 
 
 if __name__ == "__main__":
