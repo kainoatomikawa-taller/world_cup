@@ -1,0 +1,202 @@
+[
+  {
+    "rank": 1,
+    "player_name": "Lionel Messi",
+    "team": "Argentina",
+    "team_code": "ARG",
+    "team_flag": "🇦🇷",
+    "goals": 6,
+    "assists": 0,
+    "penalties": 0
+  },
+  {
+    "rank": 2,
+    "player_name": "Kylian Mbappé",
+    "team": "France",
+    "team_code": "FRA",
+    "team_flag": "🇫🇷",
+    "goals": 4,
+    "assists": 2,
+    "penalties": 0
+  },
+  {
+    "rank": 3,
+    "player_name": "Vinicius Junior",
+    "team": "Brazil",
+    "team_code": "BRA",
+    "team_flag": "🇧🇷",
+    "goals": 4,
+    "assists": 1,
+    "penalties": 0
+  },
+  {
+    "rank": 4,
+    "player_name": "Ousmane Dembélé",
+    "team": "France",
+    "team_code": "FRA",
+    "team_flag": "🇫🇷",
+    "goals": 4,
+    "assists": 1,
+    "penalties": 0
+  },
+  {
+    "rank": 5,
+    "player_name": "Erling Haaland",
+    "team": "Norway",
+    "team_code": "NOR",
+    "team_flag": "🇳🇴",
+    "goals": 4,
+    "assists": 0,
+    "penalties": 0
+  },
+  {
+    "rank": 6,
+    "player_name": "Deniz Undav",
+    "team": "Germany",
+    "team_code": "GER",
+    "team_flag": "🇩🇪",
+    "goals": 3,
+    "assists": 2,
+    "penalties": 0
+  },
+  {
+    "rank": 7,
+    "player_name": "Johan Manzambi",
+    "team": "Switzerland",
+    "team_code": "SUI",
+    "team_flag": "🇨🇭",
+    "goals": 3,
+    "assists": 1,
+    "penalties": 0
+  },
+  {
+    "rank": 8,
+    "player_name": "Ismaïla Sarr",
+    "team": "Senegal",
+    "team_code": "SEN",
+    "team_flag": "🇸🇳",
+    "goals": 3,
+    "assists": 1,
+    "penalties": 0
+  },
+  {
+    "rank": 9,
+    "player_name": "Ismael Saibari",
+    "team": "Morocco",
+    "team_code": "MAR",
+    "team_flag": "🇲🇦",
+    "goals": 3,
+    "assists": 0,
+    "penalties": 0
+  },
+  {
+    "rank": 10,
+    "player_name": "Elijah Just",
+    "team": "New Zealand",
+    "team_code": "NZL",
+    "team_flag": "🇳🇿",
+    "goals": 3,
+    "assists": 0,
+    "penalties": 0
+  },
+  {
+    "rank": 11,
+    "player_name": "Yoane Wissa",
+    "team": "DR Congo",
+    "team_code": "COD",
+    "team_flag": "🇨🇩",
+    "goals": 3,
+    "assists": 0,
+    "penalties": 1
+  },
+  {
+    "rank": 12,
+    "player_name": "Harry Kane",
+    "team": "England",
+    "team_code": "ENG",
+    "team_flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+    "goals": 3,
+    "assists": 0,
+    "penalties": 1
+  },
+  {
+    "rank": 13,
+    "player_name": "Jonathan David",
+    "team": "Canada",
+    "team_code": "CAN",
+    "team_flag": "🇨🇦",
+    "goals": 3,
+    "assists": 0,
+    "penalties": 0
+  },
+  {
+    "rank": 14,
+    "player_name": "Matheus Cunha",
+    "team": "Brazil",
+    "team_code": "BRA",
+    "team_flag": "🇧🇷",
+    "goals": 3,
+    "assists": 0,
+    "penalties": 0
+  },
+  {
+    "rank": 15,
+    "player_name": "Brian Brobbey",
+    "team": "Netherlands",
+    "team_code": "NED",
+    "team_flag": "🇳🇱",
+    "goals": 3,
+    "assists": 0,
+    "penalties": 0
+  },
+  {
+    "rank": 16,
+    "player_name": "Riyad Mahrez",
+    "team": "Algeria",
+    "team_code": "ALG",
+    "team_flag": "🇩🇿",
+    "goals": 2,
+    "assists": 2,
+    "penalties": 0
+  },
+  {
+    "rank": 17,
+    "player_name": "Crysencio Summerville",
+    "team": "Netherlands",
+    "team_code": "NED",
+    "team_flag": "🇳🇱",
+    "goals": 2,
+    "assists": 1,
+    "penalties": 0
+  },
+  {
+    "rank": 18,
+    "player_name": "Maximiliano Araújo",
+    "team": "Uruguay",
+    "team_code": "URU",
+    "team_flag": "🇺🇾",
+    "goals": 2,
+    "assists": 1,
+    "penalties": 0
+  },
+  {
+    "rank": 19,
+    "player_name": "Ramin Rezaeian",
+    "team": "Iran",
+    "team_code": "IRN",
+    "team_flag": "🇮🇷",
+    "goals": 2,
+    "assists": 1,
+    "penalties": 0
+  },
+  {
+    "rank": 20,
+    "player_name": "Jude Bellingham",
+    "team": "England",
+    "team_code": "ENG",
+    "team_flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+    "goals": 2,
+    "assists": 1,
+    "penalties": 0
+  }
+]

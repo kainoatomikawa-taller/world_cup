@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "export:data": "scripts/.venv/bin/python scripts/export_dashboard.py"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

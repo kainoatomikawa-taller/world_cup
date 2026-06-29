@@ -3,6 +3,7 @@ import { Fixtures } from './features/Fixtures/Fixtures';
 import { GroupStage } from './features/GroupStage/GroupStage';
 import { ThirdPlace } from './features/ThirdPlace/ThirdPlace';
 import { Bracket } from './features/Bracket/Bracket';
+import { InsightsDashboard } from './features/Insights/InsightsDashboard';
 import { AppNav, type AppTab } from './features/shared/AppNav';
 import { StageNav, type StageKey } from './features/shared/StageNav';
 import { PlaceholderTab } from './features/shared/PlaceholderTab';
@@ -63,12 +64,7 @@ export default function App() {
 
       {topTab === 'fixtures' && <Fixtures />}
 
-      {topTab === 'insights' && (
-        <PlaceholderTab
-          title="Insights"
-          description="Stats, trends, and analysis from across the tournament — form guides, scoring patterns, and more."
-        />
-      )}
+      {topTab === 'insights' && <InsightsDashboard />}
 
       {topTab === 'lineups' && (
         <PlaceholderTab
