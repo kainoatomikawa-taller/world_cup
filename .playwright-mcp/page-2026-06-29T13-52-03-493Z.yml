@@ -1,0 +1,42 @@
+- main [ref=e3]:
+  - generic [ref=e4]:
+    - heading "World Cup 2026" [level=1] [ref=e5]
+    - paragraph [ref=e6]: Your complete guide to the 48-team tournament — scenarios, fixtures, and insights in one place.
+  - navigation [ref=e7]:
+    - button "Possibilities" [ref=e8] [cursor=pointer]
+    - button "Fixtures" [active] [ref=e9] [cursor=pointer]
+    - button "Insights" [ref=e10] [cursor=pointer]
+    - button "Stats" [ref=e11] [cursor=pointer]
+  - generic [ref=e416]:
+    - generic [ref=e417]:
+      - button "Previous match day" [ref=e418] [cursor=pointer]: ←
+      - generic [ref=e419]:
+        - generic [ref=e420]: 29 June 2026
+        - generic [ref=e421]: 19 / 24
+      - button "Next match day" [ref=e422] [cursor=pointer]: →
+    - generic [ref=e423]:
+      - generic [ref=e425]:
+        - generic [ref=e426]:
+          - generic [ref=e427]:
+            - generic [ref=e428]: 🇧🇷
+            - generic [ref=e429]: Brazil
+          - generic [ref=e430]:
+            - generic [ref=e431]: Round of 32
+            - generic [ref=e432]: 10:00
+          - generic [ref=e433]:
+            - generic [ref=e434]: Japan
+            - generic [ref=e435]: 🇯🇵
+        - button "Show match details" [ref=e436] [cursor=pointer]: ▾
+      - generic [ref=e438]:
+        - generic [ref=e439]:
+          - generic [ref=e440]:
+            - generic [ref=e441]: 🇩🇪
+            - generic [ref=e442]: Germany
+          - generic [ref=e443]:
+            - generic [ref=e444]: Round of 32
+            - generic [ref=e445]: 13:30
+          - generic [ref=e446]:
+            - generic [ref=e447]: Paraguay
+            - generic [ref=e448]: 🇵🇾
+        - button "Show match details" [ref=e449] [cursor=pointer]: ▾
+    - button "View full schedule ›" [ref=e451] [cursor=pointer]

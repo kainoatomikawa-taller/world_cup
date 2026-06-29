@@ -1,0 +1,54 @@
+- main [ref=e3]:
+  - generic [ref=e4]:
+    - heading "World Cup 2026" [level=1] [ref=e5]
+    - paragraph [ref=e6]: Your complete guide to the 48-team tournament — scenarios, fixtures, and insights in one place.
+  - navigation [ref=e7]:
+    - button "Possibilities" [ref=e8] [cursor=pointer]
+    - button "Fixtures" [ref=e9] [cursor=pointer]
+    - button "Insights" [ref=e10] [cursor=pointer]
+    - button "Stats" [ref=e11] [cursor=pointer]
+  - generic [ref=e416]:
+    - generic [ref=e417]:
+      - button "Previous match day" [active] [ref=e418] [cursor=pointer]: ←
+      - generic [ref=e419]:
+        - generic [ref=e420]: 28 June 2026
+        - generic [ref=e421]: 18 / 24
+      - button "Next match day" [ref=e422] [cursor=pointer]: →
+    - generic [ref=e423]:
+      - generic [ref=e453]:
+        - button "🇯🇴 Jordan Group J 1 – 3 Argentina 🇦🇷" [ref=e454] [cursor=pointer]:
+          - generic [ref=e455]:
+            - generic [ref=e456]: 🇯🇴
+            - generic [ref=e457]: Jordan
+          - generic [ref=e458]:
+            - generic [ref=e459]: Group J
+            - generic [ref=e460]: 1 – 3
+          - generic [ref=e461]:
+            - generic [ref=e462]: Argentina
+            - generic [ref=e463]: 🇦🇷
+        - button "Show match details" [ref=e464] [cursor=pointer]: ▾
+      - generic [ref=e466]:
+        - button "🇩🇿 Algeria Group J 3 – 3 Austria 🇦🇹" [ref=e467] [cursor=pointer]:
+          - generic [ref=e468]:
+            - generic [ref=e469]: 🇩🇿
+            - generic [ref=e470]: Algeria
+          - generic [ref=e471]:
+            - generic [ref=e472]: Group J
+            - generic [ref=e473]: 3 – 3
+          - generic [ref=e474]:
+            - generic [ref=e475]: Austria
+            - generic [ref=e476]: 🇦🇹
+        - button "Show match details" [ref=e477] [cursor=pointer]: ▾
+      - generic [ref=e479]:
+        - button "🇿🇦 South Africa Round of 32 0 – 1 Canada 🇨🇦" [ref=e480] [cursor=pointer]:
+          - generic [ref=e481]:
+            - generic [ref=e482]: 🇿🇦
+            - generic [ref=e483]: South Africa
+          - generic [ref=e484]:
+            - generic [ref=e485]: Round of 32
+            - generic [ref=e486]: 0 – 1
+          - generic [ref=e487]:
+            - generic [ref=e488]: Canada
+            - generic [ref=e489]: 🇨🇦
+        - button "Show match details" [ref=e490] [cursor=pointer]: ▾
+    - button "View full schedule ›" [ref=e451] [cursor=pointer]

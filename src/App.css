@@ -1031,13 +1031,13 @@
 
 /* Diamond pip geometric marker before section labels */
 .fixture-group__label {
-  font-family: var(--font-head);
-  font-size: 13px;
+  font-family: var(--font-display);
+  font-size: var(--type-sm);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--blue);
-  margin-bottom: 8px;
+  color: var(--accent-blue);
+  margin-bottom: var(--space-2);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1048,7 +1048,7 @@
   display: inline-block;
   width: 6px;
   height: 6px;
-  background: var(--blue);
+  background: var(--accent-blue);
   border-radius: 1px;
   flex-shrink: 0;
   transform: rotate(45deg);
@@ -1062,25 +1062,34 @@
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 12px;
-  padding: 16px 14px;
+  gap: var(--space-5);
+  padding: 22px 18px;
   border-bottom: 0;
   transition: background 0.14s var(--ease);
   flex: 1;
   min-width: 0;
 }
 
+/* Played rows: blue left accent marks them as results vs upcoming */
+.fixture-row-wrap:has(.fixture-row--btn) {
+  border-left: 3px solid rgba(45, 127, 255, 0.30);
+}
+
+/* Score large + bold for results; clearly readable at a glance */
 .fixture-row--played .fixture-score {
+  font-size: var(--type-xl);
   font-weight: 700;
-  color: var(--text);
+  font-family: var(--font-display);
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
 }
 
 .fixture-team {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 500;
+  gap: var(--space-2);
+  font-size: var(--type-base);
+  font-weight: 600;
   min-width: 0;
 }
 
@@ -1095,8 +1104,9 @@
 }
 
 .fixture-team__flag {
-  font-size: 24px;
+  font-size: 28px;
   flex-shrink: 0;
+  line-height: 1;
 }
 
 .fixture-team__name {
@@ -1109,7 +1119,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: var(--space-2);
   flex-shrink: 0;
 }
 
@@ -1119,22 +1129,28 @@
 
 .fixture-chip {
   display: inline-block;
-  font-family: var(--font-head);
-  font-size: 9px;
+  font-family: var(--font-display);
+  font-size: var(--type-xs);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--blue);
+  color: var(--accent-blue);
   background: var(--blue-tint);
-  border-radius: 8px;
-  padding: 1px 5px;
+  border: 1px solid rgba(45, 127, 255, 0.18);
+  border-radius: var(--radius-xs);
+  padding: 2px 7px;
   white-space: nowrap;
 }
 
+/* Upcoming time — prominent but muted, display font for weight */
 .fixture-score {
-  font-size: 13px;
-  color: var(--muted);
+  font-family: var(--font-display);
+  font-size: var(--type-lg);
+  font-weight: 600;
+  color: var(--text-muted);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }
 
 .fixture-row__chevron {
@@ -1679,24 +1695,22 @@
 .matchday-nav {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
 }
 
 .matchday-nav__btn {
   flex-shrink: 0;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px solid var(--border);
   border-radius: var(--radius-xs);
-  background: var(--surface);
-  backdrop-filter: blur(var(--blur));
-  -webkit-backdrop-filter: blur(var(--blur));
-  color: var(--text);
-  font-size: 18px;
+  background: var(--bg-700);
+  color: var(--text-primary);
+  font-size: 20px;
   line-height: 1;
   cursor: pointer;
   transition: background 0.15s var(--ease), border-color 0.15s var(--ease),
@@ -1704,9 +1718,9 @@
 }
 
 .matchday-nav__btn:hover:not(:disabled) {
-  background: var(--blue-tint);
-  border-color: var(--blue);
-  color: var(--blue);
+  background: var(--bg-600);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
 }
 
 .matchday-nav__btn:disabled {
@@ -1719,16 +1733,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   min-width: 0;
 }
 
 .matchday-nav__date {
-  font-family: var(--font-head);
-  font-size: 17px;
+  font-family: var(--font-display);
+  font-size: var(--type-xl);
   font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--text);
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1736,9 +1750,9 @@
 }
 
 .matchday-nav__counter {
-  font-size: 11px;
+  font-size: var(--type-xs);
   font-weight: 600;
-  color: var(--muted);
+  color: var(--text-muted);
   letter-spacing: 0.04em;
   font-variant-numeric: tabular-nums;
 }
@@ -1847,14 +1861,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
+  width: 38px;
   flex-shrink: 0;
   background: none;
   border: 0;
   border-left: 1px solid var(--border);
   cursor: pointer;
-  color: var(--muted);
-  font-size: 13px;
+  color: var(--text-muted);
+  font-size: 14px;
   padding: 0;
   transition: color 0.14s var(--ease), transform 0.2s var(--ease);
   transform-origin: center;
@@ -1873,14 +1887,14 @@
 /* ---------- Fixture expandable detail strip ---------- */
 
 .fixture-detail {
-  padding: 8px 14px 10px;
+  padding: 10px 18px 12px;
   border-top: 1px solid var(--border);
   background: color-mix(in srgb, var(--blue-tint) 55%, transparent);
-  font-size: 11px;
-  color: var(--muted);
+  font-size: var(--type-xs);
+  color: var(--text-muted);
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
 .fixture-detail__venue {
