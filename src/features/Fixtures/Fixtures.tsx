@@ -1,6 +1,39 @@
-import { useTournamentStore } from '../../store/tournamentStore';
-import { groupFixtures } from '../../domain/fixtures';
-import type { Match, Team } from '../../domain/types';
+import { useFixtures, type StaticFixture } from '../../data/useFixtures';
+
+const STAGE_ORDER: Record<string, number> = {
+  group: 0,
+  round32: 1,
+  round16: 2,
+  quarter: 3,
+  semi: 4,
+  thirdPlacePlayoff: 5,
+  final: 6,
+};
+
+const KNOCKOUT_LABEL: Record<string, string> = {
+  round32: 'Round of 32',
+  round16: 'Round of 16',
+  quarter: 'Quarter-finals',
+  semi: 'Semi-finals',
+  thirdPlacePlayoff: 'Third-Place Play-off',
+  final: 'Final',
+};
+
+interface FixtureGroup {
+  label: string;
+  items: StaticFixture[];
+}
+
+function formatDateLabel(dateStr: string): string {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(date);
+}
 
 function formatKickoff(isoStr: string): string {
   return new Date(isoStr).toLocaleTimeString('en-GB', {
@@ -9,51 +42,81 @@ function formatKickoff(isoStr: string): string {
   });
 }
 
-function FixtureRow({
-  match,
-  teams,
-}: {
-  match: Match;
-  teams: Record<string, Team>;
-}) {
-  const home = teams[match.homeId];
-  const away = teams[match.awayId];
+function groupByDateOrStage(fixtures: StaticFixture[]): FixtureGroup[] {
+  const sorted = [...fixtures].sort((a, b) => {
+    const stageDiff =
+      (STAGE_ORDER[a.stage] ?? 99) - (STAGE_ORDER[b.stage] ?? 99);
+    if (stageDiff !== 0) return stageDiff;
+    return a.kickoff.localeCompare(b.kickoff);
+  });
 
+  const map = new Map<string, FixtureGroup>();
+  for (const f of sorted) {
+    let key: string;
+    let label: string;
+    if (f.stage === 'group') {
+      const dateStr = f.kickoff.slice(0, 10);
+      key = `date:${dateStr}`;
+      label = formatDateLabel(dateStr);
+    } else {
+      key = `stage:${f.stage}`;
+      label = KNOCKOUT_LABEL[f.stage] ?? f.stage;
+    }
+    if (!map.has(key)) map.set(key, { label, items: [] });
+    map.get(key)!.items.push(f);
+  }
+  return Array.from(map.values());
+}
+
+function FixtureRow({ fixture: f }: { fixture: StaticFixture }) {
+  const played = f.played === 1;
   return (
-    <div className={`fixture-row${match.played ? ' fixture-row--played' : ''}`}>
+    <div className={`fixture-row${played ? ' fixture-row--played' : ''}`}>
       <span className="fixture-team fixture-team--home">
-        <span className="fixture-team__flag">{home?.flag}</span>
-        <span className="fixture-team__name">{home?.name ?? match.homeId}</span>
+        <span className="fixture-team__flag">{f.home_flag}</span>
+        <span className="fixture-team__name">{f.home_team}</span>
       </span>
 
       <span className="fixture-center tnum">
-        {match.groupId && (
-          <span className="group-badge fixture-group-badge">{match.groupId}</span>
+        {f.group_id && (
+          <span className="group-badge fixture-group-badge">{f.group_id}</span>
         )}
         <span className="fixture-score">
-          {match.played
-            ? `${match.homeGoals} – ${match.awayGoals}`
-            : formatKickoff(match.kickoff)}
+          {played
+            ? `${f.home_goals ?? 0} – ${f.away_goals ?? 0}`
+            : formatKickoff(f.kickoff)}
         </span>
       </span>
 
       <span className="fixture-team fixture-team--away">
-        <span className="fixture-team__name">{away?.name ?? match.awayId}</span>
-        <span className="fixture-team__flag">{away?.flag}</span>
+        <span className="fixture-team__name">{f.away_team}</span>
+        <span className="fixture-team__flag">{f.away_flag}</span>
       </span>
     </div>
   );
 }
 
 export function Fixtures() {
-  const matches = useTournamentStore((s) => s.matches);
-  const teams = useTournamentStore((s) => s.teams);
-  const groups = groupFixtures(matches);
+  const { fixtures, loading, error } = useFixtures();
+
+  if (loading) {
+    return <p className="screen-intro">Loading fixtures…</p>;
+  }
+
+  if (error) {
+    return (
+      <p className="screen-intro">
+        Could not load fixtures ({error}). Please try again later.
+      </p>
+    );
+  }
+
+  const groups = groupByDateOrStage(fixtures);
 
   if (groups.length === 0) {
     return (
       <p className="screen-intro">
-        No fixtures loaded — scores will appear once live data is available.
+        No fixtures available yet.
       </p>
     );
   }
@@ -64,8 +127,8 @@ export function Fixtures() {
         <section key={group.label} className="fixture-group">
           <h2 className="fixture-group__label">{group.label}</h2>
           <div className="card fixture-list">
-            {group.matches.map((match) => (
-              <FixtureRow key={match.id} match={match} teams={teams} />
+            {group.items.map((f) => (
+              <FixtureRow key={f.match_id} fixture={f} />
             ))}
           </div>
         </section>

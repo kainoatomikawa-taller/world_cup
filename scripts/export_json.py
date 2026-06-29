@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import shutil
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -42,6 +43,11 @@ from query import (
 SCHEMA_VERSION = "1"
 
 DEFAULT_OUT: Path = REPO_ROOT / "export"
+DEFAULT_FRONTEND: Path = REPO_ROOT / "public" / "data"
+
+# Files that belong in the front-end static assets directory.
+# Manifest is always included so the browser can detect stale data.
+_FRONTEND_FILES = ("fixtures.json", "standings.json", "scorers.json", "manifest.json")
 
 
 # ---------------------------------------------------------------------------
@@ -88,12 +94,34 @@ def _export_matches(fixtures: list[dict], matches_dir: Path) -> dict[str, str]:
 # ---------------------------------------------------------------------------
 
 
+def _sync_frontend(out_dir: Path, frontend_dir: Path) -> None:
+    """Copy the frontend-relevant subset of files from out_dir to frontend_dir."""
+    frontend_dir.mkdir(parents=True, exist_ok=True)
+    for fname in _FRONTEND_FILES:
+        src = out_dir / fname
+        if src.exists():
+            shutil.copy2(src, frontend_dir / fname)
+    print(f"\nFrontend assets synced → {frontend_dir}")
+
+
 def export(
     db_path: Path,
     out_dir: Path,
     competition_id: str = COMPETITION_ID,
+    frontend_dir: Path | None = DEFAULT_FRONTEND,
 ) -> None:
-    """Run all queries and write JSON to *out_dir*. Never writes to the database."""
+    """Run all queries and write JSON to *out_dir*. Never writes to the database.
+
+    After the main export, copies frontend-relevant files to *frontend_dir* so
+    the Vite dev server and the production build can serve them as static assets.
+
+    Upgrade path — object storage:
+      Replace *frontend_dir* with a call to upload each file to a CDN bucket
+      (S3, Cloudflare R2, GCS, etc.).  The ``useFixtures`` hook in the front-end
+      needs only a URL change — the JSON schema is stable.  Cache-bust via
+      ``manifest.json``'s ``content_hash`` as a query parameter:
+        ``/data/fixtures.json?v=<content_hash>``
+    """
     out_dir.mkdir(parents=True, exist_ok=True)
 
     file_manifest: dict[str, dict] = {}
@@ -174,6 +202,9 @@ def export(
     print(f"\nDone — manifest.json written → {out_dir}")
     print(f"  content_hash: {manifest['content_hash']}")
 
+    if frontend_dir is not None:
+        _sync_frontend(out_dir, frontend_dir)
+
 
 # ---------------------------------------------------------------------------
 # CLI
@@ -199,8 +230,17 @@ def main() -> None:
         metavar="DIR",
         help=f"Output directory (default: {DEFAULT_OUT})",
     )
+    parser.add_argument(
+        "--frontend-dir",
+        default=DEFAULT_FRONTEND,
+        type=Path,
+        metavar="DIR",
+        help=f"Copy frontend-relevant files here after export (default: {DEFAULT_FRONTEND}). "
+             "Pass an empty string to skip.",
+    )
     args = parser.parse_args()
-    export(args.db_path, args.out_dir)
+    frontend_dir = args.frontend_dir if str(args.frontend_dir) else None
+    export(args.db_path, args.out_dir, frontend_dir=frontend_dir)
 
 
 if __name__ == "__main__":

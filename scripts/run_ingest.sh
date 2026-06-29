@@ -86,6 +86,16 @@ else
     failures=$((failures + 1))
 fi
 
+# static JSON for the front-end (export/ → public/data/)
+log "── export_json.py ──"
+if "$PYTHON" "$REPO_ROOT/scripts/export_json.py" >> "$LOG_FILE" 2>&1; then
+    log "export_json.py: OK"
+else
+    rc=$?
+    log "export_json.py: FAILED (exit $rc) — existing static assets are unaffected"
+    failures=$((failures + 1))
+fi
+
 # ── Log rotation ──────────────────────────────────────────────────────────────
 
 if [ -f "$LOG_FILE" ] && [ "$(wc -c < "$LOG_FILE")" -gt "$LOG_MAX_BYTES" ]; then
