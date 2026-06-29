@@ -1866,6 +1866,27 @@
 
 /* ---------- Stats dashboard ---------- */
 
+.stats-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.stats-columns > .insights-section {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+}
+
+@media (max-width: 640px) {
+  .stats-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
 .stats-subsection {
   display: flex;
   flex-direction: column;

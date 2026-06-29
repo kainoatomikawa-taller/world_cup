@@ -358,31 +358,33 @@ export function StatsDashboard() {
         player ratings are averaged across all rated matches.
       </p>
 
-      <Section title="Team Stats">
-        {sError ? <PanelError message={sError} /> : <TeamStatsPanel standings={standings} />}
-      </Section>
+      <div className="stats-columns">
+        <Section title="Team Stats">
+          {sError ? <PanelError message={sError} /> : <TeamStatsPanel standings={standings} />}
+        </Section>
 
-      <Section title="Individual Stats">
-        <Subsection title="Top Player Ratings">
-          {prError ? (
-            <PanelError message={prError} />
-          ) : (
-            <RatingsPanel ratings={playerRatings} nameMap={nameMap} />
-          )}
-        </Subsection>
+        <Section title="Individual Stats">
+          <Subsection title="Top Player Ratings">
+            {prError ? (
+              <PanelError message={prError} />
+            ) : (
+              <RatingsPanel ratings={playerRatings} nameMap={nameMap} />
+            )}
+          </Subsection>
 
-        <Subsection title="Most Touches">
-          <TouchesPanel />
-        </Subsection>
+          <Subsection title="Most Touches">
+            <TouchesPanel />
+          </Subsection>
 
-        <Subsection title="Player Performance">
-          {psError ? (
-            <PanelError message={psError} />
-          ) : (
-            <PlayerPerformancePanel stats={playerStats} />
-          )}
-        </Subsection>
-      </Section>
+          <Subsection title="Player Performance">
+            {psError ? (
+              <PanelError message={psError} />
+            ) : (
+              <PlayerPerformancePanel stats={playerStats} />
+            )}
+          </Subsection>
+        </Section>
+      </div>
     </div>
   );
 }
