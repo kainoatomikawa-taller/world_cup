@@ -604,9 +604,10 @@
   -webkit-overflow-scrolling: touch;
 }
 
+/* Generous inter-round gap for scannability. */
 .bracket-grid {
   display: flex;
-  gap: 10px;
+  gap: var(--space-8);
   align-items: flex-start;
   min-width: max-content;
 }
@@ -622,14 +623,14 @@
   padding: 8px 0;
   margin-bottom: 2px;
   text-align: center;
-  font-family: var(--font-head);
-  font-size: 11px;
+  font-family: var(--font-display);
+  font-size: var(--type-xs);
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: #fff;
   background: linear-gradient(120deg, var(--blue), var(--blue-soft));
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 4px 18px var(--blue-glow);
 }
 
@@ -639,11 +640,10 @@
   justify-content: center;
 }
 
+/* Elevated charcoal card — solid surface, no blur needed. */
 .match-card {
   width: 216px;
-  background: var(--surface);
-  backdrop-filter: blur(var(--blur));
-  -webkit-backdrop-filter: blur(var(--blur));
+  background: var(--bg-700);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-sm);
@@ -654,29 +654,30 @@
 
 .match-card:hover {
   box-shadow: var(--shadow-lift);
-  border-color: rgba(45, 127, 255, 0.3);
+  border-color: rgba(45, 127, 255, 0.30);
   transform: translateY(-2px);
 }
 
+/* Dark strip separates the stage label from the team rows. */
 .match-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 4px 10px;
-  background: linear-gradient(120deg, var(--blue-tint), transparent);
+  background: var(--bg-800);
   border-bottom: 1px solid var(--border);
-  font-size: 10px;
+  font-size: var(--type-xs);
   font-weight: 700;
   letter-spacing: 0.04em;
 }
 
 .match-head__stage {
-  color: var(--blue);
-  font-family: var(--font-head);
+  color: var(--accent-blue);
+  font-family: var(--font-display);
 }
 
 .match-head__id {
-  color: var(--muted);
+  color: var(--text-muted);
 }
 
 .match-team {
@@ -685,7 +686,7 @@
   gap: 6px;
   padding: 7px 9px;
   min-height: 34px;
-  font-size: 12px;
+  font-size: var(--type-xs);
   border-left: 3px solid transparent;
   user-select: none;
   cursor: pointer;
@@ -697,21 +698,21 @@
 }
 
 .match-team:hover:not(.is-tbd):not(.is-locked) {
-  background: var(--blue-tint);
+  background: var(--bg-600);
 }
 
+/* Single accent: electric blue left bar marks the winner — no fill. */
 .match-team.is-winner {
-  background: var(--green-tint);
-  border-left-color: var(--green);
+  border-left-color: var(--accent-blue);
   font-weight: 600;
 }
 
 .match-team.is-loser {
-  opacity: 0.38;
+  opacity: 0.32;
 }
 
 .match-team.is-tbd {
-  color: var(--muted);
+  color: var(--text-muted);
   cursor: default;
 }
 
@@ -733,7 +734,7 @@
 
 .match-team__check {
   flex-shrink: 0;
-  color: var(--green);
+  color: var(--accent-blue);
   font-weight: 700;
   font-size: 11px;
   animation: pop 0.28s var(--ease);
@@ -754,16 +755,18 @@
 }
 
 /* ---------- Champion banner ---------- */
+/* Charcoal surface + single accent left bar. No filled background. */
 .champion-banner {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 20px;
-  margin-bottom: 20px;
-  background: linear-gradient(120deg, var(--gold-tint), rgba(255, 208, 40, 0.22));
-  border: 1.5px solid rgba(255, 208, 40, 0.45);
-  border-radius: var(--radius);
-  box-shadow: 0 8px 28px rgba(255, 208, 40, 0.18);
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  margin-bottom: var(--space-5);
+  background: var(--bg-700);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent-gold);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
   animation: pop 0.4s var(--ease);
 }
 
@@ -776,23 +779,23 @@
 }
 
 .champion-banner__name {
-  font-family: var(--font-head);
+  font-family: var(--font-display);
   font-weight: 700;
-  font-size: 16px;
-  color: var(--text);
+  font-size: var(--type-base);
+  color: var(--text-primary);
 }
 
+/* Gold accent on the label is the single celebratory colour signal. */
 .champion-banner__label {
-  font-size: 12px;
-  color: #E8C47A;
+  font-size: var(--type-xs);
+  color: var(--accent-gold);
   font-weight: 600;
+  letter-spacing: 0.03em;
 }
 
 .champion-banner--silver {
-  background: linear-gradient(120deg, rgba(160, 168, 178, 0.12), rgba(160, 168, 178, 0.22));
-  border-color: rgba(167, 176, 187, 0.4);
-  box-shadow: 0 8px 24px rgba(160, 168, 178, 0.16);
-  margin-left: 12px;
+  border-left-color: rgba(192, 200, 210, 0.65);
+  margin-left: var(--space-3);
 }
 
 .champion-banner--silver .champion-banner__label {
@@ -800,10 +803,8 @@
 }
 
 .champion-banner--bronze {
-  background: linear-gradient(120deg, rgba(176, 141, 87, 0.12), rgba(176, 141, 87, 0.24));
-  border-color: rgba(176, 141, 87, 0.4);
-  box-shadow: 0 8px 24px rgba(176, 141, 87, 0.16);
-  margin-left: 12px;
+  border-left-color: rgba(176, 141, 87, 0.80);
+  margin-left: var(--space-3);
 }
 
 .champion-banner--bronze .champion-banner__label {
@@ -818,9 +819,10 @@
   gap: 2px;
 }
 
+/* Bronze-tinted header distinguishes the 3rd-place match from main rounds. */
 .third-place-playoff .round-head {
-  background: linear-gradient(120deg, #b08d57, #c8a877);
-  box-shadow: 0 4px 18px rgba(176, 141, 87, 0.3);
+  background: linear-gradient(120deg, rgba(176, 141, 87, 0.85), rgba(200, 168, 119, 0.90));
+  box-shadow: 0 4px 14px rgba(176, 141, 87, 0.22);
 }
 
 /* ---------- Fixtures ---------- */

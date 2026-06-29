@@ -1,0 +1,290 @@
+- main [ref=e3]:
+  - generic [ref=e4]:
+    - heading "World Cup 2026" [level=1] [ref=e5]
+    - paragraph [ref=e6]: Your complete guide to the 48-team tournament — scenarios, fixtures, and insights in one place.
+  - navigation [ref=e7]:
+    - button "Possibilities" [ref=e8] [cursor=pointer]
+    - button "Fixtures" [ref=e9] [cursor=pointer]
+    - button "Insights" [ref=e10] [cursor=pointer]
+    - button "Stats" [ref=e11] [cursor=pointer]
+  - paragraph [ref=e12]: Updated Jun 29, 2026, 1:05 PM UTC
+  - navigation [ref=e13]:
+    - button "Group stage" [ref=e14] [cursor=pointer]
+    - button "Third place" [ref=e15] [cursor=pointer]
+    - button "Knockout" [active] [ref=e16] [cursor=pointer]
+  - generic [ref=e416]:
+    - heading "Knockout Bracket" [level=2] [ref=e417]
+    - paragraph [ref=e418]: Click a team to pick the winner. Click the selected team again to undo. The bracket re-seeds automatically when you adjust group or third-place rankings.
+    - generic [ref=e420]:
+      - generic [ref=e421]:
+        - generic [ref=e422]: Round of 32
+        - generic [ref=e423]:
+          - generic [ref=e425]:
+            - generic [ref=e426]:
+              - generic [ref=e427]: R32
+              - generic [ref=e428]: "#74"
+            - generic [ref=e429] [cursor=pointer]:
+              - generic [ref=e430]: 🇩🇪
+              - generic [ref=e431]: Germany
+            - generic [ref=e432] [cursor=pointer]:
+              - generic [ref=e433]: 🇵🇾
+              - generic [ref=e434]: Paraguay
+          - generic [ref=e436]:
+            - generic [ref=e437]:
+              - generic [ref=e438]: R32
+              - generic [ref=e439]: "#77"
+            - generic [ref=e440] [cursor=pointer]:
+              - generic [ref=e441]: 🇫🇷
+              - generic [ref=e442]: France
+            - generic [ref=e443] [cursor=pointer]:
+              - generic [ref=e444]: 🇸🇪
+              - generic [ref=e445]: Sweden
+          - generic [ref=e447]:
+            - generic [ref=e448]:
+              - generic [ref=e449]: R32
+              - generic [ref=e450]: "#73"
+            - generic [ref=e451] [cursor=pointer]:
+              - generic [ref=e452]: 🇿🇦
+              - generic [ref=e453]: South Africa
+            - generic [ref=e454] [cursor=pointer]:
+              - generic [ref=e455]: 🇨🇦
+              - generic [ref=e456]: Canada
+          - generic [ref=e458]:
+            - generic [ref=e459]:
+              - generic [ref=e460]: R32
+              - generic [ref=e461]: "#75"
+            - generic [ref=e462] [cursor=pointer]:
+              - generic [ref=e463]: 🇳🇱
+              - generic [ref=e464]: Netherlands
+            - generic [ref=e465] [cursor=pointer]:
+              - generic [ref=e466]: 🇲🇦
+              - generic [ref=e467]: Morocco
+          - generic [ref=e469]:
+            - generic [ref=e470]:
+              - generic [ref=e471]: R32
+              - generic [ref=e472]: "#83"
+            - generic [ref=e473] [cursor=pointer]:
+              - generic [ref=e474]: 🇵🇹
+              - generic [ref=e475]: Portugal
+            - generic [ref=e476] [cursor=pointer]:
+              - generic [ref=e477]: 🇭🇷
+              - generic [ref=e478]: Croatia
+          - generic [ref=e480]:
+            - generic [ref=e481]:
+              - generic [ref=e482]: R32
+              - generic [ref=e483]: "#84"
+            - generic [ref=e484] [cursor=pointer]:
+              - generic [ref=e485]: 🇪🇸
+              - generic [ref=e486]: Spain
+            - generic [ref=e487] [cursor=pointer]:
+              - generic [ref=e488]: 🇦🇹
+              - generic [ref=e489]: Austria
+          - generic [ref=e491]:
+            - generic [ref=e492]:
+              - generic [ref=e493]: R32
+              - generic [ref=e494]: "#81"
+            - generic [ref=e495] [cursor=pointer]:
+              - generic [ref=e496]: 🇺🇸
+              - generic [ref=e497]: United States
+            - generic [ref=e498] [cursor=pointer]:
+              - generic [ref=e499]: 🇧🇦
+              - generic [ref=e500]: Bosnia and Herzegovina
+          - generic [ref=e502]:
+            - generic [ref=e503]:
+              - generic [ref=e504]: R32
+              - generic [ref=e505]: "#82"
+            - generic [ref=e506] [cursor=pointer]:
+              - generic [ref=e507]: 🇧🇪
+              - generic [ref=e508]: Belgium
+            - generic [ref=e509] [cursor=pointer]:
+              - generic [ref=e510]: 🇸🇳
+              - generic [ref=e511]: Senegal
+          - generic [ref=e513]:
+            - generic [ref=e514]:
+              - generic [ref=e515]: R32
+              - generic [ref=e516]: "#76"
+            - generic [ref=e517] [cursor=pointer]:
+              - generic [ref=e518]: 🇧🇷
+              - generic [ref=e519]: Brazil
+            - generic [ref=e520] [cursor=pointer]:
+              - generic [ref=e521]: 🇯🇵
+              - generic [ref=e522]: Japan
+          - generic [ref=e524]:
+            - generic [ref=e525]:
+              - generic [ref=e526]: R32
+              - generic [ref=e527]: "#78"
+            - generic [ref=e528] [cursor=pointer]:
+              - generic [ref=e529]: 🇨🇮
+              - generic [ref=e530]: Ivory Coast
+            - generic [ref=e531] [cursor=pointer]:
+              - generic [ref=e532]: 🇳🇴
+              - generic [ref=e533]: Norway
+          - generic [ref=e535]:
+            - generic [ref=e536]:
+              - generic [ref=e537]: R32
+              - generic [ref=e538]: "#79"
+            - generic [ref=e539] [cursor=pointer]:
+              - generic [ref=e540]: 🇲🇽
+              - generic [ref=e541]: Mexico
+            - generic [ref=e542] [cursor=pointer]:
+              - generic [ref=e543]: 🇪🇨
+              - generic [ref=e544]: Ecuador
+          - generic [ref=e546]:
+            - generic [ref=e547]:
+              - generic [ref=e548]: R32
+              - generic [ref=e549]: "#80"
+            - generic [ref=e550] [cursor=pointer]:
+              - generic [ref=e551]: 🏴󠁧󠁢󠁥󠁮󠁧󠁿
+              - generic [ref=e552]: England
+            - generic [ref=e553] [cursor=pointer]:
+              - generic [ref=e554]: 🇨🇩
+              - generic [ref=e555]: DR Congo
+          - generic [ref=e557]:
+            - generic [ref=e558]:
+              - generic [ref=e559]: R32
+              - generic [ref=e560]: "#86"
+            - generic [ref=e561] [cursor=pointer]:
+              - generic [ref=e562]: 🇦🇷
+              - generic [ref=e563]: Argentina
+            - generic [ref=e564] [cursor=pointer]:
+              - generic [ref=e565]: 🇨🇻
+              - generic [ref=e566]: Cape Verde
+          - generic [ref=e568]:
+            - generic [ref=e569]:
+              - generic [ref=e570]: R32
+              - generic [ref=e571]: "#88"
+            - generic [ref=e572] [cursor=pointer]:
+              - generic [ref=e573]: 🇦🇺
+              - generic [ref=e574]: Australia
+            - generic [ref=e575] [cursor=pointer]:
+              - generic [ref=e576]: 🇪🇬
+              - generic [ref=e577]: Egypt
+          - generic [ref=e579]:
+            - generic [ref=e580]:
+              - generic [ref=e581]: R32
+              - generic [ref=e582]: "#85"
+            - generic [ref=e583] [cursor=pointer]:
+              - generic [ref=e584]: 🇨🇭
+              - generic [ref=e585]: Switzerland
+            - generic [ref=e586] [cursor=pointer]:
+              - generic [ref=e587]: 🇩🇿
+              - generic [ref=e588]: Algeria
+          - generic [ref=e590]:
+            - generic [ref=e591]:
+              - generic [ref=e592]: R32
+              - generic [ref=e593]: "#87"
+            - generic [ref=e594] [cursor=pointer]:
+              - generic [ref=e595]: 🇨🇴
+              - generic [ref=e596]: Colombia
+            - generic [ref=e597] [cursor=pointer]:
+              - generic [ref=e598]: 🇬🇭
+              - generic [ref=e599]: Ghana
+      - generic [ref=e600]:
+        - generic [ref=e601]: Round of 16
+        - generic [ref=e602]:
+          - generic [ref=e604]:
+            - generic [ref=e605]:
+              - generic [ref=e606]: R16
+              - generic [ref=e607]: "#89"
+            - generic [ref=e609]: — TBD
+            - generic [ref=e611]: — TBD
+          - generic [ref=e613]:
+            - generic [ref=e614]:
+              - generic [ref=e615]: R16
+              - generic [ref=e616]: "#90"
+            - generic [ref=e618]: — TBD
+            - generic [ref=e620]: — TBD
+          - generic [ref=e622]:
+            - generic [ref=e623]:
+              - generic [ref=e624]: R16
+              - generic [ref=e625]: "#93"
+            - generic [ref=e627]: — TBD
+            - generic [ref=e629]: — TBD
+          - generic [ref=e631]:
+            - generic [ref=e632]:
+              - generic [ref=e633]: R16
+              - generic [ref=e634]: "#94"
+            - generic [ref=e636]: — TBD
+            - generic [ref=e638]: — TBD
+          - generic [ref=e640]:
+            - generic [ref=e641]:
+              - generic [ref=e642]: R16
+              - generic [ref=e643]: "#91"
+            - generic [ref=e645]: — TBD
+            - generic [ref=e647]: — TBD
+          - generic [ref=e649]:
+            - generic [ref=e650]:
+              - generic [ref=e651]: R16
+              - generic [ref=e652]: "#92"
+            - generic [ref=e654]: — TBD
+            - generic [ref=e656]: — TBD
+          - generic [ref=e658]:
+            - generic [ref=e659]:
+              - generic [ref=e660]: R16
+              - generic [ref=e661]: "#95"
+            - generic [ref=e663]: — TBD
+            - generic [ref=e665]: — TBD
+          - generic [ref=e667]:
+            - generic [ref=e668]:
+              - generic [ref=e669]: R16
+              - generic [ref=e670]: "#96"
+            - generic [ref=e672]: — TBD
+            - generic [ref=e674]: — TBD
+      - generic [ref=e675]:
+        - generic [ref=e676]: Quarter-finals
+        - generic [ref=e677]:
+          - generic [ref=e679]:
+            - generic [ref=e680]:
+              - generic [ref=e681]: QF
+              - generic [ref=e682]: "#97"
+            - generic [ref=e684]: — TBD
+            - generic [ref=e686]: — TBD
+          - generic [ref=e688]:
+            - generic [ref=e689]:
+              - generic [ref=e690]: QF
+              - generic [ref=e691]: "#98"
+            - generic [ref=e693]: — TBD
+            - generic [ref=e695]: — TBD
+          - generic [ref=e697]:
+            - generic [ref=e698]:
+              - generic [ref=e699]: QF
+              - generic [ref=e700]: "#99"
+            - generic [ref=e702]: — TBD
+            - generic [ref=e704]: — TBD
+          - generic [ref=e706]:
+            - generic [ref=e707]:
+              - generic [ref=e708]: QF
+              - generic [ref=e709]: "#100"
+            - generic [ref=e711]: — TBD
+            - generic [ref=e713]: — TBD
+      - generic [ref=e714]:
+        - generic [ref=e715]: Semi-finals
+        - generic [ref=e716]:
+          - generic [ref=e718]:
+            - generic [ref=e719]:
+              - generic [ref=e720]: SF
+              - generic [ref=e721]: "#101"
+            - generic [ref=e723]: — TBD
+            - generic [ref=e725]: — TBD
+          - generic [ref=e727]:
+            - generic [ref=e728]:
+              - generic [ref=e729]: SF
+              - generic [ref=e730]: "#102"
+            - generic [ref=e732]: — TBD
+            - generic [ref=e734]: — TBD
+      - generic [ref=e735]:
+        - generic [ref=e736]: Final
+        - generic [ref=e739]:
+          - generic [ref=e740]:
+            - generic [ref=e741]: Final
+            - generic [ref=e742]: "#104"
+          - generic [ref=e744]: — TBD
+          - generic [ref=e746]: — TBD
+        - generic [ref=e747]:
+          - generic [ref=e748]: Third-Place Playoff
+          - generic [ref=e749]:
+            - generic [ref=e750]:
+              - generic [ref=e751]: 3rd Place
+              - generic [ref=e752]: "#103"
+            - generic [ref=e754]: — TBD
+            - generic [ref=e756]: — TBD
