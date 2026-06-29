@@ -1,0 +1,11 @@
+# World Cup Insights — Python data pipeline dependencies
+#
+# Install into the project venv:
+#   python -m venv scripts/.venv
+#   source scripts/.venv/bin/activate     # Windows: scripts\.venv\Scripts\activate
+#   pip install -r scripts/requirements.txt
+
+python-dotenv>=1.0.0
+requests>=2.31.0
+pandas>=2.0.0
+soccerdata>=1.9.0

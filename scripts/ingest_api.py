@@ -24,40 +24,28 @@ Dependencies (already in scripts/.venv):
 from __future__ import annotations
 
 import argparse
-import os
 import re
 import sqlite3
 import sys
 import time
 import unicodedata
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import requests
 
+from config import (
+    API_BASE,
+    COMPETITION_CODE,
+    COMPETITION_ID,
+    DEFAULT_DB,
+    REQUEST_DELAY,
+    SEASON,
+    load_api_key,
+)
 from identity import normalize_name, register_unmatched, resolve_team as _identity_resolve_team, seed_identity_map
-
-# ---------------------------------------------------------------------------
-# Repository layout
-# ---------------------------------------------------------------------------
-
-REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_DB = REPO_ROOT / "db" / "world_cup.db"
-ENV_FILE = REPO_ROOT / ".env.local"
-
-# ---------------------------------------------------------------------------
-# API constants
-# ---------------------------------------------------------------------------
-
-API_BASE = "https://api.football-data.org/v4"
-COMPETITION_CODE = "WC"
-SEASON = "2026"
-COMPETITION_ID = "fifa-wc-2026"  # canonical slug matching schema.sql comments
-
-# Seconds between HTTP requests — keeps us within the 10 req/min free-tier cap.
-REQUEST_DELAY = 7.0
 
 # ---------------------------------------------------------------------------
 # Static team data — mirrors src/data/schedule2026.ts exactly so that
@@ -203,19 +191,6 @@ def _parse_group(raw: str | None) -> str | None:
     cleaned = raw.replace("GROUP_", "").replace("Group ", "").strip()
     letter = cleaned[-1] if cleaned else ""
     return letter if re.match(r"^[A-L]$", letter) else None
-
-
-def _load_env_file(path: Path) -> dict[str, str]:
-    """Parse a simple KEY=VALUE .env file; ignores comments and blank lines."""
-    env: dict[str, str] = {}
-    if not path.exists():
-        return env
-    for line in path.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if line and not line.startswith("#") and "=" in line:
-            k, _, v = line.partition("=")
-            env[k.strip()] = v.strip()
-    return env
 
 
 # ---------------------------------------------------------------------------
@@ -639,14 +614,7 @@ def _check_schema(conn: sqlite3.Connection) -> None:
 
 def run(db_path: Path, dry_run: bool) -> None:
     """Fetch from football-data.org and upsert into SQLite."""
-    # Resolve API key: environment var takes precedence over .env.local
-    env = _load_env_file(ENV_FILE)
-    api_key = os.environ.get("FOOTBALL_API_KEY") or env.get("FOOTBALL_API_KEY")
-    if not api_key:
-        raise SystemExit(
-            "ERROR: FOOTBALL_API_KEY not set.\n"
-            "Add it to .env.local or export FOOTBALL_API_KEY=<key>."
-        )
+    api_key = load_api_key()
 
     db_path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(db_path)

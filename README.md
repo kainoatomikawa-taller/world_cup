@@ -72,3 +72,47 @@ Stack: React + TypeScript + Vite · dnd-kit (drag-and-drop) · Zustand (state, w
 - Logic lives in `src/domain/` (pure, tested). Data/results in `src/data/`. UI in `src/features/`. Shared state in `src/store/tournamentStore.ts`.
 - Navigation: top-level `AppNav` (platform tabs) → inner `StageNav` (within Possibilities only).
 - Python pipeline: `python scripts/init_db.py` → `python scripts/ingest_api.py` → `python scripts/identity.py seed`. See `CLAUDE.md` for all pipeline commands.
+
+## Data pipeline setup
+
+### 1. Create the Python venv and install dependencies
+
+```bash
+python -m venv scripts/.venv
+source scripts/.venv/bin/activate        # Windows: scripts\.venv\Scripts\activate
+pip install -r scripts/requirements.txt
+# Packages: soccerdata  python-dotenv  requests  pandas
+```
+
+### 2. Add your API key
+
+Create `.env.local` in the repository root (already gitignored):
+
+```
+FOOTBALL_API_KEY=<your-football-data.org-key>
+```
+
+Free keys are available at <https://www.football-data.org/client/register>.
+
+### 3. Bootstrap — create the database and verify the key
+
+```bash
+python scripts/setup.py
+```
+
+This creates `db/world_cup.db` with the full schema (competitions, teams, matches,
+standings, scorers, player_stats, player_ratings, identity_map) and confirms the
+API key is accepted with a single competitions endpoint call.
+
+### 4. Run the ingest pipeline
+
+```bash
+python scripts/ingest_api.py          # fetch competition, teams, matches, standings, scorers
+python scripts/identity.py seed       # populate cross-source identity aliases
+```
+
+Enrichment (FBref xG / Sofascore ratings — requires headless Chrome):
+
+```bash
+python scripts/ingest_stats.py
+```
