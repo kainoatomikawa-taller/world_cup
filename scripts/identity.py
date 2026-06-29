@@ -191,6 +191,8 @@ _TEAM_NAME_SEEDS: list[tuple[str, str, str]] = [
     ("bosnia-and-herzegovina", "fbref", "Bosnia and Herzegovina"),
     ("cape-verde",             "fbref", "Cape Verde Islands"),
     ("cape-verde",             "fbref", "Cape Verde"),
+    ("cape-verde",             "fbref", "Cabo Verde"),  # Portuguese/FBref abbreviated form
+    ("bosnia-and-herzegovina", "fbref", "Bosnia & Herz."),  # FBref abbreviated form
     ("new-zealand",            "fbref", "New Zealand"),
     ("netherlands",            "fbref", "Netherlands"),
     ("south-africa",           "fbref", "South Africa"),

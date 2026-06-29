@@ -120,6 +120,8 @@ CREATE INDEX IF NOT EXISTS idx_scorers_leaderboard
 -- player_stats  [Phase 2 — populated by enrichment pipeline]
 -- Per-player match and tournament-aggregate statistics from a stats provider.
 -- match_id = NULL means a tournament aggregate row.
+-- source distinguishes rows from different enrichment pipelines (fbref,
+-- understat) so the same player can have a row per source.
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS player_stats (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -127,6 +129,7 @@ CREATE TABLE IF NOT EXISTS player_stats (
     player_id       TEXT    NOT NULL,
     team_id         TEXT    NOT NULL,
     match_id        TEXT,              -- NULL → tournament aggregate
+    source          TEXT    NOT NULL DEFAULT 'fbref',  -- 'fbref' | 'understat'
     matches_played  INTEGER DEFAULT 0,
     minutes         INTEGER DEFAULT 0,
     goals           INTEGER DEFAULT 0,
@@ -135,10 +138,13 @@ CREATE TABLE IF NOT EXISTS player_stats (
     red_cards       INTEGER DEFAULT 0,
     shots           INTEGER DEFAULT 0,
     shots_on_target INTEGER DEFAULT 0,
+    xg              REAL,              -- expected goals (FBref: xG)
+    xg_non_penalty  REAL,              -- non-penalty xG (FBref: npxG, Understat: np_xg)
+    xa              REAL,              -- expected assists (FBref: xAG, Understat: xa)
     passes          INTEGER DEFAULT 0,
     pass_accuracy   REAL,              -- 0.0–1.0
     updated_at      TEXT,
-    UNIQUE(competition_id, player_id, match_id)
+    UNIQUE(competition_id, player_id, match_id, source)
 );
 
 -- ---------------------------------------------------------------------------
