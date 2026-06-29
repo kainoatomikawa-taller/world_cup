@@ -62,6 +62,17 @@ else
     failures=$((failures + 1))
 fi
 
+# Cluster articles after ingest so cluster_id and entities are written to the
+# database before export_json.py reads from the news table.
+# shellcheck disable=SC2086
+if "$PYTHON" "$REPO_ROOT/scripts/cluster_news.py" $DRY_RUN_FLAG >> "$LOG_FILE" 2>&1; then
+    log "cluster_news.py: OK"
+else
+    rc=$?
+    log "cluster_news.py: FAILED (exit $rc)"
+    failures=$((failures + 1))
+fi
+
 if "$PYTHON" "$REPO_ROOT/scripts/export_json.py" >> "$LOG_FILE" 2>&1; then
     log "export_json.py: OK"
 else

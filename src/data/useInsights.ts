@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { StaticArticle } from './staticTypes';
 import { useDataContext } from './DataContext';
 import { versionedUrl, STATIC_DATA_BASE } from './api';
+import { collapseNewsClusters } from '../domain/newsClustering';
 
 export type { StaticArticle };
 
@@ -28,7 +29,7 @@ export function useInsights(): UseInsightsResult {
       })
       .then((data) => {
         if (!cancelled) {
-          setArticles(data);
+          setArticles(collapseNewsClusters(data));
           setLoading(false);
         }
       })
