@@ -173,42 +173,63 @@
   line-height: 1.6;
 }
 
-/* ---------- Stage navigation (segmented control) ---------- */
+/* ---------- Stage navigation (accent-bar active state) ---------- */
 .stage-nav {
-  display: inline-flex;
-  gap: 4px;
-  padding: 4px;
-  margin-bottom: var(--space-9);
-  background: var(--surface);
-  backdrop-filter: blur(var(--blur));
-  -webkit-backdrop-filter: blur(var(--blur));
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  box-shadow: var(--shadow-sm);
+  display: flex;
   flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-bottom: var(--space-9);
 }
 
 .stage-tab {
+  position: relative;
   border: 0;
   background: transparent;
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 600;
-  padding: 8px 18px;
-  border-radius: 999px;
-  transition: background 0.18s var(--ease), color 0.18s var(--ease),
-    box-shadow 0.18s var(--ease);
+  color: var(--text-muted);
+  font-family: var(--font-head);
+  font-size: var(--type-sm);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: color 0.18s var(--ease), background 0.18s var(--ease);
+}
+
+/* Lime accent bar — hidden by default */
+.stage-tab::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: var(--space-5);
+  right: var(--space-5);
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent-lime);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.22s var(--ease);
 }
 
 .stage-tab:hover {
-  color: var(--text);
+  color: var(--text-primary);
   background: var(--blue-tint);
 }
 
+.stage-tab:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+  color: var(--text-primary);
+}
+
 .stage-tab[aria-current='true'] {
-  color: #fff;
-  background: linear-gradient(120deg, var(--blue), var(--blue-soft));
-  box-shadow: 0 4px 20px var(--blue-glow), 0 2px 6px rgba(0, 0, 0, 0.4);
+  color: var(--text-primary);
+  font-weight: 600;
+  background: transparent;
+}
+
+.stage-tab[aria-current='true']::after {
+  transform: scaleX(1);
 }
 
 /* ---------- Generic glass card ---------- */
@@ -2258,8 +2279,6 @@
     grid-template-columns: 1fr;
   }
   .stage-nav {
-    display: flex;
-    width: 100%;
     justify-content: center;
   }
   .app-nav {
