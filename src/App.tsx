@@ -10,7 +10,8 @@ import { PlaceholderTab } from './features/shared/PlaceholderTab';
 import { PlayerStats } from './features/Ratings/PlayerStats';
 import { useTournamentStore } from './store/tournamentStore';
 import { TEAMS } from './data/schedule2026';
-import { fetchManifest, fetchStaticMatches } from './data/api';
+import { fetchStaticMatches } from './data/api';
+import { useDataContext } from './data/DataContext';
 import './App.css';
 
 type FetchStatus = 'loading' | 'ready' | 'offline';
@@ -29,22 +30,21 @@ function formatLastUpdated(iso: string): string {
 }
 
 export default function App() {
+  const { contentHash, lastUpdated, manifestReady } = useDataContext();
   const [topTab, setTopTab] = useState<AppTab>('possibilities');
   const [stage, setStage] = useState<StageKey>('groups');
   const [fetchStatus, setFetchStatus] = useState<FetchStatus>('loading');
-  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   const initialize = useTournamentStore((s) => s.initialize);
   const setMatches = useTournamentStore((s) => s.setMatches);
 
   useEffect(() => {
     initialize(TEAMS, []);
+  }, [initialize]);
 
-    fetchManifest()
-      .then((manifest) => {
-        setLastUpdated(manifest.generated_at);
-        return fetchStaticMatches();
-      })
+  useEffect(() => {
+    if (!manifestReady) return;
+    fetchStaticMatches(contentHash)
       .then((matches) => {
         setMatches(matches);
         setFetchStatus('ready');
@@ -52,7 +52,7 @@ export default function App() {
       .catch(() => {
         setFetchStatus('offline');
       });
-  }, [initialize, setMatches]);
+  }, [manifestReady, contentHash, setMatches]);
 
   return (
     <main className="app-shell">

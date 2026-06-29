@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { StaticFixture } from './staticTypes';
+import { useDataContext } from './DataContext';
+import { versionedUrl, STATIC_DATA_BASE } from './api';
 
 export type { StaticFixture };
 
@@ -9,19 +11,17 @@ export interface UseFixturesResult {
   error: string | null;
 }
 
-// Upgrade path — object storage:
-//   Replace the fetch URL below with a CDN/bucket URL (S3, Cloudflare R2,
-//   GCS, etc.).  Cache-bust via manifest.json's content_hash as a query
-//   param:  `/data/fixtures.json?v=<content_hash>`
-//   Everything else in this hook stays the same because the JSON schema is stable.
 export function useFixtures(): UseFixturesResult {
+  const { contentHash, manifestReady } = useDataContext();
   const [fixtures, setFixtures] = useState<StaticFixture[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!manifestReady) return;
     let cancelled = false;
-    fetch('/data/fixtures.json')
+    const url = versionedUrl(`${STATIC_DATA_BASE}/fixtures.json`, contentHash);
+    fetch(url)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json() as Promise<StaticFixture[]>;
@@ -41,7 +41,7 @@ export function useFixtures(): UseFixturesResult {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [manifestReady, contentHash]);
 
   return { fixtures, loading, error };
 }
