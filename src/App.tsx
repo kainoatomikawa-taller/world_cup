@@ -6,7 +6,7 @@ import { Bracket } from './features/Bracket/Bracket';
 import { InsightsDashboard } from './features/Insights/InsightsDashboard';
 import { StageNav, type StageKey } from './features/shared/StageNav';
 import { MatchDetail } from './features/MatchDetail/MatchDetail';
-import { PlayerStats } from './features/Ratings/PlayerStats';
+import { StatsDashboard } from './features/Stats/StatsDashboard';
 import { useTournamentStore } from './store/tournamentStore';
 import { TEAMS } from './data/schedule2026';
 import { fetchStaticMatches } from './data/api';
@@ -110,7 +110,7 @@ export default function App() {
 
       {topTab === 'insights' && <InsightsDashboard />}
 
-      {topTab === 'stats' && <PlayerStats />}
+      {topTab === 'stats' && <StatsDashboard />}
         </>
       )}
     </main>
