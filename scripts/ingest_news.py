@@ -1,17 +1,24 @@
 #!/usr/bin/env python3
 """
-ingest_news.py — pull football/World Cup news from RSS feeds into the news table.
+ingest_news.py — pull football/World Cup news from RSS feeds and GNews into
+the news table.
 
-Fetches 3–4 named RSS feeds via feedparser, normalises each entry (headline,
-link, published_at, summary ≤ 280 chars, thumbnail), dedupes by canonical-URL
-hash, filters to football/World Cup relevance, and upserts into the news table.
+Phase 1 (RSS feeds)
+-------------------
+Fetches BBC Sport, Sky Sports, ESPN, and Fox Sports RSS feeds via feedparser,
+normalises each entry (headline, link, published_at, summary ≤ 280 chars,
+thumbnail), dedupes by canonical-URL hash, filters to football/World Cup
+relevance, and upserts into the news table.
 
-Phase 1 scope
--------------
-- Recency order only.  priority = 0 for all articles.
-- Team mentions are extracted by keyword scan of headline + summary.
-- entities = [] (player/coach/venue NER is Phase 2).
-- cluster_id = NULL (clustering is Phase 2).
+Phase 3 (GNews API)
+--------------------
+Optionally layers GNews search results on top of the RSS feeds to fill coverage
+gaps (e.g. FIFA.com, DAZN, Reuters, AP) and strengthen the cross-source
+coverage signal.  Requires GNEWS_API_KEY in .env.local.  Responses are cached
+for CACHE_TTL_HOURS (default 6 h) so daily API usage stays well under the
+free-tier limit of 100 req/day.
+
+See scripts/gnews_client.py for the GNews commercial-use caveat.
 
 Aggregator contract (enforced here)
 ------------------------------------
@@ -27,25 +34,26 @@ Deduplication
 
 Failure isolation
 -----------------
-Each feed is fetched and processed in an independent try/except block.
-A broken feed does not abort the others or touch backbone tables.
+Each feed (and the GNews block) is wrapped in an independent try/except.
+A broken source does not abort the others or touch backbone tables.
 
 Usage:
     python scripts/ingest_news.py
     python scripts/ingest_news.py --dry-run
     python scripts/ingest_news.py --db-path /custom/path/world_cup.db
-    python scripts/ingest_news.py --limit 50    # cap rows written per feed
+    python scripts/ingest_news.py --limit 50    # cap rows written per RSS feed
+    python scripts/ingest_news.py --skip-gnews  # skip GNews even if key is set
 
 Prerequisites:
     python scripts/init_db.py    # news table must exist
     python scripts/ingest_api.py # competition row must exist (FK: competition_id)
+    GNEWS_API_KEY in .env.local  # optional; enables Phase 3 GNews ingest
 """
 
 from __future__ import annotations
 
 import argparse
 import calendar
-import hashlib
 import json
 import re
 import sqlite3
@@ -53,7 +61,6 @@ import sys
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from html.parser import HTMLParser
 from pathlib import Path
 from typing import Optional
 
@@ -71,7 +78,16 @@ import requests
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from config import COMPETITION_ID, DEFAULT_DB
+from config import COMPETITION_ID, DEFAULT_DB, load_gnews_api_key
+from gnews_client import fetch_gnews_articles
+from news_utils import (
+    MAX_SUMMARY_CHARS,
+    Article,
+    _extract_teams,
+    _is_relevant,
+    _strip_html,
+    _url_hash,
+)
 
 # ---------------------------------------------------------------------------
 # Feed registry
@@ -80,7 +96,7 @@ from config import COMPETITION_ID, DEFAULT_DB
 @dataclass(frozen=True)
 class FeedConfig:
     source: str       # machine slug used in the news.source column
-    source_name: str  # display name used in the news.source_name column (attribution)
+    source_name: str  # display name for attribution (shown on every card)
     url: str
 
 
@@ -107,164 +123,11 @@ _FEEDS: tuple[FeedConfig, ...] = (
     ),
 )
 
-# Maximum characters for the summary excerpt (aggregator contract: never full text).
-MAX_SUMMARY_CHARS = 280
-
-# Seconds to wait between feed fetches (polite crawling; not a rate-limit like the API).
+# Seconds to wait between feed fetches (polite crawling).
 INTER_FEED_DELAY = 1.0
 
 # ---------------------------------------------------------------------------
-# Team name → canonical slug lookup (mirrors schedule2026.ts)
-# ---------------------------------------------------------------------------
-
-@dataclass(frozen=True)
-class _TeamDef:
-    id: str
-    name: str
-
-
-_TEAMS: tuple[_TeamDef, ...] = (
-    _TeamDef("mexico",                 "Mexico"),
-    _TeamDef("south-africa",           "South Africa"),
-    _TeamDef("south-korea",            "South Korea"),
-    _TeamDef("czech-republic",         "Czech Republic"),
-    _TeamDef("canada",                 "Canada"),
-    _TeamDef("bosnia-and-herzegovina", "Bosnia and Herzegovina"),
-    _TeamDef("qatar",                  "Qatar"),
-    _TeamDef("switzerland",            "Switzerland"),
-    _TeamDef("brazil",                 "Brazil"),
-    _TeamDef("morocco",                "Morocco"),
-    _TeamDef("haiti",                  "Haiti"),
-    _TeamDef("scotland",               "Scotland"),
-    _TeamDef("united-states",          "United States"),
-    _TeamDef("paraguay",               "Paraguay"),
-    _TeamDef("australia",              "Australia"),
-    _TeamDef("turkey",                 "Turkey"),
-    _TeamDef("germany",                "Germany"),
-    _TeamDef("curacao",                "Curacao"),
-    _TeamDef("ivory-coast",            "Ivory Coast"),
-    _TeamDef("ecuador",                "Ecuador"),
-    _TeamDef("netherlands",            "Netherlands"),
-    _TeamDef("japan",                  "Japan"),
-    _TeamDef("sweden",                 "Sweden"),
-    _TeamDef("tunisia",                "Tunisia"),
-    _TeamDef("belgium",                "Belgium"),
-    _TeamDef("egypt",                  "Egypt"),
-    _TeamDef("iran",                   "Iran"),
-    _TeamDef("new-zealand",            "New Zealand"),
-    _TeamDef("spain",                  "Spain"),
-    _TeamDef("cape-verde",             "Cape Verde"),
-    _TeamDef("saudi-arabia",           "Saudi Arabia"),
-    _TeamDef("uruguay",                "Uruguay"),
-    _TeamDef("france",                 "France"),
-    _TeamDef("senegal",                "Senegal"),
-    _TeamDef("iraq",                   "Iraq"),
-    _TeamDef("norway",                 "Norway"),
-    _TeamDef("argentina",              "Argentina"),
-    _TeamDef("algeria",                "Algeria"),
-    _TeamDef("austria",                "Austria"),
-    _TeamDef("jordan",                 "Jordan"),
-    _TeamDef("portugal",               "Portugal"),
-    _TeamDef("dr-congo",               "DR Congo"),
-    _TeamDef("uzbekistan",             "Uzbekistan"),
-    _TeamDef("colombia",               "Colombia"),
-    _TeamDef("england",                "England"),
-    _TeamDef("croatia",                "Croatia"),
-    _TeamDef("ghana",                  "Ghana"),
-    _TeamDef("panama",                 "Panama"),
-)
-
-# Additional name aliases not covered by canonical names.
-_TEAM_ALIASES: dict[str, str] = {
-    "usa":                             "united-states",
-    "us soccer":                       "united-states",
-    "usmnt":                           "united-states",
-    "uswnt":                           "united-states",
-    "republic of korea":               "south-korea",
-    "korea republic":                  "south-korea",
-    "czechia":                         "czech-republic",
-    "turkiye":                         "turkey",
-    "cote d'ivoire":                   "ivory-coast",
-    "côte d'ivoire":                   "ivory-coast",
-    "ir iran":                         "iran",
-    "democratic republic of congo":    "dr-congo",
-    "congo dr":                        "dr-congo",
-    "drc":                             "dr-congo",
-    "the netherlands":                 "netherlands",
-    "holland":                         "netherlands",
-    "south africa":                    "south-africa",
-    "new zealand":                     "new-zealand",
-    "saudi":                           "saudi-arabia",
-    "ksa":                             "saudi-arabia",
-    "cape verde":                      "cape-verde",
-    "cape verdean":                    "cape-verde",
-    "ivory coast":                     "ivory-coast",
-}
-
-# Build a combined lookup: lowercase term → slug.
-_TEAM_LOOKUP: dict[str, str] = {}
-for _t in _TEAMS:
-    _TEAM_LOOKUP[_t.name.lower()] = _t.id
-    _slug_as_words = _t.id.replace("-", " ")
-    if _slug_as_words != _t.name.lower():
-        _TEAM_LOOKUP[_slug_as_words] = _t.id
-_TEAM_LOOKUP.update(_TEAM_ALIASES)
-
-# ---------------------------------------------------------------------------
-# Relevance filter keywords
-# ---------------------------------------------------------------------------
-
-# An article must contain at least one of these terms (case-insensitive) to
-# pass the relevance filter.  Team names are appended dynamically below.
-_BASE_RELEVANCE: frozenset[str] = frozenset([
-    "world cup",
-    "worldcup",
-    "wc 2026",
-    "wc2026",
-    "fifa",
-    "2026",
-    "international",
-    "national team",
-    "qualifier",
-    "knockout",
-    "group stage",
-    "round of",
-    "soccer",
-    "football",
-])
-
-# Merge in all team-name terms so any article that names a WC team passes.
-_RELEVANCE_TERMS: frozenset[str] = _BASE_RELEVANCE | frozenset(_TEAM_LOOKUP.keys())
-
-# ---------------------------------------------------------------------------
-# HTML stripping
-# ---------------------------------------------------------------------------
-
-class _HTMLStripper(HTMLParser):
-    def __init__(self) -> None:
-        super().__init__()
-        self._parts: list[str] = []
-
-    def handle_data(self, data: str) -> None:
-        self._parts.append(data)
-
-    def get_text(self) -> str:
-        return "".join(self._parts)
-
-
-def _strip_html(raw: str) -> str:
-    """Remove HTML tags and collapse whitespace.  Returns plain text."""
-    stripper = _HTMLStripper()
-    try:
-        stripper.feed(raw)
-    except Exception:
-        # Malformed HTML is handled by returning whatever was accumulated.
-        pass
-    return re.sub(r"\s+", " ", stripper.get_text()).strip()
-
-
-# ---------------------------------------------------------------------------
-# Date helpers
+# Date helpers (RSS-specific; GNews timestamps are already ISO 8601)
 # ---------------------------------------------------------------------------
 
 def _now_iso() -> str:
@@ -272,7 +135,7 @@ def _now_iso() -> str:
 
 
 def _struct_time_to_iso(st: time.struct_time | None) -> str | None:
-    """Convert a feedparser struct_time (UTC) to an ISO 8601 string, or None."""
+    """Convert a feedparser struct_time (UTC) to ISO 8601, or None."""
     if st is None:
         return None
     try:
@@ -283,30 +146,32 @@ def _struct_time_to_iso(st: time.struct_time | None) -> str | None:
 
 
 # ---------------------------------------------------------------------------
-# Thumbnail extraction
+# Thumbnail extraction (RSS-specific; GNews supplies a direct image URL)
 # ---------------------------------------------------------------------------
+
+def _looks_like_image(url: str) -> bool:
+    path = url.split("?")[0].lower()
+    return path.endswith((".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"))
+
 
 def _extract_thumbnail(entry: object) -> str | None:
     """Return the first usable image URL from a feedparser entry, or None.
 
     Checks (in priority order):
-    1. media:content — the de-facto standard for RSS images.
+    1. media:content — de-facto standard for RSS images.
     2. media:thumbnail — common fallback.
-    3. enclosures — used by some podcast-style feeds; filtered to image/* types.
+    3. enclosures — filtered to image/* MIME types.
     """
-    # 1. media:content
     for item in getattr(entry, "media_content", None) or []:
         url = (item or {}).get("url", "")
         if url and _looks_like_image(url):
             return url
 
-    # 2. media:thumbnail
     for item in getattr(entry, "media_thumbnail", None) or []:
         url = (item or {}).get("url", "")
         if url:
             return url
 
-    # 3. enclosures with image mime type
     for enc in getattr(entry, "enclosures", None) or []:
         mime = (enc or {}).get("type", "")
         url = (enc or {}).get("url", "")
@@ -316,87 +181,17 @@ def _extract_thumbnail(entry: object) -> str | None:
     return None
 
 
-def _looks_like_image(url: str) -> bool:
-    """Heuristic: does the URL path end with a common image extension?"""
-    path = url.split("?")[0].lower()
-    return path.endswith((".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"))
-
-
 # ---------------------------------------------------------------------------
-# Relevance filter
-# ---------------------------------------------------------------------------
-
-def _is_relevant(headline: str, summary: str) -> bool:
-    """Return True if the article is football/World Cup relevant.
-
-    Matches against a combined lowercase string of headline and summary.
-    Requires at least one term from the relevance set to be present as a
-    substring (not necessarily a word boundary — team names are specific enough).
-    """
-    combined = (headline + " " + summary).lower()
-    return any(term in combined for term in _RELEVANCE_TERMS)
-
-
-# ---------------------------------------------------------------------------
-# Team mention extraction
-# ---------------------------------------------------------------------------
-
-def _extract_teams(headline: str, summary: str) -> list[str]:
-    """Return a deduplicated list of canonical team slugs mentioned in the text.
-
-    Uses simple substring matching (case-insensitive) against the team lookup
-    table.  Longer terms are checked first so 'South Korea' matches before
-    'Korea' could theoretically clobber it (though 'Korea' is not a key).
-    """
-    combined = (headline + " " + summary).lower()
-    found: list[str] = []
-    seen_slugs: set[str] = set()
-    # Sort by term length descending so longer matches win.
-    for term, slug in sorted(_TEAM_LOOKUP.items(), key=lambda kv: -len(kv[0])):
-        if slug not in seen_slugs and term in combined:
-            found.append(slug)
-            seen_slugs.add(slug)
-    return found
-
-
-# ---------------------------------------------------------------------------
-# Article data class
-# ---------------------------------------------------------------------------
-
-@dataclass
-class Article:
-    id: str
-    competition_id: Optional[str]
-    source: str
-    source_name: str
-    headline: str
-    url: str
-    thumbnail_url: Optional[str]
-    summary: Optional[str]
-    published_at: str
-    teams: list[str]
-    entities: list[str]
-    cluster_id: Optional[str]
-    priority: int
-    fetched_at: str
-
-
-def _url_hash(url: str) -> str:
-    """SHA-256 hex digest of the canonical URL — used as the news.id primary key."""
-    return hashlib.sha256(url.encode()).hexdigest()
-
-
-# ---------------------------------------------------------------------------
-# Entry normalisation
+# Entry normalisation (RSS)
 # ---------------------------------------------------------------------------
 
 def _normalise_entry(
     entry: object,
     cfg: FeedConfig,
     fetched_at: str,
-    competition_id: str | None,
-) -> Article | None:
-    """Convert a feedparser entry to an Article, or return None if unusable.
+    competition_id: Optional[str],
+) -> Optional[Article]:
+    """Convert a feedparser entry to an Article, or None if unusable.
 
     An entry is unusable when it has no URL, no headline, or fails the
     relevance filter.  All other missing fields are handled gracefully.
@@ -409,18 +204,15 @@ def _normalise_entry(
     if not headline:
         return None
 
-    # Summary: strip HTML, truncate, enforce aggregator contract (≤ MAX_SUMMARY_CHARS).
     raw_summary: str = (
         getattr(entry, "summary", None)
         or getattr(entry, "description", None)
         or ""
     )
     summary_text = _strip_html(raw_summary).strip()
-    # Remove the headline if it appears verbatim at the start of the summary
-    # (some feeds duplicate the title into the description field).
     if summary_text.lower().startswith(headline.lower()):
         summary_text = summary_text[len(headline):].lstrip(" :-—")
-    summary: str | None = (
+    summary: Optional[str] = (
         (summary_text[:MAX_SUMMARY_CHARS] + "…")
         if len(summary_text) > MAX_SUMMARY_CHARS
         else summary_text or None
@@ -432,7 +224,7 @@ def _normalise_entry(
     published_at: str = (
         _struct_time_to_iso(getattr(entry, "published_parsed", None))
         or _struct_time_to_iso(getattr(entry, "updated_parsed", None))
-        or fetched_at  # fallback: use ingest time so the row is never NULL
+        or fetched_at
     )
 
     thumbnail_url = _extract_thumbnail(entry)
@@ -449,15 +241,15 @@ def _normalise_entry(
         summary=summary,
         published_at=published_at,
         teams=teams,
-        entities=[],        # Phase 2: named entity recognition
-        cluster_id=None,    # Phase 2: clustering
+        entities=[],
+        cluster_id=None,
         priority=0,
         fetched_at=fetched_at,
     )
 
 
 # ---------------------------------------------------------------------------
-# Feed fetch
+# Feed fetch (RSS)
 # ---------------------------------------------------------------------------
 
 _SESSION: requests.Session | None = None
@@ -476,13 +268,8 @@ def _get_session() -> requests.Session:
     return _SESSION
 
 
-def _fetch_feed(cfg: FeedConfig, limit: int | None, competition_id: str | None) -> list[Article]:
-    """Fetch and parse one RSS feed; return normalised Article list.
-
-    Uses requests for the HTTP layer (handles SSL via certifi) and feedparser
-    for XML parsing.  Errors (network, parse, per-entry) are caught and logged
-    without raising, so a broken feed never aborts the overall run.
-    """
+def _fetch_feed(cfg: FeedConfig, limit: int | None, competition_id: Optional[str]) -> list[Article]:
+    """Fetch and parse one RSS feed; return normalised Article list."""
     print(f"  Fetching {cfg.url} …")
     try:
         resp = _get_session().get(cfg.url, timeout=20)
@@ -492,9 +279,6 @@ def _fetch_feed(cfg: FeedConfig, limit: int | None, competition_id: str | None) 
         return []
 
     try:
-        # Build the headers dict feedparser needs for encoding detection and
-        # relative-URL resolution.  Supply a fallback content-type so feeds
-        # that omit it (e.g. Fox Sports) are still parsed rather than rejected.
         resp_headers: dict[str, str] = {
             "content-location": cfg.url,
             "content-type": (
@@ -604,7 +388,6 @@ def _write_articles(
 # ---------------------------------------------------------------------------
 
 def _check_schema(conn: sqlite3.Connection) -> None:
-    """Abort with an instructive message if the news table doesn't exist."""
     tables = {
         row[0]
         for row in conn.execute(
@@ -618,13 +401,7 @@ def _check_schema(conn: sqlite3.Connection) -> None:
         )
 
 
-def _resolve_competition_id(conn: sqlite3.Connection) -> str | None:
-    """Return COMPETITION_ID if the row exists in competitions, else None.
-
-    competition_id is nullable in the news table; ingest_news.py can run
-    standalone (before ingest_api.py has populated the competition row) by
-    storing NULL and backfilling later.
-    """
+def _resolve_competition_id(conn: sqlite3.Connection) -> Optional[str]:
     try:
         row = conn.execute(
             "SELECT 1 FROM competitions WHERE id = ? LIMIT 1", (COMPETITION_ID,)
@@ -638,10 +415,15 @@ def _resolve_competition_id(conn: sqlite3.Connection) -> str | None:
 # Orchestration
 # ---------------------------------------------------------------------------
 
-def run(db_path: Path, dry_run: bool, limit: int | None = None) -> None:
-    """Fetch all configured RSS feeds and write to the news table.
+def run(
+    db_path: Path,
+    dry_run: bool,
+    limit: int | None = None,
+    skip_gnews: bool = False,
+) -> None:
+    """Fetch all configured RSS feeds (and optionally GNews) and write to news.
 
-    Each feed is isolated: a failure in one does not prevent the others.
+    Each source is isolated: a failure in one does not prevent the others.
     """
     db_path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(db_path)
@@ -662,6 +444,7 @@ def run(db_path: Path, dry_run: bool, limit: int | None = None) -> None:
         total_feeds_ok = 0
         total_feeds_err = 0
 
+        # ── RSS feeds ──────────────────────────────────────────────────────
         for i, cfg in enumerate(_FEEDS):
             print(f"\n[{i + 1}/{len(_FEEDS)}] {cfg.source_name} ({cfg.source})")
 
@@ -677,16 +460,42 @@ def run(db_path: Path, dry_run: bool, limit: int | None = None) -> None:
                 if not dry_run:
                     print(f"  → {inserted} new, {skipped_dup} already known")
             except Exception as exc:
-                # Per-feed isolation: log and continue.
                 print(f"  ERROR processing {cfg.source}: {exc}")
+                total_feeds_err += 1
+
+        # ── GNews API (Phase 3) ────────────────────────────────────────────
+        # Fills coverage gaps left by RSS (e.g. FIFA.com, DAZN, AP, Reuters).
+        # Skipped gracefully when GNEWS_API_KEY is absent or --skip-gnews is set.
+        gnews_key = load_gnews_api_key() if not skip_gnews else None
+        print(f"\n[{len(_FEEDS) + 1}/{len(_FEEDS) + 1}] GNews API")
+        if not gnews_key:
+            reason = "--skip-gnews flag" if skip_gnews else "GNEWS_API_KEY not set in .env.local"
+            print(f"  Skipped ({reason})")
+        else:
+            try:
+                cache_path = db_path.parent / "gnews_cache.json"
+                gnews_articles = fetch_gnews_articles(
+                    api_key=gnews_key,
+                    cache_path=cache_path,
+                    competition_id=competition_id,
+                )
+                inserted, skipped_dup = _write_articles(conn, gnews_articles, dry_run)
+                total_inserted += inserted
+                total_dup += skipped_dup
+                total_feeds_ok += 1
+                if not dry_run:
+                    print(f"  → {inserted} new, {skipped_dup} already known")
+            except Exception as exc:
+                print(f"  ERROR processing GNews: {exc}")
                 total_feeds_err += 1
 
     finally:
         conn.close()
 
+    n_sources = len(_FEEDS) + 1  # RSS feeds + GNews
     tag = "[dry-run] " if dry_run else ""
     print(
-        f"\n{tag}Done — {total_feeds_ok}/{len(_FEEDS)} feed(s) succeeded"
+        f"\n{tag}Done — {total_feeds_ok}/{n_sources} source(s) succeeded"
         + (f", {total_feeds_err} failed" if total_feeds_err else "")
         + (f"\n{tag}Total: {total_inserted} new article(s), {total_dup} duplicate(s) skipped"
            if not dry_run else "")
@@ -719,10 +528,15 @@ def main() -> None:
         type=int,
         default=None,
         metavar="N",
-        help="Process at most N entries per feed (useful for testing)",
+        help="Process at most N entries per RSS feed (useful for testing)",
+    )
+    parser.add_argument(
+        "--skip-gnews",
+        action="store_true",
+        help="Skip the GNews API step even when GNEWS_API_KEY is set",
     )
     args = parser.parse_args()
-    run(args.db_path, args.dry_run, limit=args.limit)
+    run(args.db_path, args.dry_run, limit=args.limit, skip_gnews=args.skip_gnews)
 
 
 if __name__ == "__main__":

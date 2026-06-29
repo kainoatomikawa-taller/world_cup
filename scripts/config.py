@@ -71,3 +71,19 @@ def load_api_key() -> str:
             "    export FOOTBALL_API_KEY=<your-key>"
         )
     return key
+
+
+def load_gnews_api_key() -> str | None:
+    """Return GNEWS_API_KEY from the environment, or None if not configured.
+
+    Unlike load_api_key(), this function never exits — GNews is an optional
+    enrichment source; the pipeline degrades gracefully without it.  To enable:
+
+        echo 'GNEWS_API_KEY=<your-key>' >> .env.local
+
+    Sign up at https://gnews.io/ for a free-tier key (100 req/day).
+
+    COMMERCIAL CAVEAT: the GNews free tier is for personal, non-commercial use
+    only.  See scripts/gnews_client.py for the full caveat and upgrade path.
+    """
+    return os.environ.get("GNEWS_API_KEY", "").strip() or None
