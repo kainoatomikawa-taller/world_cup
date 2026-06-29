@@ -68,9 +68,15 @@ def _to_records(df) -> list[dict]:
 
 
 def _write_json(path: Path, data: object) -> str:
-    """Write *data* as pretty-printed JSON; return its SHA-256 hex digest."""
+    """Write *data* as pretty-printed JSON atomically; return its SHA-256 hex digest.
+
+    Writes to a sibling .tmp file first, then renames — so a crash mid-write
+    leaves the previous file intact rather than producing a truncated one.
+    """
     text = json.dumps(data, ensure_ascii=False, indent=2)
-    path.write_text(text, encoding="utf-8")
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    tmp.replace(path)  # atomic on POSIX (same filesystem)
     return hashlib.sha256(text.encode()).hexdigest()
 
 
@@ -102,19 +108,44 @@ def _export_matches(fixtures: list[dict], matches_dir: Path) -> dict[str, str]:
 
 
 def _sync_frontend(out_dir: Path, frontend_dir: Path) -> None:
-    """Copy the frontend-relevant subset of files from out_dir to frontend_dir."""
+    """Atomically sync frontend-relevant files from out_dir to frontend_dir.
+
+    Each file is written to a sibling .tmp file then renamed into place, so the
+    last-good version of every file survives a mid-sync crash.  The matches/
+    directory is staged in matches.new, then renamed atomically; the old tree is
+    only removed after the new one is in place.
+    """
     frontend_dir.mkdir(parents=True, exist_ok=True)
+
     for fname in _FRONTEND_FILES:
         src = out_dir / fname
         if src.exists():
-            shutil.copy2(src, frontend_dir / fname)
-    # Sync per-match files so the browser can lazy-load matches/<id>.json.
+            dst = frontend_dir / fname
+            tmp = dst.with_suffix(dst.suffix + ".tmp")
+            shutil.copy2(src, tmp)
+            tmp.replace(dst)  # atomic on POSIX
+
+    # Atomic matches-directory swap: copy to matches.new → rename old out →
+    # rename new in → delete old.  A crash at any point leaves either the old
+    # or the new directory intact, never an empty slot.
     src_matches = out_dir / "matches"
     if src_matches.is_dir():
         dst_matches = frontend_dir / "matches"
+        staging = frontend_dir / "matches.new"
+        retired = frontend_dir / "matches.old"
+
+        if staging.exists():
+            shutil.rmtree(staging)
+        shutil.copytree(src_matches, staging)
+
+        if retired.exists():
+            shutil.rmtree(retired)
         if dst_matches.exists():
-            shutil.rmtree(dst_matches)
-        shutil.copytree(src_matches, dst_matches)
+            dst_matches.rename(retired)   # atomic rename (same fs)
+        staging.rename(dst_matches)       # atomic rename (same fs)
+        if retired.exists():
+            shutil.rmtree(retired)
+
     print(f"\nFrontend assets synced → {frontend_dir}")
 
 

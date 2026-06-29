@@ -1,36 +1,41 @@
 # Ingest Scheduling
 
-The data pipeline consists of two scripts that must be scheduled externally.
-The app never triggers ingestion — it only reads from `db/world_cup.db`.
+The data pipeline runs in three sequential stages scheduled externally.
+The app never triggers ingestion — it only reads from `db/world_cup.db` and
+`public/data/*.json`.
 
-| Script | Tables written | Typical run time |
+| Script | Writes to | Typical run time |
 |---|---|---|
-| `ingest_api.py` | `competitions`, `teams`, `matches`, `standings`, `scorers` | ~35 s (5 rate-limited API calls) |
-| `ingest_stats.py` | `player_stats`, `player_ratings` | 5–15 min (Selenium scraping) |
+| `ingest_api.py` | `competitions`, `teams`, `matches`, `standings`, `scorers` (SQLite) | ~35 s (5 rate-limited API calls) |
+| `ingest_stats.py` | `player_stats`, `player_ratings` (SQLite) | 5–15 min (Selenium scraping) |
+| `export_json.py` | `export/*.json`, `public/data/*.json` (read-only; no DB writes) | ~1 s |
 
-Both scripts write through SQLite WAL-mode upserts, so a partial or failed
-run leaves the existing rows intact.
+The ingest scripts write through SQLite WAL-mode upserts, so a partial or
+failed run leaves the existing rows intact.  `export_json.py` writes all files
+atomically (write to `.tmp`, then rename), so a crash mid-export leaves the
+previous `public/data/` files intact.
 
 ---
 
 ## Wrapper script
 
-`scripts/run_ingest.sh` runs both scripts in sequence and handles:
+`scripts/run_ingest.sh` runs all three scripts in sequence and handles:
 
 - **Overlap prevention** — a PID file blocks a second run if one is already in
   progress (safe for cron jitter or manual re-runs).
-- **Logging** — all stdout and stderr from both scripts is appended to
+- **Logging** — all stdout and stderr from all scripts is appended to
   `logs/ingest.log` with UTC timestamps.
-- **Failure isolation** — if `ingest_api.py` fails, `ingest_stats.py` still
-  runs. The wrapper exits non-zero only when at least one script failed.
+- **Failure isolation** — if an earlier script fails, later ones still run.
+  The wrapper exits non-zero only when at least one script failed.
 - **Log rotation** — when `logs/ingest.log` exceeds 10 MB the file is trimmed
   to the last 5 000 lines.
 
 The `logs/` directory is git-ignored.
 
 ```
-bash scripts/run_ingest.sh          # normal run
-bash scripts/run_ingest.sh --dry-run  # pass --dry-run to both scripts
+bash scripts/run_ingest.sh           # normal run
+bash scripts/run_ingest.sh --dry-run # pass --dry-run to the ingest scripts
+                                     # export_json.py always runs (read-only)
 ```
 
 ---
@@ -158,4 +163,48 @@ wrapper call into two separate cron/launchd entries — one calling
 | Network error mid-run | Rows already committed are kept; in-flight batch rolled back by WAL | `FAILED (exit …)` |
 | FBref Selenium timeout | FBref rows missing; backbone tables unaffected | `[FBref] ERROR` |
 | Understat tls-client missing | Understat skipped; everything else proceeds | `SKIP: Understat requires…` |
+| `export_json.py` crash mid-write | All `public/data/` files stay at last-good state (atomic tmp→rename) | `export_json.py: FAILED (exit …)` |
 | Concurrent run attempted | Second invocation exits immediately | `SKIP: already running (PID …)` |
+
+---
+
+## Object-storage upgrade (recommended next step)
+
+The current pipeline writes JSON to `public/data/` so the Vite dev server and
+production build can serve the files as static assets.  This couples every data
+refresh to a frontend redeploy.
+
+**Recommended upgrade:** upload the `export/` files to a CDN bucket (S3,
+Cloudflare R2, or GCS) instead of, or in addition to, copying to `public/data/`.
+
+### What changes
+
+| Layer | Current | With object storage |
+|---|---|---|
+| `export_json.py` | calls `_sync_frontend()` to copy to `public/data/` | also uploads each file to `s3://bucket/data/<file>` (or equivalent) |
+| Frontend `useFixtures` hook | fetches `/data/fixtures.json` (same origin) | fetches `https://cdn.example.com/data/fixtures.json` |
+| Cache-busting | Vite content-hash on the HTML bundle | `manifest.json`'s `content_hash` as a query param: `fixtures.json?v=<hash>` |
+| Freshness | On every frontend redeploy | On every ingest run, independently of any deploy |
+
+### Why it's worth doing
+
+- **Decouples data from deploys** — a score update publishes in ~1 s of upload
+  time; no rebuild or Vercel/Netlify deploy needed.
+- **Scales to many readers** — CDN edge nodes serve the JSON; the origin server
+  carries no read traffic.
+- **No schema change** — the JSON shape and `manifest.json` format are stable.
+  The front-end only needs a base-URL environment variable changed.
+
+### How to wire it up
+
+1. Add `boto3` (S3/R2) or `google-cloud-storage` (GCS) to `requirements.txt`.
+2. Add an `--upload` flag to `export_json.py` (or a separate `upload_cdn.py`)
+   that iterates `_FRONTEND_FILES` plus `matches/` and uploads each one.
+3. Set CDN credentials in `.env.local` (never in source).
+4. In `run_ingest.sh`, replace or supplement the `export_json.py` call with
+   one that passes `--upload`.
+5. Point the frontend `VITE_DATA_BASE_URL` env var at the CDN bucket URL.
+
+The `export/` staging directory and the atomic write guarantees already in
+place mean the upload step can be bolted on without reworking the rest of
+the pipeline.

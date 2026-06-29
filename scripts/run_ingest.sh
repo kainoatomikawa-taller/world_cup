@@ -1,19 +1,22 @@
 #!/usr/bin/env bash
-# run_ingest.sh — sequential wrapper for ingest_api.py and ingest_stats.py.
+# run_ingest.sh — sequential wrapper for ingest_api.py, ingest_stats.py, and
+#                 export_json.py (full pipeline: ingest → enrich → export JSON).
 #
 # Safe to call from cron or launchd:
 #   • Prevents concurrent runs via a PID file.
 #   • Captures all script output (stdout + stderr) to logs/ingest.log.
-#   • Runs both scripts even if the first one fails.
+#   • Runs all three scripts even if an earlier one fails.
 #   • Trims the log file to 5 000 lines when it exceeds 10 MB.
-#   • Exits 0 when both succeed; exits with the count of failures otherwise.
+#   • Exits 0 when all succeed; exits with the count of failures otherwise.
 #
-# The data store is safe across failures: both ingest scripts write via
-# SQLite WAL-mode upserts, so a crash mid-run leaves the existing rows intact.
+# The data store is safe across failures: ingest scripts write via SQLite
+# WAL-mode upserts, and export_json.py writes atomically (tmp → rename), so
+# the last-good DB rows and static JSON files are always intact after a crash.
 #
 # Usage:
 #   bash scripts/run_ingest.sh
-#   bash scripts/run_ingest.sh --dry-run   # passes --dry-run to both scripts
+#   bash scripts/run_ingest.sh --dry-run   # passes --dry-run to the ingest scripts
+#                                          # export_json.py always runs (read-only)
 
 set -uo pipefail
 
