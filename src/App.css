@@ -728,7 +728,7 @@
 
 .fixture-row {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr auto 1fr 16px;
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
@@ -795,6 +795,17 @@
   font-size: 13px;
   color: var(--muted);
   white-space: nowrap;
+}
+
+.fixture-row__chevron {
+  font-size: 15px;
+  color: var(--faint);
+  text-align: right;
+  line-height: 1;
+}
+
+.fixture-row--upcoming {
+  cursor: default;
 }
 
 /* ---------- Insights dashboard ---------- */

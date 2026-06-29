@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useFixtures, type StaticFixture } from '../../data/useFixtures';
-import { useMatchDetail } from '../../data/useMatchDetail';
+import { useTournamentStore } from '../../store/tournamentStore';
 
 const STAGE_ORDER: Record<string, number> = {
   group: 0,
@@ -12,14 +12,6 @@ const STAGE_ORDER: Record<string, number> = {
   final: 6,
 };
 
-const KNOCKOUT_LABEL: Record<string, string> = {
-  round32: 'Round of 32',
-  round16: 'Round of 16',
-  quarter: 'Quarter-finals',
-  semi: 'Semi-finals',
-  thirdPlacePlayoff: 'Third-Place Play-off',
-  final: 'Final',
-};
 
 function formatDateLabel(dateStr: string): string {
   const [year, month, day] = dateStr.split('-').map(Number);
@@ -79,95 +71,63 @@ function defaultDayIndex(days: MatchDay[]): number {
 }
 
 // ---------------------------------------------------------------------------
-// Match detail panel — lazy-loaded on row click
-// ---------------------------------------------------------------------------
-
-function MatchDetailPanel({ matchId }: { matchId: string }) {
-  const { detail, loading, error } = useMatchDetail(matchId);
-
-  if (loading) return <div className="match-detail match-detail--loading">Loading…</div>;
-  if (error) return <div className="match-detail match-detail--error">Could not load detail.</div>;
-  if (!detail) return null;
-
-  return (
-    <div className="match-detail">
-      <dl className="match-detail__grid">
-        <dt>Kickoff</dt>
-        <dd>
-          {new Date(detail.kickoff).toLocaleString('en-GB', {
-            weekday: 'short',
-            day: 'numeric',
-            month: 'short',
-            hour: '2-digit',
-            minute: '2-digit',
-            timeZoneName: 'short',
-          })}
-        </dd>
-        {detail.group_id && (
-          <>
-            <dt>Group</dt>
-            <dd>{detail.group_id}</dd>
-          </>
-        )}
-        <dt>Stage</dt>
-        <dd>{KNOCKOUT_LABEL[detail.stage] ?? detail.stage}</dd>
-        {detail.played === 1 && (
-          <>
-            <dt>Result</dt>
-            <dd className="tnum">
-              {detail.home_team} {detail.home_goals ?? 0} – {detail.away_goals ?? 0} {detail.away_team}
-            </dd>
-          </>
-        )}
-      </dl>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Fixture row — clickable, expands detail panel
+// Fixture row
+// Played matches are buttons that navigate to the match detail page.
+// Upcoming/TBD matches are static rows — not interactive.
 // ---------------------------------------------------------------------------
 
 function FixtureRow({
   fixture: f,
-  selected,
-  onToggle,
+  onOpen,
 }: {
   fixture: StaticFixture;
-  selected: boolean;
-  onToggle: () => void;
+  onOpen: () => void;
 }) {
   const played = f.played === 1;
+
+  const inner = (
+    <>
+      <span className="fixture-team fixture-team--home">
+        <span className="fixture-team__flag">{f.home_flag}</span>
+        <span className="fixture-team__name">{f.home_team}</span>
+      </span>
+
+      <span className="fixture-center tnum">
+        {f.group_id && (
+          <span className="group-badge fixture-group-badge">{f.group_id}</span>
+        )}
+        <span className="fixture-score">
+          {played
+            ? `${f.home_goals ?? 0} – ${f.away_goals ?? 0}`
+            : formatKickoff(f.kickoff)}
+        </span>
+      </span>
+
+      <span className="fixture-team fixture-team--away">
+        <span className="fixture-team__name">{f.away_team}</span>
+        <span className="fixture-team__flag">{f.away_flag}</span>
+      </span>
+
+      <span className="fixture-row__chevron" aria-hidden="true">
+        {played ? '›' : ''}
+      </span>
+    </>
+  );
+
   return (
-    <div className={`fixture-row-wrap${selected ? ' fixture-row-wrap--open' : ''}`}>
-      <button
-        className={`fixture-row fixture-row--btn${played ? ' fixture-row--played' : ''}`}
-        onClick={onToggle}
-        aria-expanded={selected}
-      >
-        <span className="fixture-team fixture-team--home">
-          <span className="fixture-team__flag">{f.home_flag}</span>
-          <span className="fixture-team__name">{f.home_team}</span>
-        </span>
-
-        <span className="fixture-center tnum">
-          {f.group_id && (
-            <span className="group-badge fixture-group-badge">{f.group_id}</span>
-          )}
-          <span className="fixture-score">
-            {played
-              ? `${f.home_goals ?? 0} – ${f.away_goals ?? 0}`
-              : formatKickoff(f.kickoff)}
-          </span>
-        </span>
-
-        <span className="fixture-team fixture-team--away">
-          <span className="fixture-team__name">{f.away_team}</span>
-          <span className="fixture-team__flag">{f.away_flag}</span>
-        </span>
-      </button>
-
-      {selected && <MatchDetailPanel matchId={f.match_id} />}
+    <div className="fixture-row-wrap">
+      {played ? (
+        <button
+          className="fixture-row fixture-row--btn fixture-row--played"
+          onClick={onOpen}
+        >
+          {inner}
+        </button>
+      ) : (
+        <div className="fixture-row fixture-row--upcoming">
+          {inner}
+        </div>
+      )}
     </div>
   );
 }
@@ -178,7 +138,7 @@ function FixtureRow({
 
 export function Fixtures() {
   const { fixtures, loading, error } = useFixtures();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const openMatchDetail = useTournamentStore((s) => s.openMatchDetail);
   const [dayIndex, setDayIndex] = useState(0);
   const initialized = useRef(false);
   const touchStartX = useRef<number | null>(null);
@@ -193,11 +153,6 @@ export function Fixtures() {
       setDayIndex(defaultDayIndex(matchDays));
     }
   }, [matchDays]);
-
-  // Clear selected row when day changes
-  useEffect(() => {
-    setSelectedId(null);
-  }, [dayIndex]);
 
   const goPrev = useCallback(() => setDayIndex((i) => Math.max(0, i - 1)), []);
   const goNext = useCallback(
@@ -251,10 +206,6 @@ export function Fixtures() {
   const atStart = dayIndex === 0;
   const atEnd = dayIndex === matchDays.length - 1;
 
-  function toggle(id: string) {
-    setSelectedId((prev) => (prev === id ? null : id));
-  }
-
   return (
     <div
       className="matchday-browser"
@@ -293,8 +244,7 @@ export function Fixtures() {
           <FixtureRow
             key={f.match_id}
             fixture={f}
-            selected={selectedId === f.match_id}
-            onToggle={() => toggle(f.match_id)}
+            onOpen={() => openMatchDetail(f.match_id)}
           />
         ))}
       </div>
